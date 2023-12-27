@@ -7,17 +7,18 @@ namespace Markdown;
 
 public class Parser : IParser
 {
-    private readonly Dictionary<string?, TagType> tagDictionary;
+    private readonly Dictionary<string, TagType> tagDictionary;
     private List<Token> tokenList;
-    private Token? previousToken;
 
-    public Parser(Dictionary<string?, TagType> tagDictionary)
+    public Parser(Dictionary<string, TagType> tagDictionary)
     {
         this.tagDictionary = tagDictionary;
     }
 
     public List<Token> Parse(string text)
-    {
+    { 
+        Token? token;
+        Token? previousToken = null;
         var isEscapeTagActive = false;
         TokenType? previousStatus = null;
         var content = new StringBuilder();
@@ -25,21 +26,16 @@ public class Parser : IParser
         for (var index = 0; index < text.Length; index++)
         {
             var status = DetermineTokenType(text[index].ToString(), content.ToString());
-
-            if (previousStatus == null || 
-                (status == previousStatus
-                  && (status == TokenType.Text
-                  || (status == TokenType.Escape && content.ToString() != @"\")
-                  || (status == TokenType.Tag && content.ToString().IsTagSequenceEnd(text[index].ToString(), tagDictionary)))))
-
-            {
+            if (IsContinuationTag(previousStatus, status,text[index], content.ToString())){ 
                 content.Append(text[index]);
             }
-            else
-            {
-                AddToken((TokenType)previousStatus, content.ToString(), text[index].ToString());
+            else{
+                token = CreateToken((TokenType)previousStatus, content.ToString(), text[index].ToString(), previousToken);
+                previousToken = token;
+                tokenList.Add(token);
                 index--;
                 content.Clear();
+                previousToken = token;
             }
 
             previousStatus = status;
@@ -48,15 +44,16 @@ public class Parser : IParser
                 isEscapeTagActive = true;
             }
         }
-        
-        AddToken((TokenType)previousStatus!, content.ToString(), "");
+
+        token = CreateToken((TokenType)previousStatus!, content.ToString(), "", previousToken);
+        previousToken = token;
+        tokenList.Add(token);
         tokenList.Add(new Token("\n", null, TokenType.LineBreaker));
         return tokenList;
     }
-
-    private void AddToken(TokenType status, string? content, string nextChar)
+    
+    private Token CreateToken(TokenType status, string? content, string nextChar, Token? previousToken)
     {
-        Token? token;
         if (IsEscapeTagActive(previousToken))
         {
             if (status is TokenType.Tag or TokenType.Escape)
@@ -68,20 +65,24 @@ public class Parser : IParser
         if (status == TokenType.Tag && content.IsTag(tagDictionary))
         {
             var tag = Tag.CreateTag(tagDictionary[content], content, previousToken, nextChar);
-            token = new Token(content, tag, status);
-            previousToken = token;
-            tokenList.Add(token);
+            return new Token(content, tag, status);
         }
         else
         {
             status = status == TokenType.Tag ? TokenType.Text : status;
-            token = new Token(content, null, status);
-            tokenList.Add(token);
+            return new Token(content, null, status);
         }
-
-        previousToken = token;
     }
 
+    private bool IsContinuationTag(TokenType? previousStatus, TokenType status, char currentCharacter,string content)
+    {
+        return previousStatus == null ||
+               (status == previousStatus
+                && (status == TokenType.Text
+                    || (status == TokenType.Escape && content != @"\")
+                    || (status == TokenType.Tag &&
+                        content.IsTagSequenceEnd(currentCharacter.ToString(), tagDictionary))));
+    }
     private TokenType DetermineTokenType(string currentChar, string content)
     {
         return currentChar switch

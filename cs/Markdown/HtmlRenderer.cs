@@ -7,10 +7,10 @@ public class HtmlRenderer : IRenderer
 {
     private Tag? previousTag;
     private Stack<Tag>? tagStack;
-    private string closingSomeTags = string.Empty;
 
     public List<Token> HandleTokens(List<Token> tokenList)
     {
+        var closingSomeTags = string.Empty;
         tagStack = new Stack<Tag>();
 
         foreach (var token in tokenList)
@@ -33,10 +33,10 @@ public class HtmlRenderer : IRenderer
                     closingSomeTags = tag.ReplacementForClosingTag + closingSomeTags;
                     break;
                 case TokenType.Escape:
-                    token.Content = "";
+                    token.Content = string.Empty ;
                     break;
                 case TokenType.LineBreaker:
-                    token.Content = closingSomeTags + token.Content;
+                    token.Content = $"{closingSomeTags}{token.Content}";
                     closingSomeTags = string.Empty;
                     break;
                 default:
