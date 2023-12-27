@@ -74,7 +74,7 @@ public class ParserTests
     };
 
     [TestCaseSource(nameof(ConstructorParserExpectedTokenList))]
-    public void Parser_ShouldReturnCorrectTokenList(string text, List<Token> expectedTokens)
+    public void ParseTests(string text, List<Token> expectedTokens)
     {
         var parser = new Parser(tagDictionary);
         parser.Parse(text).Should().BeEquivalentTo(expectedTokens);

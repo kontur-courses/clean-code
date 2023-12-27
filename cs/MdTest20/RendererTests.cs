@@ -173,7 +173,7 @@ public class RendererTests
     };
 
     [TestCaseSource(nameof(ConstructorRendererTokenList))]
-    public void Parser_ShouldReturnCorrectTokenList(List<Token> tokens, List<Token> expectedTokens)
+    public void HandleTokensTests(List<Token> tokens, List<Token> expectedTokens)
     {
        var renderer = new HtmlRenderer();
         renderer.HandleTokens(tokens).Should().BeEquivalentTo(expectedTokens);
