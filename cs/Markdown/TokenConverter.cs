@@ -5,7 +5,7 @@ namespace Markdown;
 
 public class TokenConverter
 {
-    public string TokensToString(IEnumerable<IToken> tokens)
+    public string TokensToString(IEnumerable<Token> tokens)
     {
         var htmlString = new StringBuilder();
         

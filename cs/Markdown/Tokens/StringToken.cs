@@ -2,13 +2,12 @@ using Markdown.Tags;
 
 namespace Markdown.Tokens;
 
-public class StringToken(string str) : IToken
+public class StringToken(string str) : Token
 {
-    public string Str { get; } = str;
-    public List<IToken> Inner { get; } = new();
-    public ITag Tag { get; } = new StringTag();
+    public override string Str { get; } = str;
+    protected override Tag Tag { get; } = new StringTag();
     
-    public string MdString()
+    public override string MdString()
     {
         return Str;
     }

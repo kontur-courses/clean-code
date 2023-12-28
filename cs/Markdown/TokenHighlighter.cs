@@ -5,23 +5,19 @@ namespace Markdown;
 
 public class TokenHighlighter
 {
-    public static List<IToken> Excluded { get; } = new();
+    public static List<Token> Excluded { get; } = new();
 
-    private readonly List<ITag> tags = new()
+    private readonly List<Tag> tags = new()
     {
+        new LinkTag(),
         new StrongTag(),
         new EmTag(),
         new HeaderTag()
     };
 
-    public IEnumerable<IToken> HighlightTokens(string markdownText)
+    public IEnumerable<Token> HighlightTokens(string markdownText)
     {
-        return GetTokens(markdownText);
-    }
-
-    private IEnumerable<IToken> GetTokens(string markdownText)
-    {
-        var tokens = new List<IToken>();
+        var tokens = new List<Token>();
 
         var count = 0;
         for (var i = 0; i < markdownText.Length; i++)
@@ -36,7 +32,7 @@ public class TokenHighlighter
 
                 var added = tokens.Last();
                 i += added.Str.Length - 1;
-                added.AddInner(GetTokens(added.GetBody()));
+                added.AddInner(HighlightTokens(added.GetBody()));
             }
             else count++;
         }
@@ -46,33 +42,4 @@ public class TokenHighlighter
 
         return tokens;
     }
-
-    // // запихать в token
-    // public void RemoveStrongInsideEmTags(ref Dictionary<Type, List<PairTagInfo>> pairTagsIndexes)
-    // {
-    //     var emTagInfos = pairTagsIndexes[typeof(EmToken)];
-    //     var strongTagInfos = pairTagsIndexes[typeof(StrongToken)];
-    //
-    //     var i = 0;
-    //     var j = 0;
-    //     while (true)
-    //     {
-    //         if (i >= emTagInfos.Count) break;
-    //         if (j >= strongTagInfos.Count) break;
-    //
-    //         var emTagInfo = emTagInfos[i];
-    //         var strongTagInfo = strongTagInfos[j];
-    //
-    //         // condition
-    //         if (emTagInfo.OpenIdx < strongTagInfo.OpenIdx && emTagInfo.CloseIdx > strongTagInfo.CloseIdx)
-    //         {
-    //             // action
-    //             strongTagInfos.RemoveAt(j);
-    //             continue;
-    //         }
-    //
-    //         if (emTagInfo.OpenIdx < strongTagInfo.OpenIdx) i++;
-    //         else j++;
-    //     }
-    // }
 }

@@ -2,18 +2,18 @@ using Markdown.Tokens;
 
 namespace Markdown.Tags;
 
-public class HeaderTag : ITag
+public class HeaderTag : Tag
 {
-    public string MdOpen => "# ";
-    public string MdClose => "\n";
-    public string HtmlOpen => "<h1>";
-    public string HtmlClose => "</h1>";
+    public override string MdOpen => "# ";
+    public override string MdClose => "\n";
+    public override string HtmlOpen => "<h1>";
+    public override string HtmlClose => "</h1>";
 
-    public IToken? TryFindToken(string text, int idx)
+    public override Token? TryFindToken(string text, int idx)
     {
-        var indexOfOpen = text.IndexOf(MdOpen, idx, StringComparison.Ordinal);
+        var indexOfOpen = OpenIdx(text, idx);
 
-        if (indexOfOpen != idx || !IsOpenTag(text, idx) || text.IsShielded(idx))
+        if (indexOfOpen == -1)
             return null;
 
         var indexOfClose = text.IndexOf(MdClose, idx, StringComparison.Ordinal);
@@ -23,13 +23,13 @@ public class HeaderTag : ITag
             : new HeaderToken(text.Substring(indexOfOpen, indexOfClose - indexOfOpen + MdClose.Length));
     }
 
-    public bool IsOpenTag(string text, int idx)
+    protected override bool IsOpenTag(string text, int idx)
     {
         return text.IsOpenOfParagraph(idx);
     }
 
-    public bool IsCloseTag(string text, int idx)
+    protected override bool IsCloseTag(string text, int idx)
     {
-        throw new NotImplementedException();
+        return true;
     }
 }

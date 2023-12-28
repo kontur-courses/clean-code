@@ -4,8 +4,6 @@ public class Md
 {
     public string Render(string markdownText)
     {
-        var tokens = new TokenHighlighter().HighlightTokens(markdownText);
-
-        return new TokenConverter().TokensToString(tokens);
+        return new TokenConverter().TokensToString(new TokenHighlighter().HighlightTokens(markdownText));
     }
 }

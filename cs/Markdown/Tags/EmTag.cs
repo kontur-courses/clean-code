@@ -2,42 +2,24 @@ using Markdown.Tokens;
 
 namespace Markdown.Tags;
 
-public class EmTag : ITag
+public class EmTag : Tag
 {
-    public string MdOpen => "_";
-    public string MdClose => "_";
-    public string HtmlOpen => "<em>";
-    public string HtmlClose => "</em>";
+    public override string MdOpen => "_";
+    public override string MdClose => "_";
+    public override string HtmlOpen => "<em>";
+    public override string HtmlClose => "</em>";
 
-    public IToken? TryFindToken(string text, int idx)
+    public override Token? TryFindToken(string text, int idx)
     {
-        var indexOfOpen = text.IndexOf(MdOpen, idx, StringComparison.Ordinal);
+        var indexOfOpen = OpenIdx(text, idx);
 
-        if (indexOfOpen != idx || !IsOpenTag(text, idx) || text.IsShielded(idx))
-            return null;
+        var indexOfClose = CloseIdx(text, idx);
 
-        var indexOfClose = 0;
-        while (idx < text.Length)
-        {
-            indexOfClose = text.IndexOf(MdClose, idx + 1, StringComparison.Ordinal);
-
-            if (indexOfClose == -1)
-                return null;
-
-            if (text.IsShielded(idx) || !IsCloseTag(text, indexOfClose))
-            {
-                idx = indexOfClose;
-                continue;
-            }
-
-            break;
-        }
-
-        return IsIntersectWithStrongTag(text, indexOfOpen, indexOfClose)
+        return indexOfOpen == -1 || indexOfClose == -1 || IsIntersectWithStrongTag(text, indexOfOpen, indexOfClose)
             ? null
             : new EmToken(text.Substring(indexOfOpen, indexOfClose - indexOfOpen + MdClose.Length));
     }
-    
+
     private bool IsIntersectWithStrongTag(string text, int indexOfOpen, int indexOfClose)
     {
         var tag = new StrongTag();
@@ -51,27 +33,28 @@ public class EmTag : ITag
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    public bool IsOpenTag(string text, int idx)
+    protected override bool IsOpenTag(string text, int idx)
     {
-        if (idx > 0 && text[idx - 1] == '_' 
+        if (idx > 0 && text[idx - 1] == '_'
             || text.Length > idx + MdOpen.Length && text[idx + MdOpen.Length] == '_')
             return false;
-        
+
         return (text.Length <= idx + MdOpen.Length || text[idx + MdOpen.Length] != ' ')
                && (idx == 0 || (!char.IsLetter(text[idx - 1]) && !char.IsDigit(text[idx - 1])));
     }
 
-    public bool IsCloseTag(string text, int idx)
+    protected override bool IsCloseTag(string text, int idx)
     {
-        if (idx > 0 && text[idx - 1] == '_' 
+        if (idx > 0 && text[idx - 1] == '_'
             || text.Length > idx + MdClose.Length && text[idx + MdClose.Length] == '_')
             return false;
-        
-        return text[idx - 1] != ' ' && (text.Length <= idx + MdClose.Length 
-            || !char.IsLetter(text[idx + MdClose.Length]) && !char.IsDigit(text[idx + MdClose.Length]));
+
+        return text[idx - 1] != ' ' && (text.Length <= idx + MdClose.Length
+                                        || !char.IsLetter(text[idx + MdClose.Length]) &&
+                                        !char.IsDigit(text[idx + MdClose.Length]));
     }
 }
