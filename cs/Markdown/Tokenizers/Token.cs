@@ -14,5 +14,6 @@
         Italic,
         Header,
         Escape,
+        BulletList
     }
 }

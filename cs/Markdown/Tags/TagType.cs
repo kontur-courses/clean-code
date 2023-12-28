@@ -8,6 +8,7 @@
         Header,
         Line,
         LastLine,
-        Image
+        BulletList,
+        BulletListRow
     }
 }

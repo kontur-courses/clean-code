@@ -178,8 +178,8 @@ namespace Markdown.Parsers
             var lIndex = token.Index - 1;
             var rIndex = token.Index + token.Offset;
 
-            var left = token.Index == 0 ? false : !char.IsWhiteSpace(text[lIndex]);
-            var right = token.Index == text.Length - token.Offset ? false : 
+            var left = lIndex < 0 ? false : !char.IsWhiteSpace(text[lIndex]);
+            var right = rIndex >= text.Length - 1 ? false : 
                 !char.IsWhiteSpace(text[rIndex]);
 
             return left && right;

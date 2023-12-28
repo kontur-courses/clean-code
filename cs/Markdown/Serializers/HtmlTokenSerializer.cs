@@ -16,7 +16,9 @@ namespace Markdown.Serializers
                 { TagType.Italic, ("<em>", "</em>") },
                 { TagType.Bold, ("<strong>", "</strong>") },
                 { TagType.Line, ("", "<br>") },
-                { TagType.LastLine, ("", "") }            
+                { TagType.LastLine, ("", "") },
+                { TagType.BulletList, ("<ul>", "</ul>") },
+                { TagType.BulletListRow, ("<li>", "</li>") },
             };
         }
 
@@ -24,7 +26,7 @@ namespace Markdown.Serializers
         {
             var sb = new StringBuilder();
 
-            foreach (var tag in document.Lines)
+            foreach (var tag in document.Tags)
             {
                 sb.Append(Translations[tag.Type].openTag);
                 Traverse(tag);

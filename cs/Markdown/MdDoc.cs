@@ -4,6 +4,6 @@ namespace Markdown
 {
     public class MdDoc
     {
-        public readonly List<NestedTag> Lines = new List<NestedTag>();
+        public readonly List<NestedTag> Tags = new List<NestedTag>();
     }
 }

@@ -15,6 +15,7 @@ namespace Markdown.Parsers
                 ("__", TokenType.Bold),
                 ("# ", TokenType.Header),
                 ("\\", TokenType.Escape),
+                ("* ", TokenType.BulletList),
             };
 
             TypeToSymbols = _translations.ToDictionary(x => x.type, x=> x.symbols);
@@ -23,7 +24,7 @@ namespace Markdown.Parsers
             Translations = _translations.OrderByDescending(x => x).ToArray();
         }
 
-        public (Token[] tokens, string newText) Tokenize(string text)
+        public (Token[] tokens, string text) Tokenize(string text)
         {
             var rawTokens = TokenizeRaw(text);
             return ApplyEscapes(rawTokens, text);

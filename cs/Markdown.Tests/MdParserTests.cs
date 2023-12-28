@@ -73,5 +73,21 @@ namespace Markdown.Tests
         {
             return renderer.Render(markup);
         }
+
+        [TestCase(@"\* a\n* v", ExpectedResult = @"* a<br><ul><li>v</li></ul>", 
+            TestName = "{m}_EscapedRow")]
+        [TestCase(@"* a\n* v", ExpectedResult = @"<ul><li>a<br></li><li>v</li></ul>", 
+            TestName = "{m}_TwoRowsList")]
+        [TestCase(@"* a\nv", ExpectedResult = @"<ul><li>a<br></li></ul>v", 
+            TestName = "{m}_SimpleLineAfterList")]
+        [TestCase(@"* a\nv\n* c", ExpectedResult = @"<ul><li>a<br></li></ul>v<br><ul><li>c</li></ul>", 
+            TestName = "{m}_TwoListsSimpleLineBetween")]
+        [TestCase(@"* # _a_ __b__", 
+            ExpectedResult = @"<ul><li><h1><em>a</em> <strong>b</strong></h1></li></ul>", 
+            TestName = "{m}_ListRowWithMultipleTags")]
+        public string Render_CorrectBulletList_ShouldRender(string markup)
+        {
+            return renderer.Render(markup);
+        }
     }
 }
