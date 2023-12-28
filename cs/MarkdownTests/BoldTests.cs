@@ -1,43 +1,26 @@
-﻿namespace MarkdownTests;
+﻿using Markdown;
+
+namespace MarkdownTests;
 
 [TestFixture]
 public class BoldTests
 {
+    private Md md;
     
-    [Test]
-    public void Render_ShouldBold_WhenDoubleUnderlined()
+    [SetUp]
+    public void Init()
     {
-        Markdown.Md.Render("Hello __Peter__ ?")
-            .Should().Be(@"Hello <strong>Peter</strong> ?");
+        var converter = new HtmlConverter();
+        var tokenSearcher = new ParseTokens();
+        md = new Md(tokenSearcher, converter);
     }
-
-    [Test]
-    public void Render_ShouldBold_WhenPairIsFull()
-    {
-        Markdown.Md.Render("I __go to home__ when __cold")
-            .Should().Be(@"I <strong>go to home</strong> when __cold");
-    }
-
     
-
-    [Test]
-    public void Render_ShouldNotBold_WhenThereAreDigits()
+    [TestCase("Hello __Peter__ ?", @"Hello <strong>Peter</strong> ?", TestName = "Converted bold when when it is written correctly")]
+    [TestCase("I __go to home__ when __cold", @"I <strong>go to home</strong> when __cold", TestName = "Converted bold when pair bold is full")]
+    [TestCase("I __have 1 bread__", @"I <strong>have 1 bread</strong>", TestName = "Converted bold when the tag is not in the number")]
+    [TestCase("I have1__2 bread__", @"I have1__2 bread__", TestName = "It is not converted bold when the tag is in the number")]
+    public void RenderBold(string markdown, string html)
     {
-        Markdown.Md.Render("I __have 1 bread__")
-            .Should().Be(@"I __have 1 bread__");
-    }
-
-    [Test]
-    public void Render_ShouldNotBold_WhenInDifferentWords()
-    {
-        Markdown.Md.Render("Me__to ha__ve")
-            .Should().Be(@"Me__to ha__ve");
-    }
-
-    [Test]
-    public void Render_ShouldBold_WhenInDifferentPartsOfSameWord()
-    {
-        Markdown.Md.Render("I __ha__ve")
-            .Should().Be(@"I <strong>ha</strong>ve");
+        md.Render(markdown).Should().Be(html);
     }
 }

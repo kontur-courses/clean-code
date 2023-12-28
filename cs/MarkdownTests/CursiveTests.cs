@@ -1,41 +1,28 @@
-﻿namespace MarkdownTests;
+﻿using Markdown;
+
+namespace MarkdownTests;
 
 [TestFixture]
 public class CursiveTests
 {
-    [Test]
-    public void Render_ShouldCursive_WhenPairIsFull()
+    private Md md;
+    
+    [SetUp]
+    public void Init()
     {
-        Markdown.Md.Render("I _go_ to _home")
-            .Should().Be(@"I <em>go</em> to _home");
+        var converter = new HtmlConverter();
+        var tokenSearcher = new ParseTokens();
+        md = new Md(tokenSearcher, converter);
     }
-
-    [Test]
-    public void Render_ShouldCursive_WhenUnderlined()
+    
+    [TestCase("I _go_ to _home", @"I <em>go</em> to _home", TestName = "Converted cursive when only pair is full")]
+    [TestCase("_home_", @"<em>home</em>", TestName = "Converted cursive when it is written correctly")]
+    [TestCase("I _write 1 digit_ in text", @"I <em>write 1 digit</em> in text", TestName = "Converted cursive when the tag is not in the number")]
+    [TestCase("I have1_2 bread_", @"I have1_2 bread_", TestName = "It is not converted cursive when the tag is in the number")]
+    [TestCase("Hom_e h_ot", @"Hom_e h_ot", TestName = "It is not converted cursive when tag in different words")]
+    [TestCase("No _so_lid", @"No <em>so</em>lid", TestName = "Converted cursive when in different parts of same word")]
+    public void Render_Cursive(string markdownText, string htmlText)
     {
-        Markdown.Md.Render("_home_")
-            .Should().Be(@"<em>home</em>");
-    }
-
-    [Test]
-    public void Render_ShouldNotCursive_WhenThereAreDigits()
-    {
-        Markdown.Md.Render("I _write 1 digit_ in text")
-            .Should().Be(@"I _write 1 digit_ in text");
-    }
-
-
-    [Test]
-    public void Render_ShouldNotCursive_WhenInDifferentWords()
-    {
-        Markdown.Md.Render("Hom_e h_ot")
-            .Should().Be(@"Hom_e h_ot");
-    }
-
-    [Test]
-    public void Render_ShouldCursive_WhenInDifferentPartsOfSameWord()
-    {
-        Markdown.Md.Render("No _so_lid")
-            .Should().Be(@"No <em>so</em>lid");
+        md.Render(markdownText).Should().Be(htmlText);
     }
 }
