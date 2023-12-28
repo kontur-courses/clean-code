@@ -1,6 +1,4 @@
-﻿using Markdown.Tokens;
-
-namespace Markdown.Parsers
+﻿namespace Markdown.Parsers
 {
     public interface IMdParser
     {

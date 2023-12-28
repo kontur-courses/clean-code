@@ -1,10 +1,13 @@
 ﻿namespace Markdown.Tokens
 {
-    public enum TokenType
+    public enum TagType
     {
         Text,
         Bold,
         Italic,
-        Header
+        Header,
+        Line,
+        LastLine,
+        Image
     }
 }
