@@ -11,8 +11,8 @@ public class BoldTests
     public void Init()
     {
         var converter = new HtmlConverter();
-        var tokenSearcher = new ParseTokens();
-        md = new Md(tokenSearcher, converter);
+        var tokens = new ParseTokens();
+        md = new Md(tokens, converter);
     }
     
     [TestCase("Hello __Peter__ ?", @"Hello <strong>Peter</strong> ?", TestName = "Converted bold when when it is written correctly")]

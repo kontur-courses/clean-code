@@ -11,8 +11,8 @@ public class BoldAndCursiveTests
     public void Init()
     {
         var converter = new HtmlConverter();
-        var tokenSearcher = new ParseTokens();
-        md = new Md(tokenSearcher, converter);
+        var tokens = new ParseTokens();
+        md = new Md(tokens, converter);
     }
     
     [TestCase("I _go __in_ home__", @"I _go __in_ home__", TestName = "It is not converted cursive and bold when intersect")]

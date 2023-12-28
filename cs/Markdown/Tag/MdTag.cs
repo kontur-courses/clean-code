@@ -2,15 +2,13 @@
 
 public class MdTag
 {
-    private readonly TagType type;
-    private readonly int index;
-
     public MdTag(TagType type, int index)
-    {
-        this.type = type;
-        this.index = index;
+    { 
+        Type = type;
+        Index = index;
     }
 
-    public TagType Type => type;
-    public int Index => index;
+    public TagType Type { get; }
+
+    public int Index { get; }
 }

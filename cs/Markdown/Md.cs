@@ -2,34 +2,19 @@
 
 namespace Markdown;
 
-public class Program
+public class Md
 {
-    static void Main(string[] args)
+    private ParseTokens tokens;
+    private HtmlConverter converter;
+    public Md(ParseTokens tokens, HtmlConverter converter)
     {
-        Console.WriteLine(Md.Render("_Trofimov Nikita_"));
+        this.tokens = tokens;
+        this.converter = converter;
     }
-}
-public static class Md
-{
-    public static string Render(string markdownText)
-    {
-        var convertedString = markdownText
-            .Split('\n', '\r')
-            .Select(ConvertMarkdownToHtml).ToList();
 
-        return string.Join('\n', convertedString);
-    }
-    private static string ConvertMarkdownToHtml(string line)
+    public string Render(string markdownText)
     {
-        var initialFormat = StringFormatter.GetStringFormat(line);
-        var formattedWithPrimaryRules = PrimaryRulesSetter.SetPrimaryMarkdown(initialFormat);
-        var сheckConditions = PairInteractionRules.HandleIntersectingPairs(formattedWithPrimaryRules)
-            .CheckEmpty()
-            .RemoveBoldInItalic()
-            .CheckForDigits()
-            .CheckInDifferentWordParts()
-            .CheckStartOrEndWithSpace();
-    
-        return сheckConditions.ConvertToFormat();
+        var tokens = this.tokens.ParserTokens(markdownText);
+        return converter.ConvertMarkdownToHtml(markdownText, tokens);
     }
 }

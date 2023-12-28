@@ -11,8 +11,8 @@ public class CursiveTests
     public void Init()
     {
         var converter = new HtmlConverter();
-        var tokenSearcher = new ParseTokens();
-        md = new Md(tokenSearcher, converter);
+        var tokens = new ParseTokens();
+        md = new Md(tokens, converter);
     }
     
     [TestCase("I _go_ to _home", @"I <em>go</em> to _home", TestName = "Converted cursive when only pair is full")]

@@ -2,14 +2,14 @@
 
 public class HtmlTag
 {
-    private readonly string markup;
+    private readonly string tag;
 
-    public HtmlTag(TagType type, int index, bool isClosing, string htmlMarkup)
+    public HtmlTag(TagType type, int index, bool isClosing, string htmlTag)
     {
-        this.Type = type;
-        this.Index = index;
-        this.IsClosing = isClosing;
-        markup = htmlMarkup;
+        Type = type;
+        Index = index;
+        IsClosing = isClosing;
+        tag = htmlTag;
     }
 
     public TagType Type { get; }
@@ -18,12 +18,12 @@ public class HtmlTag
 
     public bool IsClosing { get; }
 
-    public string GetMarkup()
+    public string GetTag()
     {
         if (Type == TagType.EscapedSymbol)
             return "";
         
-        return IsClosing ? $"</{markup}>" : $"<{markup}>";
+        return IsClosing ? $"</{tag}>" : $"<{tag}>";
     }
 
 }

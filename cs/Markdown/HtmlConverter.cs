@@ -5,7 +5,7 @@ namespace Markdown;
 
 public class HtmlConverter
 {
-    private static readonly Dictionary<TagType, string> TagsMarkup = TagConfig.HtmlTags;
+    private static readonly Dictionary<TagType, string> TagType = TagConfig.HtmlTags;
 
     public string ConvertMarkdownToHtml(string markdownText, List<Token> tokens)
     {
@@ -16,7 +16,7 @@ public class HtmlConverter
         foreach (var tag in htmlTags)
         {
             var mdTagLength = 1;
-            if (tag.Type == TagType.Bold)
+            if (tag.Type == Tag.TagType.Bold)
             {
                 mdTagLength = 2;
                 shift--;
@@ -24,12 +24,12 @@ public class HtmlConverter
 
             if (tag.IsClosing)
             {
-                if (tag.Type == TagType.Header)
+                if (tag.Type == Tag.TagType.Header)
                 {
                     mdTagLength = 0;
                     shift++;
                 }
-                else if (tag.Type == TagType.EscapedSymbol)
+                else if (tag.Type == Tag.TagType.EscapedSymbol)
                 {
                     mdTagLength = 0;
                     shift++;
@@ -37,7 +37,7 @@ public class HtmlConverter
             }
 
             resultHtml.Remove(tag.Index + shift, mdTagLength);
-            resultHtml.Insert(tag.Index + shift, tag.GetMarkup());
+            resultHtml.Insert(tag.Index + shift, tag.GetTag());
             shift = resultHtml.Length - markdownText.Length;
         }
 
@@ -49,8 +49,8 @@ public class HtmlConverter
         var htmlTags = new List<HtmlTag>();
         foreach (var token in tokens)
         {
-            htmlTags.Add(new HtmlTag(token.TagType, token.StartIndex, false, TagsMarkup[token.TagType]));
-            htmlTags.Add(new HtmlTag(token.TagType, token.EndIndex, true, TagsMarkup[token.TagType]));
+            htmlTags.Add(new HtmlTag(token.TagType, token.StartIndex, false, TagType[token.TagType]));
+            htmlTags.Add(new HtmlTag(token.TagType, token.EndIndex, true, TagType[token.TagType]));
         }
 
         return htmlTags.OrderBy(tag => tag.Index).ToList();
