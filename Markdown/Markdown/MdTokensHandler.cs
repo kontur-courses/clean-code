@@ -1,8 +1,8 @@
-﻿namespace Markdown.Extensions;
+﻿namespace Markdown;
 
-public static class MdTokensHandler
+internal static class MdTokensHandler
 {
-    public static LinkedList<IToken> HandleTokens(this LinkedList<IToken> tokens)
+    public static IEnumerable<IToken> HandleTokens(this LinkedList<IToken> tokens)
     {
         var stack = new Stack<MdTagToken>();
 
@@ -34,10 +34,22 @@ public static class MdTokensHandler
         while (openedTags.Count > 0)
         {
             var openedTag = openedTags.Pop();
-            if (openedTag.Tag is SingleTag)
+            if (openedTag.Tag is SingleTag singleTag && singleTag.IsOpenedCorrectly(openedTag.AdjacentSymbols))
             {
                 openedTag.Status = Status.Opened;
                 endOfLineToken.List!.AddBefore(endOfLineToken, new MdTagToken(openedTag.Tag) {Status = Status.Closed});
+
+                if (singleTag.HtmlContainer == null) continue;
+                
+                var openedTokenNode = endOfLineToken.List!.Find(openedTag);
+                if (openedTokenNode!.Previous?.Previous is not {Value: MdTagToken} prevTagToken 
+                    || prevTagToken.Value is MdTagToken prevTag && prevTag.Tag != openedTag.Tag)
+                    openedTokenNode.List!.AddBefore(openedTokenNode, new MdTextToken(singleTag.HtmlContainer));
+
+                if (endOfLineToken.Next is not {Value: MdTagToken} 
+                        || endOfLineToken.Next.Value is MdTagToken nextTag && nextTag.Tag != openedTag.Tag)
+                    endOfLineToken.List!.AddBefore(endOfLineToken,
+                        new MdTextToken(singleTag.HtmlContainer.Insert(1, "/")));
             }
             else
                 openedTag.Status = Status.Broken;
