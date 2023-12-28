@@ -14,7 +14,7 @@ public class MdEscapeToken : IToken
         if (token is MdTagToken tagToken)
         {
             isEscaped = true;
-            tagToken.SetStatus(Status.Broken);
+            tagToken.Status = Status.Broken;
         }
     }
 }

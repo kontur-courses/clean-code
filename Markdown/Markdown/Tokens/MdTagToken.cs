@@ -3,19 +3,22 @@
 public class MdTagToken : IToken
 {
     public ITag Tag { get; }
-    public Status Status { get; private set; }
+    public Status Status { get; set; }
     public string Value => GetValueByStatus();
     public int Length => Tag.MdTag.Length;
-    public (char, char) Context;
+    public (char Left, char Right) AdjacentSymbols { get; private set; }
+    public bool IsInsideWord => char.IsLetterOrDigit(AdjacentSymbols.Left) && char.IsLetterOrDigit(AdjacentSymbols.Right);
 
     public MdTagToken(ITag tag)
     {
         Tag = tag;
     }
 
-    public void SetStatus(Status status)
+    public void SetContext(char left, char right)
     {
-        Status = status;
+        if (char.IsDigit(left) || char.IsDigit(right))
+            Status = Status.Broken;
+        AdjacentSymbols = (left, right);
     }
 
     private string GetValueByStatus()
