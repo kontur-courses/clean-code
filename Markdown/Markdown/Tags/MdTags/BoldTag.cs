@@ -1,7 +1,7 @@
 ﻿namespace Markdown;
 
-public class BoldTag : ITag
+public class BoldTag : PairTag
 {
-    public string MdTag => "__";
-    public string HtmlTag => "<strong>";
+    public override string MdTag => "__";
+    public override string HtmlTag => "<strong>";
 }

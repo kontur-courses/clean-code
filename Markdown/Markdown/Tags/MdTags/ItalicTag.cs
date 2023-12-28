@@ -1,7 +1,8 @@
 ﻿namespace Markdown;
 
-public class ItalicTag : ITag
+public class ItalicTag : PairTag
 {
-    public string MdTag => "_";
-    public string HtmlTag => "<em>";
+    public override string MdTag => "_";
+    public override string HtmlTag => "<em>";
+    protected override IEnumerable<PairTag> ProhibitedInside => new PairTag[] {new BoldTag()};
 }

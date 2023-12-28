@@ -1,7 +1,7 @@
 ﻿namespace Markdown;
 
-public class HeaderTag : ITag
+public class HeaderTag : SingleTag
 {
-    public string MdTag => "# ";
-    public string HtmlTag => "<h1>";
+    public override string MdTag => "# ";
+    public override string HtmlTag => "<h1>";
 }
