@@ -1,3 +1,3 @@
 ﻿using Markdown;
 
-Console.WriteLine(new Md().Render("# Заголовок __с _разными_ символами__"));
+Console.WriteLine(new Md().Render("__a _b_ a__"));

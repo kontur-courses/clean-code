@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Markdown;
-using Markdown.Tags;
 
 namespace MarkdownTests;
 
@@ -16,15 +15,7 @@ public class StringExtensionsTests
     {
         text.ReplaceShieldSequences().Should().Be(expected);
     }
-
-    [TestCase("hello", 0, 5)]
-    [TestCase("hello\nworld", 0, 5)]
-    [TestCase("hello\nworld", 5, 11)]
-    public void CloseIndexOfParagraph(string text, int idx, int expected)
-    {
-        text.CloseIndexOfParagraph(idx).Should().Be(expected);
-    }
-
+    
     [TestCase(@"\a", 1, true)]
     [TestCase(@"\\a", 2, false)]
     [TestCase(@"\\\a", 3, true)]
@@ -39,11 +30,5 @@ public class StringExtensionsTests
     public void IsOpenOfParagraph(string text, int idx, bool expected)
     {
         text.IsOpenOfParagraph(idx).Should().Be(expected);
-    }
-
-    [TestCaseSource(typeof(StringExtensionsDataSet), nameof(StringExtensionsDataSet.IsTagCases))]
-    public void ShouldReturn_(string text, ITag tag, int idx, bool isOpen, bool expected)
-    {
-        text.IsTag(tag, idx, isOpen).Should().Be(expected);
     }
 }
