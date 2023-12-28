@@ -1,4 +1,7 @@
-﻿namespace Markdown;
+﻿using Markdown.Tags.MdTags;
+using Markdown.Tokens;
+
+namespace Markdown;
 
 internal static class MdTokensHandler
 {

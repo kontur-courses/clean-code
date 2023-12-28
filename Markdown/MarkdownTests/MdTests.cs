@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using FluentAssertions;
 using Markdown;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace MarkdownTests;
 

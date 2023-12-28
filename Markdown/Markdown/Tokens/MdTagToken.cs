@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using Markdown.Tags;
+
+namespace Markdown.Tokens;
 
 public class MdTagToken : IToken
 {

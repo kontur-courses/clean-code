@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using Markdown;
+using Markdown.Tags;
+using Markdown.Tags.MdTags;
+using Markdown.Tokens;
 
 namespace MarkdownTests;
 

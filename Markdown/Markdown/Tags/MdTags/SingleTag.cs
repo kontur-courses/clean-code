@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Tags.MdTags;
 
 public abstract class SingleTag : ITag
 {

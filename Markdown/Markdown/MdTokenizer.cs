@@ -1,4 +1,7 @@
-﻿namespace Markdown;
+﻿using Markdown.Tags;
+using Markdown.Tokens;
+
+namespace Markdown;
 
 public class MdTokenizer
 {

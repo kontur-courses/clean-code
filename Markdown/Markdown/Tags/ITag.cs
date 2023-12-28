@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Tags;
 
 public interface ITag
 {
