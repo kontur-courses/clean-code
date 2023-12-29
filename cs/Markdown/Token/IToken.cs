@@ -9,6 +9,6 @@ public interface IToken
     bool IsClosed { get; set; }
     bool IsParametrized { get; }
     List<string> Parameters { get; }
-    int TokenSymbolsShift { get; set; }
+    int TokenSymbolsShift { get; }
     bool IsValid(string source, List<IToken> tokens, IToken currentToken);
 }

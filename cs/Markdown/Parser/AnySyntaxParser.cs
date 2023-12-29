@@ -6,7 +6,6 @@ namespace Markdown.Parser;
 
 public class AnySyntaxParser : IParser
 {
-    private string source;
     private readonly IMarkupToTokenSyntax syntax;
     private readonly IReadOnlyDictionary<string, Func<int, IToken>> stringToToken;
 
@@ -18,14 +17,13 @@ public class AnySyntaxParser : IParser
 
     public IList<IToken> ParseTokens(string source)
     {
-        this.source = source;
-        var tags = FindAllTags();
+        var tags = FindAllTags(source);
         tags = RemoveEscapedTags(tags);
-        tags = ValidateTagPositioning(tags);
+        tags = ValidateTagPositioning(tags, source);
         return tags;
     }
 
-    public IList<IToken> FindAllTags()
+    public IList<IToken> FindAllTags(string source)
     {
         var tags = new List<IToken>();
         var possibleTag = new StringBuilder();
@@ -85,7 +83,7 @@ public class AnySyntaxParser : IParser
         return result;
     }
 
-    public IList<IToken> ValidateTagPositioning(IEnumerable<IToken> tags)
+    public IList<IToken> ValidateTagPositioning(IEnumerable<IToken> tags, string source)
     {
         var result = new List<IToken>();
         var openedTags = new Dictionary<string, IToken>();

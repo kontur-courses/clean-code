@@ -4,7 +4,7 @@ public class NewLineToken : IToken
 {
     private const bool HasPair = false;
     private readonly string tokenSeparator = "\n";
-    public int Position { get; set; }
+    public int Position { get; }
     public int Length => tokenSeparator.Length;
     public string Separator => tokenSeparator;
     public bool IsPair => HasPair;

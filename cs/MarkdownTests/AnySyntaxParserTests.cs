@@ -28,7 +28,7 @@ public class AnySyntaxParserTests
     {
         sut.ParseTokens(input);
 
-        var tokens = sut.FindAllTags();
+        var tokens = sut.FindAllTags(input);
 
         tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
     }
@@ -49,7 +49,7 @@ public class AnySyntaxParserTests
     {
         sut.ParseTokens(input);
 
-        var tokens = sut.ValidateTagPositioning(tokensToParse);
+        var tokens = sut.ValidateTagPositioning(tokensToParse, input);
 
         tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
     }
