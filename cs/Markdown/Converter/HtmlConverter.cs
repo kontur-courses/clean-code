@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Tracing;
-using System.Text;
+﻿using System.Text;
 using Markdown.Tags;
 
 namespace Markdown.Converter

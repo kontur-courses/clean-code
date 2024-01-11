@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Converter;
 using Markdown.TokenSearcher;
-using System.Diagnostics;
+
 
 namespace Markdown.Tests
 {

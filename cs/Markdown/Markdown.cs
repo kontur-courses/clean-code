@@ -1,5 +1,6 @@
 ﻿using Markdown.TokenSearcher;
 using Markdown.Converter;
+
 namespace Markdown
 {
     public class Markdown

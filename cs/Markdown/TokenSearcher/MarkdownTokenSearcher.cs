@@ -1,7 +1,4 @@
 ﻿using Markdown.Tags;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Net.Http.Headers;
 
 namespace Markdown.TokenSearcher
 {
