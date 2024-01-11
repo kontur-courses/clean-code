@@ -5,9 +5,10 @@ namespace Markdown.TokenSearcher
     public class MarkdownTokenSearcher : ITokenSearcher
     {
         private Stack<MdTag> needClosingTags;
-        private Queue<TagType> offsetTags;
-        private Dictionary<TagType, TagType> differentTagTypes = MarkdownConfig.DifferentTagTypes;
-        private Dictionary<TagType, string> mdTags = MarkdownConfig.MdTags;
+        private Queue<Tag> offsetTags;
+        private Dictionary<Tag, Tag> differentTagTypes = MarkdownConfig.DifferentTags;
+        private Dictionary<Tag, string> mdTags = MarkdownConfig.MdTags;
+        private int currentIndex;
 
 
         public List<Token> SearchTokens(string markdownText)
@@ -18,64 +19,79 @@ namespace Markdown.TokenSearcher
             foreach (var line in lines)
             {
                 needClosingTags = new Stack<MdTag>();
-                offsetTags = new Queue<TagType>();
+                offsetTags = new Queue<Tag>();
+                currentIndex = 0;
                 SearchTokensInLine(line, fountedTokens);
             }
+
             return fountedTokens;
         }
 
         private void SearchTokensInLine(string line, List<Token> fountedTokens)
         {
             if (line.StartsWith("# "))
-                fountedTokens.Add(new Token(TagType.Header, 0, line.Length - 1));
-            for (int i = 0; i < line.Length; i++)
+                fountedTokens.Add(new Token(Tag.Header, 0, line.Length - 1));
+            for (; currentIndex < line.Length; currentIndex++)
             {
-                switch (line[i])
-                {
-                    case '_':
-                        var intendedTagType = TagType.NotATag;
-                        if (i < line.Length - 1 && line[i + 1] == '_')
-                        {
-                            if (i < line.Length - 2 && line[i + 2] == '_')
-                            {
-                                i = FindEndOfInvalidTag(line, i);
-                                intendedTagType = TagType.NotATag;
-                            }
-                            else
-                            {
-                                intendedTagType = TagType.Bold;
-                                i++;
-                            }
-                        }
-                        else
-                            intendedTagType = TagType.Italic;
-                        if (intendedTagType != TagType.NotATag)
-                            TryAddToken(intendedTagType, i, line, fountedTokens);
-                        break;
-                    case '\\':
-                        if (i < line.Length - 1 && (line[i + 1] == '\\' || line[i + 1] == '_' || line[i + 1] == '#'))
-                        {
-                            fountedTokens.Add(new Token(TagType.EscapedSymbol, i, i));
-                            i++;
-                        }
-                        break;
-                }
+                if (line[currentIndex] == '_')
+                    AnalyzeUnderscore(line, currentIndex, fountedTokens);
+                else if (line[currentIndex] == '\\')
+                    AnalyzeEscapeSequence(line, currentIndex, fountedTokens);
+            }
+        }
+
+        private void AnalyzeUnderscore(string line, int index, List<Token> fountedTokens)
+        {
+            var intendedTagType = Tag.NotATag;
+
+            if (index < line.Length - 1 && line[index + 1] == '_')
+            {
+                intendedTagType = DefineTagWithMultipleUnderscores(line, index);
+            }
+            else
+                intendedTagType = Tag.Italic;
+
+            if (intendedTagType != Tag.NotATag)
+                TryAddToken(intendedTagType, currentIndex, line, fountedTokens);
+        }
+
+        private Tag DefineTagWithMultipleUnderscores(string line, int index)
+        {
+            if (index < line.Length - 2 && line[index + 2] == '_')
+            {
+                currentIndex = FindEndOfInvalidTag(line, index);
+                return Tag.NotATag;
+            }
+            currentIndex++;
+
+            return Tag.Bold;
+
+        }
+
+        private void AnalyzeEscapeSequence(string line, int index, List<Token> fountedTokens)
+        {
+            if (index < line.Length - 1 && (line[index + 1] == '\\' || line[index + 1] == '_' || line[index + 1] == '#'))
+            {
+                fountedTokens.Add(new Token(Tag.EscapedSymbol, index, index));
+                currentIndex = index + 1;
             }
         }
 
         private int FindEndOfInvalidTag(string line, int index) 
         {
             var endIndex = index;
+
             while (endIndex < line.Length && line[endIndex] == '_')
                 endIndex++;
+
             return endIndex;
         }
 
-        private void TryAddToken(TagType tagType, int index, string line, List<Token> fountedTokens)
+        private void TryAddToken(Tag tagType, int index, string line, List<Token> fountedTokens)
         {
             var openingTag = FindOpeningTag(tagType, index);
 
-            if (openingTag.Type == TagType.NotATag)
+            if (openingTag.Tag == Tag.NotATag)
             {
                 if (index < line.Length - 1 && !char.IsWhiteSpace(line[index + 1]))
                     needClosingTags.Push(new MdTag(tagType, index));
@@ -107,7 +123,7 @@ namespace Markdown.TokenSearcher
             if (token.EndIndex < line.Length - 1 && !char.IsWhiteSpace(line[token.EndIndex + 1]) && subString.Any(char.IsWhiteSpace))
                 return false;
 
-            if (token.TagType == TagType.Bold && needClosingTags.Any(tag => tag.Type == differentTagTypes[token.TagType]))
+            if (token.TagType == Tag.Bold && needClosingTags.Any(tag => tag.Tag == differentTagTypes[token.TagType]))
                 return false;
 
             if (char.IsWhiteSpace(subString[0]) || char.IsWhiteSpace(subString[subString.Length - 1]))
@@ -119,15 +135,15 @@ namespace Markdown.TokenSearcher
             return true;
         }
 
-        private MdTag FindOpeningTag(TagType tagType, int index)
+        private MdTag FindOpeningTag(Tag tagType, int index)
         {
-            var openingTag = new MdTag(TagType.NotATag, index);
+            var openingTag = new MdTag(Tag.NotATag, index);
 
-            while (needClosingTags.Any(tag => tag.Type == tagType))
+            while (needClosingTags.Any(tag => tag.Tag == tagType))
             {
                 var removeClosingTag = needClosingTags.Pop();
-                openingTag = new MdTag(removeClosingTag.Type, removeClosingTag.Index);
-                offsetTags.Enqueue(removeClosingTag.Type);
+                openingTag = new MdTag(removeClosingTag.Tag, removeClosingTag.Index);
+                offsetTags.Enqueue(removeClosingTag.Tag);
             }
 
             return openingTag;

@@ -4,22 +4,17 @@ namespace Markdown
 {
     public class Token
     {
-        private readonly TagType tagType;
-        private readonly int startIndex;
-        private readonly int endIndex;
-        private readonly bool isSingleTag;
-
-        public Token(TagType type, int startIndex, int endIndex, bool isSingleTag = false)
+        public Token(Tag type, int startIndex, int endIndex, bool isSingleTag = false)
         {
-            this.tagType = type;
-            this.isSingleTag = isSingleTag;
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
+            TagType = type;
+            IsSingleTag = isSingleTag;
+            StartIndex = startIndex;
+            EndIndex = endIndex;
         }
 
-        public TagType TagType => tagType;
-        public int StartIndex => startIndex;
-        public int EndIndex => endIndex;
-        public bool IsSingleTag => isSingleTag;
+        public Tag TagType { get; }
+        public int StartIndex { get; }
+        public int EndIndex { get; }
+        public bool IsSingleTag { get; }
     }
 }

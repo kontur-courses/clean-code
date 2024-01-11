@@ -17,8 +17,10 @@ namespace Markdown
         {
             if (string.IsNullOrEmpty(markdownText))
                 throw new ArgumentNullException("The string must not be empty");
+
             var tokens = tokenSearcher.SearchTokens(markdownText);
             var htmlText = htmlConverter.ConvertFromMarkdownToHtml(markdownText, tokens);
+
             return htmlText;
         }
 

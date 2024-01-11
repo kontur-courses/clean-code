@@ -135,6 +135,7 @@ namespace Markdown.Tests
                 "# __на которой висят__ пеленки _и большие_ черные панталоны";
             var linearCoefficient = 2;
             var timeMeter = new Stopwatch();
+
             timeMeter.Start();
             mdProcessor.Render(mdTestText);
             timeMeter.Stop();

@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tags
 {
-    public enum TagType
+    public enum Tag
     {
         Bold,
         Italic,
