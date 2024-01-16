@@ -5,6 +5,7 @@ namespace MarkdownTask
 {
     public class ItalicTagParser : ITagParser
     {
+        const char italicTag = '_';
         public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
@@ -14,7 +15,9 @@ namespace MarkdownTask
             var hitSpace = false;
 
             if (text.Length <= 2)
+            {
                 return tokens;
+            }
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -29,36 +32,46 @@ namespace MarkdownTask
                     continue;
                 }
 
-                if (text[i] == '_' && i < text.Length - 1 && text[i + 1] == '_')
+                if (IsDoubleItalicTag(text, i))
                 {
                     i++;
                     continue;
                 }
 
                 if (inTag && text[i] == ' ')
+                {
                     hitSpace = true;
+                }
 
                 if (!inTag && IsOpeningTag(text, i))
                 {
                     opened.Push(new Token(TagInfo.TagType.Italic, i, Tag.Open, 1));
                     inTag = true;
                     if (i == 0 || char.IsWhiteSpace(text[i - 1]) || text[i - 1] == '\\')
+                    {
                         startInMiddle = false;
+                    }
                     else
+                    {
                         startInMiddle = true;
+                    }
                     hitSpace = false;
                 }
                 else if (IsClosingTag(text, i))
                 {
                     if (!opened.Any())
+                    {
                         continue;
+                    }
 
                     var o = opened.Pop();
+
                     if (!startInMiddle || !hitSpace)
                     {
                         tokens.Add(o);
                         tokens.Add(new Token(TagInfo.TagType.Italic, i, Tag.Close, 1));
                     }
+
                     inTag = false;
                     hitSpace = false;
                 }
@@ -67,12 +80,17 @@ namespace MarkdownTask
             return tokens;
         }
 
+        private static bool IsDoubleItalicTag(string text, int i)
+        {
+            return text[i] == italicTag && i < text.Length - 1 && text[i + 1] == italicTag;
+        }
+
         private static bool IsOpeningTag(string text, int pos)
         {
-            if (text[pos] != '_')
+            if (text[pos] != italicTag)
                 return false;
 
-            if (pos < text.Length - 1 && text[pos + 1] == '_')
+            if (pos < text.Length - 1 && text[pos + 1] == italicTag)
                 return false;
 
             if (pos == 0)
@@ -88,20 +106,30 @@ namespace MarkdownTask
         }
         private static bool IsClosingTag(string text, int pos)
         {
-            if (text[pos] != '_')
+            if (text[pos] != italicTag)
+            {
                 return false;
+            }
 
-            if (pos < text.Length - 1 && text[pos + 1] == '_')
+            if (pos < text.Length - 1 && text[pos + 1] == italicTag)
+            {
                 return false;
+            }
 
             if (pos == text.Length - 1)
+            {
                 return true;
+            }
 
             if (pos > 0 && (char.IsDigit(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1])))
+            {
                 return false;
+            }
 
             if (char.IsLetter(text[pos + 1]) || char.IsWhiteSpace(text[pos + 1]))
+            {
                 return true;
+            }
 
             return false;
         }

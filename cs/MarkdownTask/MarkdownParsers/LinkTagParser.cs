@@ -16,7 +16,9 @@ namespace MarkdownTask.MarkdownParsers
                 var closeParenthesisIndex = markdown.IndexOf(")", openParenthesisIndex);
 
                 if (closeIndex == -1 || openParenthesisIndex == -1 || closeParenthesisIndex == -1)
+                {
                     continue;
+                }
                 if (closeIndex + 1 == openParenthesisIndex)
                 {
                     tokens.Add(new Token(TagType.Link, startIndex, Tag.Open, closeParenthesisIndex - startIndex + 1));

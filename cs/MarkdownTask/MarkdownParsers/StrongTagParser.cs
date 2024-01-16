@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static MarkdownTask.TagInfo;
-
-namespace MarkdownTask
+﻿namespace MarkdownTask
 {
     public class StrongTagParser : ITagParser
     {
-        private char tag = '_';
+        private char strongTag = '_';
         public ICollection<Token> Parse(string markdown)
         {
             var tokens = new List<Token>();
@@ -28,13 +21,15 @@ namespace MarkdownTask
                     continue;
                 }
 
-                if (markdown[i] == tag && markdown[i + 1] == tag && !char.IsNumber(markdown[i + 2]))
+                if (IsStrongTag(markdown, i))
                 {
                     if (opened.Any())
                     {
                         var o = opened.Pop();
                         if (i - o <= 1)
+                        {
                             continue;
+                        }
                         tokens.Add(new Token(TagInfo.TagType.Strong, o, TagInfo.Tag.Open, 2));
                         tokens.Add(new Token(TagInfo.TagType.Strong, i, TagInfo.Tag.Close, 2));
                     }
@@ -43,7 +38,7 @@ namespace MarkdownTask
                 }
             }
 
-            if (markdown.Length >=2 && markdown[markdown.Length - 2] == tag && markdown[markdown.Length - 1] == tag)
+            if (IsEndedWithStrongTag(markdown))
             {
                 if (opened.Any())
                 {
@@ -57,6 +52,16 @@ namespace MarkdownTask
             }
 
             return tokens;
+
+            bool IsStrongTag(string markdown, int i)
+            {
+                return markdown[i] == strongTag && markdown[i + 1] == strongTag && !char.IsNumber(markdown[i + 2]);
+            }
+        }
+
+        private bool IsEndedWithStrongTag(string markdown)
+        {
+            return markdown.Length >= 2 && markdown[markdown.Length - 2] == strongTag && markdown[markdown.Length - 1] == strongTag;
         }
     }
 }
