@@ -24,7 +24,7 @@ namespace MarkdownTask
                 else
                     filterEdge = -1;
 
-                if (token.TagType != TagInfo.TagType.Italic && token.TagType != TagInfo.TagType.Strong)
+                if (IsNotStrongOrItalicTag(token))
                 {
                     selected.Add(token);
                     if (token.TagType == TagInfo.TagType.Link)
@@ -35,28 +35,20 @@ namespace MarkdownTask
                 if (token.Tag == TagInfo.Tag.Open)
                 {
                     stack.Push(token);
+                    continue;
                 }
-                else
+
+                if (!stack.Any())
                 {
-                    if (!stack.Any())
-                        continue;
-                    var stackTop = stack.Pop();
-                    if (stackTop.TagType == token.TagType)
-                    {
-                        if (token.TagType == TagInfo.TagType.Strong)
-                        {
-                            if (!stack.Any() || stack.Peek().TagType != TagInfo.TagType.Italic)
-                            {
-                                selected.Add(stackTop);
-                                selected.Add(token);
-                            }
-                        }
-                        else
-                        {
-                            selected.Add(stackTop);
-                            selected.Add(token);
-                        }
-                    }
+                    continue;
+                }
+
+                var stackTop = stack.Pop();
+
+                if (IsAllowedNestedTag(stackTop, token, stack))
+                {
+                    selected.Add(stackTop);
+                    selected.Add(token);
                 }
             }
 
@@ -89,6 +81,19 @@ namespace MarkdownTask
             }
 
             return sb.ToString();
+        }
+
+        private static bool IsNotStrongOrItalicTag(Token token)
+        {
+            return token.TagType != TagInfo.TagType.Italic && token.TagType != TagInfo.TagType.Strong;
+        }
+
+        private static bool IsAllowedNestedTag(Token stackTop, Token token, Stack<Token> stack)
+        {
+            return stackTop.TagType == token.TagType
+                    && !(token.TagType == TagInfo.TagType.Strong
+                    && stack.Any()
+                    && stack.Peek().TagType == TagInfo.TagType.Italic);
         }
     }
 }
