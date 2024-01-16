@@ -2,6 +2,24 @@
 
 namespace MarkdownTask
 {
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    public sealed class HtmlTagAttribute : Attribute
+    {
+        public string HtmlTag { get; private set; }
+        public HtmlTagAttribute(string description)
+        {
+            HtmlTag = description;
+        }
+    }
+    public enum HtmlTags
+    {
+        [HtmlTag("<h1>")] Header,
+        [HtmlTag("<em>")] Italic,
+        [HtmlTag("<strong>")] Strong,
+        [HtmlTag("")] Empty
+    }
+
     public static class HtmlProcessor
     {
         private static readonly Dictionary<TagInfo.TagType, string> htmlTags = new Dictionary<TagInfo.TagType, string>
@@ -72,7 +90,8 @@ namespace MarkdownTask
                     continue;
                 }
 
-                var htmlTag = htmlTags[token.TagType];
+                var htmlTag = htmlTags[token.TagType]; // TODO: replace with enum
+
                 if (token.Tag == TagInfo.Tag.Close)
                     htmlTag = htmlTag.Insert(1, "/");
 
