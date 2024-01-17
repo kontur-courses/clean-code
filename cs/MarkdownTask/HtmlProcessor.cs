@@ -1,35 +1,10 @@
 ﻿using System.Text;
+using static MarkdownTask.TagInfo;
 
 namespace MarkdownTask
 {
-
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public sealed class HtmlTagAttribute : Attribute
-    {
-        public string HtmlTag { get; private set; }
-        public HtmlTagAttribute(string description)
-        {
-            HtmlTag = description;
-        }
-    }
-    public enum HtmlTags
-    {
-        [HtmlTag("<h1>")] Header,
-        [HtmlTag("<em>")] Italic,
-        [HtmlTag("<strong>")] Strong,
-        [HtmlTag("")] Empty
-    }
-
     public static class HtmlProcessor
     {
-        private static readonly Dictionary<TagInfo.TagType, string> htmlTags = new Dictionary<TagInfo.TagType, string>
-        {
-            {TagInfo.TagType.Header, "<h1>" },
-            {TagInfo.TagType.Italic, "<em>" },
-            {TagInfo.TagType.Strong, "<strong>" },
-            {TagInfo.TagType.Empty, "" }
-        };
-
         private static ICollection<Token> FilterTokens(ICollection<Token> tokens)
         {
             var selected = new List<Token>();
@@ -45,12 +20,12 @@ namespace MarkdownTask
                 if (IsNotStrongOrItalicTag(token))
                 {
                     selected.Add(token);
-                    if (token.TagType == TagInfo.TagType.Link)
+                    if (token.TagType == TagType.Link)
                         filterEdge = token.Position + token.TagLength;
                     continue;
                 }
 
-                if (token.Tag == TagInfo.Tag.Open)
+                if (token.Tag == Tag.Open)
                 {
                     stack.Push(token);
                     continue;
@@ -83,16 +58,16 @@ namespace MarkdownTask
             {
                 sb.Remove(token.Position + shift, token.TagLength);
 
-                if (token.TagType == TagInfo.TagType.Link)
+                if (token.TagType == TagType.Link)
                 {
                     sb.Insert(token.Position + shift, LinkTagBuilder.Build(text.Substring(token.Position, token.TagLength)));
                     shift = sb.Length - text.Length;
                     continue;
                 }
 
-                var htmlTag = htmlTags[token.TagType]; // TODO: replace with enum
+                var htmlTag = token.TagType.GetHtmlString();
 
-                if (token.Tag == TagInfo.Tag.Close)
+                if (token.Tag == Tag.Close)
                     htmlTag = htmlTag.Insert(1, "/");
 
                 sb.Insert(token.Position + shift, htmlTag);
@@ -104,15 +79,15 @@ namespace MarkdownTask
 
         private static bool IsNotStrongOrItalicTag(Token token)
         {
-            return token.TagType != TagInfo.TagType.Italic && token.TagType != TagInfo.TagType.Strong;
+            return token.TagType != TagType.Italic && token.TagType != TagType.Strong;
         }
 
         private static bool IsAllowedNestedTag(Token stackTop, Token token, Stack<Token> stack)
         {
             return stackTop.TagType == token.TagType
-                    && !(token.TagType == TagInfo.TagType.Strong
+                    && !(token.TagType == TagType.Strong
                     && stack.Any()
-                    && stack.Peek().TagType == TagInfo.TagType.Italic);
+                    && stack.Peek().TagType == TagType.Italic);
         }
     }
 }
