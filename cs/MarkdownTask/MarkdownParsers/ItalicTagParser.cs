@@ -5,7 +5,7 @@ namespace MarkdownTask
 {
     public class ItalicTagParser : ITagParser
     {
-        const char italicTag = '_';
+        private const char italicTag = '_';
         public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
@@ -47,6 +47,7 @@ namespace MarkdownTask
                 {
                     opened.Push(new Token(TagInfo.TagType.Italic, i, Tag.Open, 1));
                     inTag = true;
+
                     if (i == 0 || char.IsWhiteSpace(text[i - 1]) || text[i - 1] == '\\')
                     {
                         startInMiddle = false;
@@ -88,30 +89,30 @@ namespace MarkdownTask
         private static bool IsOpeningTag(string text, int pos)
         {
             if (text[pos] != italicTag)
+            {
                 return false;
+            }
 
-            if (pos < text.Length - 1 && text[pos + 1] == italicTag)
-                return false;
-
-            if (pos == 0)
+            if (pos == 0) // Don't check previous char at beggining of string
+            {
                 return true;
+            }
 
             if (pos < text.Length - 1 && char.IsDigit(text[pos + 1]))
+            {
                 return false;
+            }
 
-            if (char.IsLetter(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1]) || text[pos - 1] == '\\')
+            if (char.IsLetter(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1]) || text[pos - 1] == '\\') //Only letters, whitespaces and '\' allowed ahead of tag
+            {
                 return true;
+            }
 
             return false;
         }
         private static bool IsClosingTag(string text, int pos)
         {
             if (text[pos] != italicTag)
-            {
-                return false;
-            }
-
-            if (pos < text.Length - 1 && text[pos + 1] == italicTag)
             {
                 return false;
             }

@@ -2,7 +2,7 @@
 {
     public class StrongTagParser : ITagParser
     {
-        private char strongTag = '_';
+        private const char strongTag = '_';
         public ICollection<Token> Parse(string markdown)
         {
             var tokens = new List<Token>();
