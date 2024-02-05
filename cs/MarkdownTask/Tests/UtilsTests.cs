@@ -211,14 +211,10 @@ namespace MarkdownTask.MarkdownTests
             result.Should().BeFalse();
         }
 
-        [Test]
-        public void CanSelect_WithTwoWordStartOnEdge_ShouldReturnTrue()
+        [TestCase("aa _b b_ cc", 3, 7)]
+        [TestCase("_a b_", 0, 4)]
+        public void CanSelect_WithTwoWordStartOnEdge_ShouldReturnTrue(string text, int start, int end)
         {
-            // Arrange
-            string text = "aa _b b_ cc";
-            int start = 3;
-            int end = 7;
-
             // Act
             bool result = Utils.CanSelect(text, start, end);
 

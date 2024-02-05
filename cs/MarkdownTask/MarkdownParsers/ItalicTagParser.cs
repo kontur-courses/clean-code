@@ -1,138 +1,51 @@
 ﻿using static MarkdownTask.TagInfo;
 
-
 namespace MarkdownTask
 {
     public class ItalicTagParser : ITagParser
     {
-        private const char italicTag = '_';
+        private static string tag = "_";
         public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
             var opened = new Stack<Token>();
-            var inTag = false;
-            var startInMiddle = false;
-            var hitSpace = false;
 
             if (text.Length <= 2)
-            {
                 return tokens;
-            }
 
-            for (int i = 0; i < text.Length; i++)
+            int tagIndex = 0;
+
+            do
             {
-                if (text[i] == '\n')
+                tagIndex = text.IndexOf(tag, tagIndex);
+
+                if (tagIndex < 0)
                 {
-                    opened = new Stack<Token>();
-                    continue;
-                }
-                if (text[i] == '\\')
-                {
-                    i++;
-                    continue;
+                    break;
                 }
 
-                if (IsDoubleItalicTag(text, i))
+                if (tagIndex >= 0 && !Utils.IsEscaped(text, tagIndex))
                 {
-                    i++;
-                    continue;
-                }
-
-                if (inTag && text[i] == ' ')
-                {
-                    hitSpace = true;
-                }
-
-                if (!inTag && IsOpeningTag(text, i))
-                {
-                    opened.Push(new Token(TagInfo.TagType.Italic, i, Tag.Open, 1));
-                    inTag = true;
-
-                    if (i == 0 || char.IsWhiteSpace(text[i - 1]) || text[i - 1] == '\\')
+                    if (opened.Any() && Utils.IsAfterNonSpace(text, tagIndex))
                     {
-                        startInMiddle = false;
+                        var openTag = opened.Pop();
+
+                        if (Utils.CanSelect(text, openTag.Position, tagIndex))
+                        {
+                            tokens.Add(openTag);
+                            tokens.Add(new Token(TagType.Italic, tagIndex, Tag.Close, 1));
+                        }
                     }
-                    else
+                    else if (Utils.IsBeforeNonSpace(text, tagIndex))
                     {
-                        startInMiddle = true;
+                        opened.Push(new Token(TagType.Italic, tagIndex, Tag.Open, 1));
                     }
-                    hitSpace = false;
                 }
-                else if (IsClosingTag(text, i))
-                {
-                    if (!opened.Any())
-                    {
-                        continue;
-                    }
-
-                    var o = opened.Pop();
-
-                    if (!startInMiddle || !hitSpace)
-                    {
-                        tokens.Add(o);
-                        tokens.Add(new Token(TagInfo.TagType.Italic, i, Tag.Close, 1));
-                    }
-
-                    inTag = false;
-                    hitSpace = false;
-                }
+                tagIndex++;
             }
+            while (tagIndex < text.Length - 1);
 
             return tokens;
-        }
-
-        private static bool IsDoubleItalicTag(string text, int i)
-        {
-            return text[i] == italicTag && i < text.Length - 1 && text[i + 1] == italicTag;
-        }
-
-        private static bool IsOpeningTag(string text, int pos)
-        {
-            if (text[pos] != italicTag)
-            {
-                return false;
-            }
-
-            if (pos == 0) // Don't check previous char at beggining of string
-            {
-                return true;
-            }
-
-            if (pos < text.Length - 1 && char.IsDigit(text[pos + 1]))
-            {
-                return false;
-            }
-
-            if (char.IsLetter(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1]) || text[pos - 1] == '\\') //Only letters, whitespaces and '\' allowed ahead of tag
-            {
-                return true;
-            }
-
-            return false;
-        }
-        private static bool IsClosingTag(string text, int pos)
-        {
-            if (text[pos] != italicTag)
-            {
-                return false;
-            }
-
-            if (pos == text.Length - 1)
-            {
-                return true;
-            }
-
-            if (pos > 0 && (char.IsDigit(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1])))
-            {
-                return false;
-            }
-
-            if (char.IsLetter(text[pos + 1]) || char.IsWhiteSpace(text[pos + 1]))
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }
