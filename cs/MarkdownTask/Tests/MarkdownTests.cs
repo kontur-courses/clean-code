@@ -3,7 +3,7 @@ using FluentAssertions.Extensions;
 using MarkdownTask.MarkdownParsers;
 using NUnit.Framework;
 
-namespace MarkdownTask
+namespace MarkdownTask.Tests
 {
     [TestFixture]
     public class MarkdownTests
