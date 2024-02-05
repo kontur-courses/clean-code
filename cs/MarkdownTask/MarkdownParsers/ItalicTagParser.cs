@@ -30,7 +30,8 @@ namespace MarkdownTask
                     {
                         var openTag = opened.Pop();
 
-                        if (Utils.CanSelect(text, openTag.Position, tagIndex))
+
+                        if (Utils.CanSelect(text, openTag.Position, tagIndex) && tagIndex - openTag.Position > 1)
                         {
                             tokens.Add(openTag);
                             tokens.Add(new Token(TagType.Italic, tagIndex, Tag.Close, 1));
