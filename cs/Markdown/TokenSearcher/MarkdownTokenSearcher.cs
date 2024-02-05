@@ -10,6 +10,9 @@ namespace Markdown.TokenSearcher
         private Dictionary<Tag, string> mdTags = MarkdownConfig.MdTags;
         private int currentIndex;
 
+        private const char HASH_SYMBOL = '#';
+        private const char Underscore_SYMBOL = '_';
+        private const char SLASH_SYMBOL = '\\';
 
         public List<Token> SearchTokens(string markdownText)
         {
@@ -29,20 +32,30 @@ namespace Markdown.TokenSearcher
 
         private void SearchTokensInLine(string line, List<Token> fountedTokens)
         {
-            if (line.StartsWith("# "))
+            TryAddHeaderToken(line, fountedTokens);
+            for (; currentIndex < line.Length; currentIndex++)
+            {
+                AnalyzeSymbol(line, fountedTokens);
+            }
+        }
+
+        private void TryAddHeaderToken(string line, List<Token> fountedTokens)
+        {
+            if (line.StartsWith(HASH_SYMBOL + " "))
             {
                 fountedTokens.Add(new Token(Tag.Header, 0, line.Length - 1));
             }
-            for (; currentIndex < line.Length; currentIndex++)
+        }
+
+        private void AnalyzeSymbol(string line, List<Token> fountedTokens)
+        {
+            if (line[currentIndex] == Underscore_SYMBOL)
             {
-                if (line[currentIndex] == '_')
-                {
-                    AnalyzeUnderscore(line, currentIndex, fountedTokens);
-                }
-                else if (line[currentIndex] == '\\')
-                {
-                    AnalyzeEscapeSequence(line, currentIndex, fountedTokens);
-                }
+                AnalyzeUnderscore(line, currentIndex, fountedTokens);
+            }
+            else if (line[currentIndex] == SLASH_SYMBOL)
+            {
+                AnalyzeEscapeSequence(line, currentIndex, fountedTokens);
             }
         }
 
@@ -50,7 +63,7 @@ namespace Markdown.TokenSearcher
         {
             var intendedTagType = Tag.NotATag;
 
-            if (index < line.Length - 1 && line[index + 1] == '_')
+            if (index < line.Length - 1 && line[index + 1] == Underscore_SYMBOL)
             {
                 intendedTagType = DefineTagWithMultipleUnderscores(line, index);
             }
@@ -67,7 +80,7 @@ namespace Markdown.TokenSearcher
 
         private Tag DefineTagWithMultipleUnderscores(string line, int index)
         {
-            if (index < line.Length - 2 && line[index + 2] == '_')
+            if (index < line.Length - 2 && line[index + 2] == Underscore_SYMBOL)
             {
                 currentIndex = FindEndOfInvalidTag(line, index);
                 return Tag.NotATag;
@@ -80,7 +93,7 @@ namespace Markdown.TokenSearcher
 
         private void AnalyzeEscapeSequence(string line, int index, List<Token> fountedTokens)
         {
-            if (index < line.Length - 1 && (line[index + 1] == '\\' || line[index + 1] == '_' || line[index + 1] == '#'))
+            if (index < line.Length - 1 && (line[index + 1] == SLASH_SYMBOL || line[index + 1] == Underscore_SYMBOL || line[index + 1] == HASH_SYMBOL))
             {
                 fountedTokens.Add(new Token(Tag.EscapedSymbol, index, index));
                 currentIndex = index + 1;
@@ -91,7 +104,7 @@ namespace Markdown.TokenSearcher
         {
             var endIndex = index;
 
-            while (endIndex < line.Length && line[endIndex] == '_')
+            while (endIndex < line.Length && line[endIndex] == Underscore_SYMBOL)
             {
                 endIndex++;
             }
