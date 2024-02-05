@@ -18,7 +18,9 @@
         public string GetMarkup()
         {
             if (Tag == Tag.EscapedSymbol)
+            {
                 return "";
+            }
 
             return IsClosing ? string.Format("</{0}>", Markup) : string.Format("<{0}>", Markup);
         }

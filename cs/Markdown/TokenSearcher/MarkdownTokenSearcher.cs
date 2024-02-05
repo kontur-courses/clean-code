@@ -30,13 +30,19 @@ namespace Markdown.TokenSearcher
         private void SearchTokensInLine(string line, List<Token> fountedTokens)
         {
             if (line.StartsWith("# "))
+            {
                 fountedTokens.Add(new Token(Tag.Header, 0, line.Length - 1));
+            }
             for (; currentIndex < line.Length; currentIndex++)
             {
                 if (line[currentIndex] == '_')
+                {
                     AnalyzeUnderscore(line, currentIndex, fountedTokens);
+                }
                 else if (line[currentIndex] == '\\')
+                {
                     AnalyzeEscapeSequence(line, currentIndex, fountedTokens);
+                }
             }
         }
 
@@ -49,10 +55,14 @@ namespace Markdown.TokenSearcher
                 intendedTagType = DefineTagWithMultipleUnderscores(line, index);
             }
             else
+            {
                 intendedTagType = Tag.Italic;
+            }
 
             if (intendedTagType != Tag.NotATag)
+            {
                 TryAddToken(intendedTagType, currentIndex, line, fountedTokens);
+            }
         }
 
         private Tag DefineTagWithMultipleUnderscores(string line, int index)
@@ -82,7 +92,9 @@ namespace Markdown.TokenSearcher
             var endIndex = index;
 
             while (endIndex < line.Length && line[endIndex] == '_')
+            {
                 endIndex++;
+            }
 
             return endIndex;
         }
@@ -94,13 +106,17 @@ namespace Markdown.TokenSearcher
             if (openingTag.Tag == Tag.NotATag)
             {
                 if (index < line.Length - 1 && !char.IsWhiteSpace(line[index + 1]))
+                {
                     needClosingTags.Push(new MdTag(tagType, index));
+                }
             }
             else
             {
                 var token = new Token(tagType, openingTag.Index, index);
                 if (IsPossibleToAdd(token, line))
+                {
                     fountedTokens.Add(token);
+                }
                 else if (offsetTags.Count > 0 && offsetTags.Peek() == tagType)
                 {
                     needClosingTags.Push(new MdTag(tagType, index));
@@ -115,22 +131,34 @@ namespace Markdown.TokenSearcher
             var shift = mdTags[token.TagType].Length;
 
             if (char.IsWhiteSpace(line[token.EndIndex - shift]))
+            {
                 return false;
+            }
 
             if (offsetTags.Dequeue() == differentTagTypes[token.TagType])
+            {
                 return false;
+            }
 
             if (token.EndIndex < line.Length - 1 && !char.IsWhiteSpace(line[token.EndIndex + 1]) && subString.Any(char.IsWhiteSpace))
+            {
                 return false;
+            }
 
             if (token.TagType == Tag.Bold && needClosingTags.Any(tag => tag.Tag == differentTagTypes[token.TagType]))
+            {
                 return false;
+            }
 
             if (char.IsWhiteSpace(subString[0]) || char.IsWhiteSpace(subString[subString.Length - 1]))
+            {
                 return false;
+            }
 
             if (token.StartIndex - 1 > 0 && !char.IsWhiteSpace(line[token.StartIndex - shift]) && subString.Any(char.IsWhiteSpace))
+            {
                 return false;
+            }
 
             return true;
         }
