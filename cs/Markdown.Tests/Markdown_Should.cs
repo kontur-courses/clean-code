@@ -1,9 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Converter;
 using Markdown.TokenSearcher;
+using Markdown.Analyzer;
 
 
 namespace Markdown.Tests
@@ -16,7 +16,7 @@ namespace Markdown.Tests
         public void Init()
         {
             var converter = new HtmlConverter();
-            var tokenSearcher = new MarkdownTokenSearcher();
+            var tokenSearcher = new MarkdownTokenSearcher(new TagAnalyzer());
             mdProcessor = new Markdown(tokenSearcher, converter);
         }
 

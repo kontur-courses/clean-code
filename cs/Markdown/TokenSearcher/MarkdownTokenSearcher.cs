@@ -1,18 +1,21 @@
-﻿using Markdown.Tags;
+﻿using Markdown.Analyzer;
+using Markdown.Tags;
 
 namespace Markdown.TokenSearcher
 {
     public class MarkdownTokenSearcher : ITokenSearcher
     {
+        private ITagAnalyzer tagAnalyzer;
         private Stack<MdTag> needClosingTags;
         private Queue<Tag> offsetTags;
         private Dictionary<Tag, Tag> differentTagTypes = MarkdownConfig.DifferentTags;
         private Dictionary<Tag, string> mdTags = MarkdownConfig.MdTags;
         private int currentIndex;
 
-        private const char HASH_SYMBOL = '#';
-        private const char Underscore_SYMBOL = '_';
-        private const char SLASH_SYMBOL = '\\';
+        public MarkdownTokenSearcher(ITagAnalyzer tokenAnalyzer)
+        {
+            this.tagAnalyzer = tokenAnalyzer;
+        }
 
         public List<Token> SearchTokens(string markdownText)
         {
@@ -32,109 +35,65 @@ namespace Markdown.TokenSearcher
 
         private void SearchTokensInLine(string line, List<Token> fountedTokens)
         {
-            TryAddHeaderToken(line, fountedTokens);
             for (; currentIndex < line.Length; currentIndex++)
             {
-                AnalyzeSymbol(line, fountedTokens);
+                var tagTypeIndexPair = tagAnalyzer.GetTagTypeWithIndex(line, currentIndex);
+                currentIndex = tagTypeIndexPair.Item2;
+                AnalyzeTag(line, tagTypeIndexPair.Item1, fountedTokens);
             }
         }
 
-        private void TryAddHeaderToken(string line, List<Token> fountedTokens)
+        private void AnalyzeTag(string line, Tag tagType, List<Token> fountedTokens)
         {
-            if (line.StartsWith(HASH_SYMBOL + " "))
+            if (tagType == Tag.Header)
             {
                 fountedTokens.Add(new Token(Tag.Header, 0, line.Length - 1));
             }
-        }
-
-        private void AnalyzeSymbol(string line, List<Token> fountedTokens)
-        {
-            if (line[currentIndex] == Underscore_SYMBOL)
+            else if (tagType == Tag.EscapedSymbol)
             {
-                AnalyzeUnderscore(line, currentIndex, fountedTokens);
+                fountedTokens.Add(new Token(Tag.EscapedSymbol, currentIndex, currentIndex));
+                currentIndex += 1;
             }
-            else if (line[currentIndex] == SLASH_SYMBOL)
+            else if (tagType != Tag.NotATag)
             {
-                AnalyzeEscapeSequence(line, currentIndex, fountedTokens);
+                TryAddToken(tagType, line, fountedTokens);
             }
         }
 
-        private void AnalyzeUnderscore(string line, int index, List<Token> fountedTokens)
+        private void TryAddToken(Tag tagType, string line, List<Token> fountedTokens)
         {
-            var intendedTagType = Tag.NotATag;
-
-            if (index < line.Length - 1 && line[index + 1] == Underscore_SYMBOL)
-            {
-                intendedTagType = DefineTagWithMultipleUnderscores(line, index);
-            }
-            else
-            {
-                intendedTagType = Tag.Italic;
-            }
-
-            if (intendedTagType != Tag.NotATag)
-            {
-                TryAddToken(intendedTagType, currentIndex, line, fountedTokens);
-            }
-        }
-
-        private Tag DefineTagWithMultipleUnderscores(string line, int index)
-        {
-            if (index < line.Length - 2 && line[index + 2] == Underscore_SYMBOL)
-            {
-                currentIndex = FindEndOfInvalidTag(line, index);
-                return Tag.NotATag;
-            }
-            currentIndex++;
-
-            return Tag.Bold;
-
-        }
-
-        private void AnalyzeEscapeSequence(string line, int index, List<Token> fountedTokens)
-        {
-            if (index < line.Length - 1 && (line[index + 1] == SLASH_SYMBOL || line[index + 1] == Underscore_SYMBOL || line[index + 1] == HASH_SYMBOL))
-            {
-                fountedTokens.Add(new Token(Tag.EscapedSymbol, index, index));
-                currentIndex = index + 1;
-            }
-        }
-
-        private int FindEndOfInvalidTag(string line, int index) 
-        {
-            var endIndex = index;
-
-            while (endIndex < line.Length && line[endIndex] == Underscore_SYMBOL)
-            {
-                endIndex++;
-            }
-
-            return endIndex;
-        }
-
-        private void TryAddToken(Tag tagType, int index, string line, List<Token> fountedTokens)
-        {
-            var openingTag = FindOpeningTag(tagType, index);
+            var openingTag = FindOpeningTag(tagType, currentIndex);
 
             if (openingTag.Tag == Tag.NotATag)
             {
-                if (index < line.Length - 1 && !char.IsWhiteSpace(line[index + 1]))
-                {
-                    needClosingTags.Push(new MdTag(tagType, index));
-                }
+                HandleNotATag(tagType, line);
             }
             else
             {
-                var token = new Token(tagType, openingTag.Index, index);
-                if (IsPossibleToAdd(token, line))
-                {
-                    fountedTokens.Add(token);
-                }
-                else if (offsetTags.Count > 0 && offsetTags.Peek() == tagType)
-                {
-                    needClosingTags.Push(new MdTag(tagType, index));
-                    offsetTags.Dequeue();
-                }
+                HandleExistingTag(tagType, line, fountedTokens, openingTag);
+            }
+        }
+
+        private void HandleExistingTag(Tag tagType, string line, List<Token> fountedTokens, MdTag openingTag)
+        {
+            var token = new Token(tagType, openingTag.Index, currentIndex);
+
+            if (IsPossibleToAdd(token, line))
+            {
+                fountedTokens.Add(token);
+            }
+            else if (offsetTags.Count > 0 && offsetTags.Peek() == tagType)
+            {
+                needClosingTags.Push(new MdTag(tagType, currentIndex));
+                offsetTags.Dequeue();
+            }
+        }
+
+        private void HandleNotATag(Tag tagType, string line)
+        {
+            if (currentIndex < line.Length - 1 && !char.IsWhiteSpace(line[currentIndex + 1]))
+            {
+                needClosingTags.Push(new MdTag(tagType, currentIndex));
             }
         }
 

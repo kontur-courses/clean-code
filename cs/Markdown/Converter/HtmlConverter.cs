@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using Markdown.Tags;
-using Microsoft.VisualStudio.CodeCoverage;
 
 namespace Markdown.Converter
 {
