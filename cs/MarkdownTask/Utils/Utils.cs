@@ -1,8 +1,11 @@
-﻿namespace MarkdownTask
+﻿using static MarkdownTask.PairedTagsParser;
+
+namespace MarkdownTask
 {
     public static class Utils
     {
         private const char escapingChar = '\\';
+
         public static bool IsEscaped(string text, int position)
         {
             if (position <= 0 || position >= text.Length)
@@ -28,26 +31,6 @@
             return escapingCharCount % 2 != 0;
         }
 
-        public static bool IsAfterNonSpace(string text, int position)
-        {
-            if (position < 0 || position > text.Length)
-            {
-                return false;
-            }
-
-            return position == 0 || !char.IsWhiteSpace(text[position - 1]);
-        }
-
-        public static bool IsBeforeNonSpace(string text, int position)
-        {
-            if (position < 0 || position >= text.Length)
-            {
-                return false;
-            }
-
-            return position == text.Length - 1 || !char.IsWhiteSpace(text[position + 1]);
-        }
-
         public static bool IsAfterSpace(string text, int position)
         {
             if (position < 0 || position > text.Length)
@@ -68,23 +51,29 @@
             return position == text.Length - 1 || char.IsWhiteSpace(text[position + 1]);
         }
 
-
-
-        public static bool CanSelect(string text, int start, int end)
+        public static bool CanSelect(string text, Candidate open, Candidate close)
         {
-            if (end - start <= 1)
+            if (close.position - open.position == 1)
             {
                 return true;
             }
 
-            var spacePosition = text.IndexOf(' ', start, end - start);
+            if (open.edgeType == EdgeType.EDGE || close.edgeType == EdgeType.EDGE)
+            {
+                return true;
+            }
 
-            var a = IsAfterNonSpace(text, start);
-            var b = IsBeforeNonSpace(text, end);
+            var substring = text.Substring(open.position, close.position - open.position);
 
+            var withNumber = IsWordWithDigits(substring);
+            var oneWord = substring.Split(' ').Count() == 1;
 
-            return spacePosition < 0
-                || (IsAfterSpace(text, start) && IsBeforeSpace(text, end));
+            return !withNumber && oneWord;
+        }
+
+        private static bool IsWordWithDigits(string word)
+        {
+            return word.Where(x => char.IsDigit(x)).Any();
         }
     }
 }

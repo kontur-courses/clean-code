@@ -22,6 +22,7 @@ namespace MarkdownTask.MarkdownParsers
                 if (closeIndex + 1 == openParenthesisIndex)
                 {
                     tokens.Add(new Token(TagType.Link, startIndex, Tag.Open, closeParenthesisIndex - startIndex + 1));
+                    tokens.Add(new Token(TagType.Link, closeParenthesisIndex, Tag.Close, 0));
                 }
 
                 startIndex = Math.Max(closeIndex, Math.Max(openParenthesisIndex, closeParenthesisIndex)) + 1;

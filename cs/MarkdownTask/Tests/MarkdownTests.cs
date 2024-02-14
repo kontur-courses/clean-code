@@ -33,8 +33,8 @@ namespace MarkdownTask.Tests
         {
             var md = new Markdown(new ITagParser[]{
                 new HeaderTagParser(),
-                new ItalicTagParser(),
-                new StrongTagParser(),
+                new PairedTagsParser("_", TagInfo.TagType.Italic),
+                new PairedTagsParser("__", TagInfo.TagType.Strong),
                 new EscapingParsing(),
                 new LinkTagParser()
             });
@@ -57,8 +57,8 @@ namespace MarkdownTask.Tests
             var md = new Markdown(new ITagParser[]
             {
                 new HeaderTagParser(),
-                new ItalicTagParser(),
-                new StrongTagParser()
+                new PairedTagsParser("_", TagInfo.TagType.Italic),
+                new PairedTagsParser("__", TagInfo.TagType.Strong),
             });
 
             md.ExecutionTimeOf(s => s.Render(string.Join(" ", text))).Should().BeLessThanOrEqualTo(500.Milliseconds());

@@ -1,6 +1,6 @@
 ﻿using static MarkdownTask.TagInfo;
 
-namespace MarkdownTask
+namespace MarkdownTask.HtmlTools
 {
     public static class HtmlTagExtensions
     {

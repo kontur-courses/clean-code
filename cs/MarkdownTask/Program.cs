@@ -7,10 +7,10 @@ public static class Program
     {
         var s = "# Header __with _different_ tags__";
 
-        Markdown parser = new Markdown(new ITagParser[]{
+        Markdown parser = new(new ITagParser[]{
             new HeaderTagParser(),
-            new ItalicTagParser(),
-            new StrongTagParser(),
+            new PairedTagsParser("_", TagInfo.TagType.Italic),
+            new PairedTagsParser("__", TagInfo.TagType.Strong),
             new EscapingParsing(),
             new LinkTagParser()
             });

@@ -1,4 +1,6 @@
-﻿namespace MarkdownTask
+﻿using MarkdownTask.HtmlTools;
+
+namespace MarkdownTask
 {
     internal class Markdown
     {
@@ -17,7 +19,6 @@
             {
                 tokens.AddRange(parser.Parse(markdownText));
             };
-
 
             return HtmlProcessor.Process(markdownText, tokens); ;
         }

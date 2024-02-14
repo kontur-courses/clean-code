@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using static MarkdownTask.PairedTagsParser;
 
 namespace MarkdownTask.MarkdownTests
 {
@@ -9,84 +10,66 @@ namespace MarkdownTask.MarkdownTests
         [Test]
         public void IsEscaped_WithEmptyString_ShouldReturnFalse()
         {
-            // Arrange
-            string text = string.Empty;
-            int position = 0;
+            var text = string.Empty;
+            var position = 0;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeFalse();
         }
 
         [Test]
         public void IsEscaped_WithSingleCharacter_ShouldReturnFalse()
         {
-            // Arrange
-            string text = "a";
-            int position = 0;
+            var text = "a";
+            var position = 0;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeFalse();
         }
 
         [Test]
         public void IsEscaped_WithEscapedCharacter_ShouldReturnTrue()
         {
-            // Arrange
-            string text = "\\a";
-            int position = 1;
+            var text = "\\a";
+            var position = 1;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeTrue();
         }
 
         [Test]
         public void IsEscaped_WithEscapedEscapeCharacter_ShouldReturnTrue()
         {
-            // Arrange
-            string text = "\\\\a";
-            int position = 2;
+            var text = "\\\\a";
+            var position = 2;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeFalse();
         }
 
         [Test]
         public void IsEscaped_WithUnescapedEscapeCharacter_ShouldReturnFalse()
         {
-            // Arrange
-            string text = "\\\\\\a";
-            int position = 3;
+            var text = "\\\\\\a";
+            var position = 3;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeTrue();
         }
 
         [Test]
         public void IsEscaped_WithCharacterBeforeEscapedCharacters_ShouldReturnFalse()
         {
-            // Arrange
-            string text = "a\\";
-            int position = 1;
+            var text = "a\\";
+            var position = 1;
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
             result.Should().BeFalse();
         }
 
@@ -95,130 +78,60 @@ namespace MarkdownTask.MarkdownTests
         [Test]
         public void IsEscaped_IfOutOfRange_ShouldReturnFalse(int position)
         {
-            // Arrange
-            string text = "a";
+            var text = "a";
 
-            // Act
-            bool result = Utils.IsEscaped(text, position);
+            var result = Utils.IsEscaped(text, position);
 
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        [Test]
-        public void IsAfterNotSpace_WithSingleCharacter_ShouldReturnTrue()
-        {
-            // Arrange
-            string text = "a";
-            int position = 0;
-
-            // Act
-            bool result = Utils.IsAfterNonSpace(text, position);
-
-            // Assert
-            result.Should().BeTrue();
-        }
-
-        [Test]
-        public void IsAfterNotSpace_WithLetterCharacter_ShouldReturnTrue()
-        {
-            // Arrange
-            string text = "abc";
-            int position = 2;
-
-            // Act
-            bool result = Utils.IsAfterNonSpace(text, position);
-
-            // Assert
-            result.Should().BeTrue();
-        }
-
-        [TestCase("a b", 2)]
-        public void IsAfterNotSpace_WithSpace_ShouldReturnFalse(string text, int position)
-        {
-            // Act
-            bool result = Utils.IsAfterNonSpace(text, position);
-
-            // Assert
-            result.Should().BeFalse();
-        }
-
-        [Test]
-        public void IsBeforeNonSpace_WithSingleCharacter_ShouldReturnTrue()
-        {
-            // Arrange
-            string text = "a";
-            int position = 0;
-
-            // Act
-            bool result = Utils.IsBeforeNonSpace(text, position);
-
-            // Assert
-            result.Should().BeTrue();
-        }
-
-        [Test]
-        public void IsBeforeNonSpace_WithLetterCharacter_ShouldReturnTrue()
-        {
-            // Arrange
-            string text = "abc";
-            int position = 0;
-
-            // Act
-            bool result = Utils.IsBeforeNonSpace(text, position);
-
-            // Assert
-            result.Should().BeTrue();
-        }
-
-        [TestCase("a b", 0)]
-        public void IsBeforeNonSpace_WithSpace_ShouldReturnFalse(string text, int position)
-        {
-            // Act
-            bool result = Utils.IsBeforeNonSpace(text, position);
-
-            // Assert
             result.Should().BeFalse();
         }
 
         [Test]
         public void CanSelect_WithSingleWord_ShouldReturnTrue()
         {
-            // Arrange
-            string text = "aaa_bbb_ccc";
-            int start = 3;
-            int end = 7;
+            var text = "aaa_bbb_ccc";
+            var start = new Candidate();
+            start.position = 3;
+            start.edgeType = EdgeType.MIDDLE;
 
-            // Act
-            bool result = Utils.CanSelect(text, start, end);
+            var end = new Candidate();
+            end.position = 7;
+            end.edgeType = EdgeType.MIDDLE;
 
-            // Assert
+            var result = Utils.CanSelect(text, start, end);
+
             result.Should().BeTrue();
         }
 
         [Test]
         public void CanSelect_WithTwoWordStartInMiddle_ShouldReturnFalse()
         {
-            // Arrange
-            string text = "aaa_b b_ccc";
-            int start = 3;
-            int end = 7;
+            var text = "aaa_b b_ccc";
+            var start = new Candidate();
+            start.position = 3;
+            start.edgeType = EdgeType.MIDDLE;
 
-            // Act
-            bool result = Utils.CanSelect(text, start, end);
+            var end = new Candidate();
+            end.position = 7;
+            end.edgeType = EdgeType.MIDDLE;
 
-            // Assert
+            var result = Utils.CanSelect(text, start, end);
+
             result.Should().BeFalse();
         }
 
         [TestCase("aa _b b_ cc", 3, 7)]
         [TestCase("_a b_", 0, 4)]
-        public void CanSelect_WithTwoWordStartOnEdge_ShouldReturnTrue(string text, int start, int end)
+        public void CanSelect_WithTwoWordStartOnEdge_ShouldReturnTrue(string text, int startPos, int endPos)
         {
-            // Act
-            bool result = Utils.CanSelect(text, start, end);
+            var start = new Candidate();
+            start.position = startPos;
+            start.edgeType = EdgeType.EDGE;
 
-            // Assert
+            var end = new Candidate();
+            end.position = endPos;
+            end.edgeType = EdgeType.EDGE;
+            var result = Utils.CanSelect(text, start, end);
+
             result.Should().BeTrue();
         }
     }
