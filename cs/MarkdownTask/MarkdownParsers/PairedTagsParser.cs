@@ -2,7 +2,7 @@
 
 namespace MarkdownTask
 {
-    public class PairedTagsParser : ITagParser
+    public class PairedTagsParser : IMarkdownParser
     {
         private readonly string tag;
         private readonly int tagLength;

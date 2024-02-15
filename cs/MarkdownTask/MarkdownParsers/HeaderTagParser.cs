@@ -1,6 +1,6 @@
 ﻿namespace MarkdownTask
 {
-    public class HeaderTagParser : ITagParser
+    public class HeaderTagParser : IMarkdownParser
     {
         private const string headerTag = "# ";
         public ICollection<Token> Parse(string markdown)

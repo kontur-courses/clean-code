@@ -31,7 +31,7 @@ namespace MarkdownTask.Tests
         [TestCase("_[Google](https://google.com)_", "<em><a href=Google>https://google.com</a></em>", TestName = "Tags works outside link markdown")]
         public void Markdown_SimpleTags_ParsedCorrectly(string markdownString, string htmlString)
         {
-            var md = new Markdown(new ITagParser[]{
+            var md = new Markdown(new IMarkdownParser[]{
                 new HeaderTagParser(),
                 new PairedTagsParser("_", TagInfo.TagType.Italic),
                 new PairedTagsParser("__", TagInfo.TagType.Strong),
@@ -54,7 +54,7 @@ namespace MarkdownTask.Tests
                 text.Add(textBlocks[rnd.Next(3)]);
             }
 
-            var md = new Markdown(new ITagParser[]
+            var md = new Markdown(new IMarkdownParser[]
             {
                 new HeaderTagParser(),
                 new PairedTagsParser("_", TagInfo.TagType.Italic),

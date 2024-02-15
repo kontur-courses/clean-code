@@ -1,6 +1,6 @@
 ﻿namespace MarkdownTask.MarkdownParsers
 {
-    public class EscapedCharactersParsing : ITagParser
+    public class EscapedCharactersParsing : IMarkdownParser
     {
         private const char escapeChar = '\\';
         private const int tagLength = 1;

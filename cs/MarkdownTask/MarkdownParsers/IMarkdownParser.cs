@@ -1,6 +1,6 @@
 ﻿namespace MarkdownTask
 {
-    public interface ITagParser
+    public interface IMarkdownParser
     {
         ICollection<Token> Parse(string markdown);
     }

@@ -4,9 +4,9 @@ namespace MarkdownTask
 {
     internal class Markdown
     {
-        private readonly ITagParser[] Parsers;
+        private readonly IMarkdownParser[] Parsers;
 
-        public Markdown(ITagParser[] parsers)
+        public Markdown(IMarkdownParser[] parsers)
         {
             Parsers = parsers;
         }

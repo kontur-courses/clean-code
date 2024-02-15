@@ -2,7 +2,7 @@
 
 namespace MarkdownTask.MarkdownParsers
 {
-    public class LinkTagParser : ITagParser
+    public class LinkTagParser : IMarkdownParser
     {
         public ICollection<Token> Parse(string markdown)
         {
