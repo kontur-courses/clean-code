@@ -8,7 +8,10 @@
             if (split <= 0)
                 return "";
 
-            return $"<a href={linkMarkdown.Substring(1, split - 1)}>{linkMarkdown.Substring(split + 2)}</a>";
+            var label = linkMarkdown.Substring(1, split - 1);
+            var link = linkMarkdown.Substring(split + 2, linkMarkdown.Length - (split + 2) - 1);
+
+            return $"<a href={label}>{link}</a>";
         }
     }
 }

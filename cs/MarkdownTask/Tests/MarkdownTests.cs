@@ -12,9 +12,9 @@ namespace MarkdownTask.Tests
         [TestCase("_Italic text_", "<em>Italic text</em>", TestName = "Parse _ tag")]
         [TestCase("__Halfbold text__", "<strong>Halfbold text</strong>", TestName = "Parse __ tag")]
         [TestCase("# This is a header", "<h1>This is a header</h1>", TestName = "Parse '# ' tag")]
-        [TestCase("[Google](https://google.com)", "<a href=Google>https://google.com)</a>", TestName = "ParseLinkTag")]
+        [TestCase("[Google](https://google.com)", "<a href=Google>https://google.com</a>", TestName = "ParseLinkTag")]
         [TestCase("", "", TestName = "Parse empty string")]
-        [TestCase("# Header __with _different_ tags__ [Google](https://google.com)", "<h1>Header <strong>with <em>different</em> tags</strong> <a href=Google>https://google.com)</a></h1>", TestName = "All tags together")]
+        [TestCase("# Header __with _different_ tags__ [Google](https://google.com)", "<h1>Header <strong>with <em>different</em> tags</strong> <a href=Google>https://google.com</a></h1>", TestName = "All tags together")]
         [TestCase(@"\_Вот это\_, не должно выделиться тегом <em>", @"_Вот это_, не должно выделиться тегом <em>", TestName = "Сharacter escaping")]
         [TestCase(@"Здесь сим\волы экранирования\ \должны остаться.\", @"Здесь сим\волы экранирования\ \должны остаться.\", TestName = "Character escaping stay if escaspe nothing")]
         [TestCase(@"\\_вот это будет выделено тегом_ ", @"\<em>вот это будет выделено тегом</em> ", TestName = "Escaping escape char")]
@@ -27,8 +27,8 @@ namespace MarkdownTask.Tests
         [TestCase("эти _подчерки _ не считаются выделением", "эти _подчерки _ не считаются выделением", TestName = "Closing tag should be after nonspace char")]
         [TestCase("случае __пересечения _двойных__ и одинарных_ подчерков", "случае __пересечения _двойных__ и одинарных_ подчерков", TestName = "Tags intersection are not allowed")]
         [TestCase("____", "____", TestName = "Tags without text not parsed")]
-        [TestCase("[Goo_gle](https://goog_le.com)", "<a href=Goo_gle>https://goog_le.com)</a>", TestName = "Tags inside link markdown are ignored")]
-        [TestCase("_[Google](https://google.com)_", "<em><a href=Google>https://google.com)</a></em>", TestName = "Tags works outside link markdown")]
+        [TestCase("[Goo_gle](https://goog_le.com)", "<a href=Goo_gle>https://goog_le.com</a>", TestName = "Tags inside link markdown are ignored")]
+        [TestCase("_[Google](https://google.com)_", "<em><a href=Google>https://google.com</a></em>", TestName = "Tags works outside link markdown")]
         public void Markdown_SimpleTags_ParsedCorrectly(string markdownString, string htmlString)
         {
             var md = new Markdown(new ITagParser[]{
