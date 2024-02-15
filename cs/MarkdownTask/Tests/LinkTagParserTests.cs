@@ -25,5 +25,25 @@ namespace MarkdownTask.MarkdownTests
             result[0].Should().BeEquivalentTo(expected[0]);
             result[1].Should().BeEquivalentTo(expected[1]);
         }
+
+        [Test]
+        public void Process_WitoutLinkTags_ReturnsNoTokens()
+        {
+            var inputText = "a b d";
+
+            var result = new LinkTagParser().Parse(inputText).ToList();
+
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Process_WithBadLinkTags_ReturnsNoTokens()
+        {
+            var inputText = "a [b] d";
+
+            var result = new LinkTagParser().Parse(inputText).ToList();
+
+            result.Should().BeEmpty();
+        }
     }
 }
