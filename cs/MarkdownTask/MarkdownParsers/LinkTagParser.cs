@@ -11,43 +11,51 @@ namespace MarkdownTask.MarkdownParsers
 
             while ((startIndex = markdown.IndexOf("[", startIndex)) != -1)
             {
-                var closeIndex = markdown.IndexOf("]", startIndex);
+                var sequenceLength = CorrectBracketsSequenceLength(markdown, startIndex);
 
-                if (closeIndex == -1)
+                if (sequenceLength != -1)
                 {
-                    break;
+                    tokens.Add(new Token(TagType.Link, startIndex, Tag.Open, sequenceLength));
+                    tokens.Add(new Token(TagType.Link, startIndex + sequenceLength - 1, Tag.Close, 0));
+
+                    startIndex += sequenceLength;
                 }
-
-                var openParenthesisIndex = markdown.IndexOf("(", closeIndex);
-
-                if (openParenthesisIndex == -1)
+                else
                 {
-                    break;
+                    startIndex++;
                 }
-
-                if (openParenthesisIndex - closeIndex != 1)
-                {
-                    startIndex = openParenthesisIndex;
-                    continue;
-                }
-
-                var closeParenthesisIndex = markdown.IndexOf(")", openParenthesisIndex);
-
-                if (closeIndex == -1)
-                {
-                    continue;
-                }
-
-                if (closeIndex + 1 == openParenthesisIndex)
-                {
-                    tokens.Add(new Token(TagType.Link, startIndex, Tag.Open, closeParenthesisIndex - startIndex + 1));
-                    tokens.Add(new Token(TagType.Link, closeParenthesisIndex, Tag.Close, 0));
-                }
-
-                startIndex = Math.Max(closeIndex, Math.Max(openParenthesisIndex, closeParenthesisIndex)) + 1;
             }
 
             return tokens;
+        }
+
+        private int CorrectBracketsSequenceLength(string text, int startIndex)
+        {
+            string sequence = "]()";
+
+            if (startIndex == -1)
+            {
+                return -1;
+            }
+
+            var bracketsPosition = new List<int>() { startIndex };
+
+            foreach (char c in sequence)
+            {
+                var bracketIndex = text.IndexOf(c, bracketsPosition.Last());
+
+                if (bracketIndex == -1)
+                {
+                    return -1;
+                }
+
+                bracketsPosition.Add(bracketIndex);
+            }
+
+            if (bracketsPosition[2] != bracketsPosition[1] + 1)
+                return -1;
+
+            return bracketsPosition.Last() - bracketsPosition.First() + 1;
         }
     }
 }
