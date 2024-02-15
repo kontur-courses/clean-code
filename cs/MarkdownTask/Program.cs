@@ -1,13 +1,14 @@
-﻿using MarkdownTask;
-using MarkdownTask.MarkdownParsers;
+﻿using MarkdownTask.MarkdownParsers;
 
-public static class Program
+namespace MarkdownTask
 {
-    public static void Main()
+    public static class Program
     {
-        var s = "# Header __with _different_ tags__";
+        public static void Main()
+        {
+            var s = "# Header __with _different_ tags__";
 
-        Markdown parser = new(new IMarkdownParser[]{
+            Markdown parser = new(new IMarkdownParser[]{
             new HeaderTagParser(),
             new PairedTagsParser("_", TagInfo.TagType.Italic),
             new PairedTagsParser("__", TagInfo.TagType.Strong),
@@ -15,6 +16,7 @@ public static class Program
             new LinkTagParser()
             });
 
-        Console.WriteLine(parser.Render(s));
+            Console.WriteLine(parser.Render(s));
+        }
     }
 }

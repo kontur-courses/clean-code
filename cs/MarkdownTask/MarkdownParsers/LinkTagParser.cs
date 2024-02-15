@@ -29,7 +29,7 @@ namespace MarkdownTask.MarkdownParsers
             return tokens;
         }
 
-        private int CorrectBracketsSequenceLength(string text, int startIndex)
+        private static int CorrectBracketsSequenceLength(string text, int startIndex)
         {
             string sequence = "]()";
 

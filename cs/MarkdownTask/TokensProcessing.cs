@@ -40,9 +40,7 @@ namespace MarkdownTask
                 }
                 else
                 {
-                    var pair = TryFormPair(stack, token);
-
-                    selected.AddRange(pair);
+                    selected.AddRange(TryFormPair(stack, token));
                 }
             }
 
