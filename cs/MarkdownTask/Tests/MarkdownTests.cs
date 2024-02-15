@@ -35,7 +35,7 @@ namespace MarkdownTask.Tests
                 new HeaderTagParser(),
                 new PairedTagsParser("_", TagInfo.TagType.Italic),
                 new PairedTagsParser("__", TagInfo.TagType.Strong),
-                new EscapingParsing(),
+                new EscapedCharactersParsing(),
                 new LinkTagParser()
             });
 
