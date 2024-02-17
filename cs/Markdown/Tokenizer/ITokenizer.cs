@@ -4,5 +4,5 @@ namespace Markdown.Tokenizer;
 
 public interface ITokenizer
 {
-    public IEnumerable<Token> Tokenize(string str);
+    public IEnumerable<Token> Tokenize();
 }

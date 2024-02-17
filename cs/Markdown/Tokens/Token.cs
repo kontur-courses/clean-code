@@ -2,24 +2,28 @@
 
 public abstract class Token
 {
-    protected abstract string TagWrapper { get; }
-    protected abstract string Separator { get; }
-    protected abstract bool IsCanContainAnotherTags { get; }
-    protected abstract bool IsSingleSeparator { get; }
+    public abstract string TagWrapper { get; }
+    public abstract string Separator { get; }
+    public abstract bool IsCanContainAnotherTags { get; }
+    public abstract bool IsSingleSeparator { get; }
     public int OpeningIndex { get; private protected set; }
     public int ClosingIndex { get; private protected set; }
-    public IEnumerable<Token> Tokens { get; }
+    public List<Token> Tokens { get; set; } = new();
+
+    public bool IsCorrect { get; set; } = true;
+    public bool IsClosed { get; set; } = false;
+
 
     protected Token(int openingIndex, int closingIndex)
     {
-        if (openingIndex < 0 || closingIndex <= openingIndex)
+        if (openingIndex < 0 || closingIndex < openingIndex)
         {
             throw new ArgumentException();
         }
 
+        IsClosed = true;
         OpeningIndex = openingIndex;
         ClosingIndex = closingIndex;
-        Tokens = new List<Token>();
     }
 
     protected Token(int openingIndex)
@@ -30,8 +34,9 @@ public abstract class Token
         }
 
         OpeningIndex = openingIndex;
-        Tokens = new List<Token>();
     }
+
+    public abstract void Validate(string str);
     
     public void CloseToken(int closingIndex)
     {
@@ -39,21 +44,35 @@ public abstract class Token
         {
             throw new ArgumentException();
         }
-
         ClosingIndex = closingIndex;
+        IsClosed = true;
+    }
+    
+    public static bool IsCorrectTokenOpenIndex(int index, string str)
+    {
+        return index < str.Length - 1 && str[index + 1] != ' ' ;
+
     }
 
-    public bool IsTokenSingleSeparator()
+    public static bool IsSeparatorInsideDigit(int separatorStart, int separatorEnd, string str)
     {
-        return IsSingleSeparator;
+        var isLeftDigit = (separatorStart > 0 && char.IsDigit(str[separatorStart - 1]));
+        var isRightDigit = (separatorEnd < str.Length-1 && char.IsDigit(str[separatorEnd + 1]));
+        return isLeftDigit || isRightDigit;
+    }
+    
+    public static bool IsCorrectTokenCloseIndex(int closeIndex, string text)
+    {
+        return closeIndex != 0 && text[closeIndex-1] != ' ';
     }
 
-    public string GetSeparator()
+    public override string ToString()
     {
-        return Separator;
-    }
-    public virtual string GetTokenContent()
-    {
-        return $"<{Separator}>{String.Join(string.Empty,Tokens)}</{Separator}>";
+        if (IsCorrect)
+            return $"<{TagWrapper}>{String.Join(string.Empty, Tokens)}</{TagWrapper}>";
+
+        return $"{Separator}" +
+               $"{String.Join(string.Empty, Tokens)}" +
+               $"{(IsSingleSeparator ? string.Empty : Separator)}";
     }
 }
