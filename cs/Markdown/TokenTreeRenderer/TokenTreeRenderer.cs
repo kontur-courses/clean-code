@@ -6,11 +6,13 @@ public class TokenTreeRenderer
 {
     public IEnumerable<Token> ConvertTokensToHtml(IEnumerable<Token> tokens)
     {
+        tokens = tokens.OrderBy(t => t.OpeningIndex);
         var tokenGraph = GetRoots(tokens);
         foreach (var token in tokenGraph)
         {
             token.Tokens = SetChilds(token, tokens);
         }
+        
         return tokenGraph;
     }
 
@@ -19,9 +21,18 @@ public class TokenTreeRenderer
         var graph = GetRoots(tokens, token.OpeningIndex, token.ClosingIndex);
         foreach (var g in graph)
         {
+            if (!token.IsCanContainAnotherTags)
+            {
+                g.IsCorrect = false;
+            }
+            
             var childs = GetRoots(tokens, g.OpeningIndex, g.ClosingIndex).ToList();
             foreach (var child in childs)
             {
+                if (!g.IsCorrect)
+                {
+                    child.IsCorrect = false;
+                }
                 child.Tokens = SetChilds(child, tokens);
             }
 

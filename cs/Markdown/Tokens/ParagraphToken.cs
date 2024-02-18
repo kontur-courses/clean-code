@@ -3,7 +3,7 @@
 public class ParagraphToken:Token
 {
     public override string TagWrapper { get; } = "h1";
-    public override string Separator { get; } = "#";
+    public override string Separator { get; } = "# ";
     public override bool IsCanContainAnotherTags { get; } = true;
     public override bool IsSingleSeparator { get; } = true;
 

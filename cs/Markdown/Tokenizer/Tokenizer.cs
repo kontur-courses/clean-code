@@ -28,7 +28,12 @@ public class Tokenizer : ITokenizer
             var symbol = text[i];
 
             if (symbol == '\n')
+            {
                 CloseAllOpenedTokens(i);
+                LiteralBuilder.Append(symbol);
+                SaveLiteralToken(i+1);
+                continue;
+            }
 
             if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{PotentialToken}{symbol}")))
             {

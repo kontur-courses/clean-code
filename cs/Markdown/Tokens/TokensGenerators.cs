@@ -14,7 +14,7 @@ public static class TokensGenerators
                     (int openIndex) => new BoldToken(openIndex))
             },
             {
-                "#", new TokenGenerator(
+                "# ", new TokenGenerator(
                     (int openIndex) => new ParagraphToken(openIndex))
             },
             {

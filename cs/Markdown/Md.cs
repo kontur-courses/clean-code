@@ -10,6 +10,6 @@ public class Md
         var tokens = new Tokenizer.Tokenizer(str).Tokenize();
         var tokentree = new TokenTreeRenderer.TokenTreeRenderer().ConvertTokensToHtml(tokens);
 
-        return string.Join("", tokentree.ToString());
+        return string.Join("", tokentree);
     }
 }

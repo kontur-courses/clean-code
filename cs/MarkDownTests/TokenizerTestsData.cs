@@ -27,10 +27,10 @@ public class TokenizerTestsData
                 new BoldToken(2, 6)
             }).SetName("ShouldTokenizeInputToLiteralTokensAndBoldToken_WhenInputContainsBoldToken");
 
-            yield return new TestCaseData("#a b c", new List<Token>()
+            yield return new TestCaseData("# a b c", new List<Token>()
             {
-                new ParagraphToken(0, 5),
-                new LiteralToken(1, 5, "a b c")
+                new ParagraphToken(0, 6),
+                new LiteralToken(2, 6, "a b c")
             }).SetName("ShouldTokenizeInputToLiteralTokensAndItalicsToken_WhenInputContainsParagraphToken");
 
             yield return new TestCaseData("a \\ b c", new List<Token>()
@@ -44,9 +44,9 @@ public class TokenizerTestsData
                 new LiteralToken(3, 7, "_b_ c")
             }).SetName("ShoudIgnoreSeparator_WhenItsScreened");
 
-            yield return new TestCaseData("a_1_3 b_12", new List<Token>()
+            yield return new TestCaseData("a_1_3 b__12", new List<Token>()
             {
-                new LiteralToken(0, 9, "a_1_3 b_12")
+                new LiteralToken(0, 10, "a_1_3 b__12")
             }).SetName("ShouldIgnoreSeparators_WhenSeparatorsInsideWordWithDigit");
 
             yield return new TestCaseData("a_a b_b", new List<Token>()
@@ -76,6 +76,24 @@ public class TokenizerTestsData
                 new LiteralToken(4, 4, "_"),
                 new LiteralToken(10, 10, "_")
             }).SetName("ShouldReplaceIntersectedTokens");
+            
+            yield return new TestCaseData("_ a_", new List<Token>()
+            {
+                new LiteralToken(0, 3, "_ a_"),
+            }).SetName("ShouldIgnoreToken_WhenOpeningIndexIsNotValid");
+            
+            yield return new TestCaseData("_a _", new List<Token>()
+            {
+                new LiteralToken(1, 3, "a _"),
+                new LiteralToken(0,0,"_")
+            }).SetName("ShouldIgnoreToken_WhenClosingIndexIsNotValid");
+
+            yield return new TestCaseData("_abc \nabc_", new List<Token>()
+            {  
+                new LiteralToken(0,0,"_"),
+                new LiteralToken(1,5,"abc \n"),
+                new LiteralToken(6,9,"abc_")
+            }).SetName("ShouldIgnoreToken_WhenSeparatorsInDifferenrParagraphs");
         }
     }
 }
