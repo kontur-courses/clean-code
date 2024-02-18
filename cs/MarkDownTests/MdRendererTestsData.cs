@@ -14,7 +14,7 @@ public class MdRendererTestsData
             yield return new TestCaseData("a __b__", "a <strong>b</strong>").SetName(
                 "ShouldPrintBoldToken_When_BoldTokenInInput");
             
-             yield return new TestCaseData("#a b c", "<h1>a b c</h1>").SetName(
+             yield return new TestCaseData("# a b c", "<h1>a b c</h1>").SetName(
                 "ShouldPrintParagraphToken_When_ParagraphTokenInInput");
              
              yield return new TestCaseData("a \\ b c", "a \\ b c").SetName(
@@ -47,6 +47,10 @@ public class MdRendererTestsData
             yield return new TestCaseData("# Заголовок __с _разными_ символами__",
                 "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")
                 .SetName("ShouldPrintParagraphWithDifferentTokens");
+
+            yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|",
+                    "<ul><li>ПЕРВЫЙ ПУНКТ</li> <li>ВТОРОЙ ПУНКТ</li> <li>ТРЕТИЙ ПУНКТ</li></ul>")
+                .SetName("ShouldPrintMarkedListToken");
         }
     }
 }

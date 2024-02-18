@@ -17,14 +17,14 @@ public class TokenizerTestsData
             {
                 new LiteralToken(0, 1, "a "),
                 new LiteralToken(3, 3, "b"),
-                new ItalicsToken(2, 4),
+                new ItalicsToken(2, 4){IsCorrect = true},
             }).SetName("ShouldTokenizeInputToLiteralTokensAndItalicsToken_WhenInputContainsItalicsToken");
 
             yield return new TestCaseData("a __b__", new List<Token>()
             {
                 new LiteralToken(0, 1, "a "),
                 new LiteralToken(4, 4, "b"),
-                new BoldToken(2, 6)
+                new BoldToken(2, 6) {IsCorrect = true}
             }).SetName("ShouldTokenizeInputToLiteralTokensAndBoldToken_WhenInputContainsBoldToken");
 
             yield return new TestCaseData("# a b c", new List<Token>()
@@ -94,6 +94,27 @@ public class TokenizerTestsData
                 new LiteralToken(1,5,"abc \n"),
                 new LiteralToken(6,9,"abc_")
             }).SetName("ShouldIgnoreToken_WhenSeparatorsInDifferenrParagraphs");
+            
+            yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|", new List<Token>()
+            {  
+                new LiteralToken(2,13,"ПЕРВЫЙ ПУНКТ"),
+                new ListItemToken(1,14){IsCorrect = true},
+                new LiteralToken(15,15," "){IsCorrect = true},
+                new LiteralToken(17,28,"ВТОРОЙ ПУНКТ"),
+                new ListItemToken(16,29){IsCorrect = true},
+                new LiteralToken(30,30," "){IsCorrect = true},
+                new LiteralToken(32,43,"ТРЕТИЙ ПУНКТ"),
+                new ListItemToken(31,44){IsCorrect = true},
+                new MarkedListToken(0,45){IsCorrect = true},
+            }).SetName("ShouldReturnMarkedListToken");
+            
+            yield return new TestCaseData("*ПЕРВЫЙ ПУНКТ*", new List<Token>()
+            {  
+                new LiteralToken(1,12,"ПЕРВЫЙ ПУНКТ"),
+                new  LiteralToken(0,0,"*"),
+                new LiteralToken(13,13,"*")
+            }).SetName("ShouldIgnoreListItemToken_WhenItNotCorrect");
+        
         }
     }
 }

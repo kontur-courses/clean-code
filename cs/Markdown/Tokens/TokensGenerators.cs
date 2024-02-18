@@ -19,7 +19,14 @@ public static class TokensGenerators
             },
             {
                 "\\", new TokenGenerator(
-                    (int openIndex)=>new ScreeningToken(openIndex,openIndex))
+                    (int openIndex) => new ScreeningToken(openIndex, openIndex))
+            },
+            {
+                "*", new TokenGenerator(
+                    (int openIndex) => new ListItemToken(openIndex))
+            },
+            {
+                "|", new TokenGenerator((int openIndex) => new MarkedListToken(openIndex))
             }
         };
 }
@@ -28,7 +35,7 @@ public class TokenGenerator
 {
     public readonly Func<int, Token> CreateToken;
 
-    public TokenGenerator( Func<int, Token> createToken)
+    public TokenGenerator(Func<int, Token> createToken)
     {
         CreateToken = createToken;
     }

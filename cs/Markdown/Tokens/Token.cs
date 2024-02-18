@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tokens;
+﻿using System.Collections;
+
+namespace Markdown.Tokens;
 
 public abstract class Token
 {
@@ -6,12 +8,14 @@ public abstract class Token
     public abstract string Separator { get; }
     public abstract bool IsCanContainAnotherTags { get; }
     public abstract bool IsSingleSeparator { get; }
+    public abstract bool IsContented { get; }
     public int OpeningIndex { get; private protected set; }
     public int ClosingIndex { get; private protected set; }
     public List<Token> Tokens { get; set; } = new();
 
-    public bool IsCorrect { get; set; } = true;
+    public bool IsCorrect { get; set; } = false;
     public bool IsClosed { get; set; } = false;
+
 
 
     protected Token(int openingIndex, int closingIndex)
@@ -36,7 +40,7 @@ public abstract class Token
         OpeningIndex = openingIndex;
     }
 
-    public abstract void Validate(string str);
+    public abstract void Validate(string str, IEnumerable<Token> tokens);
     
     public void CloseToken(int closingIndex)
     {

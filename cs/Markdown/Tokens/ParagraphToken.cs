@@ -1,18 +1,24 @@
 ﻿namespace Markdown.Tokens;
 
-public class ParagraphToken:Token
+public class ParagraphToken : Token
 {
     public override string TagWrapper { get; } = "h1";
     public override string Separator { get; } = "# ";
     public override bool IsCanContainAnotherTags { get; } = true;
     public override bool IsSingleSeparator { get; } = true;
+    public override bool IsContented { get; } = false;
 
-    public ParagraphToken(int openingIndex, int closingIndex) : base(openingIndex, closingIndex) {}
-    public ParagraphToken(int openingIndex) : base(openingIndex){}
 
-    public override void Validate(string str)
+    public ParagraphToken(int openingIndex, int closingIndex) : base(openingIndex, closingIndex)
     {
-        IsCorrect =  OpeningIndex == 0 || str[OpeningIndex - 1] == '\n';
     }
-  
+
+    public ParagraphToken(int openingIndex) : base(openingIndex)
+    {
+    }
+
+    public override void Validate(string str, IEnumerable<Token> tokens)
+    {
+        IsCorrect = OpeningIndex == 0 || str[OpeningIndex - 1] == '\n';
+    }
 }

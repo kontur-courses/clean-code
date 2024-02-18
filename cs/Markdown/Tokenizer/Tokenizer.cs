@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
 
@@ -65,7 +63,15 @@ public class Tokenizer : ITokenizer
         SaveLiteralToken(text.Length);
         CloseAllOpenedTokens(text.Length - 1);
         
-        return Tokens;
+        return Tokens.Select(t =>
+        {
+            if (t.IsContented && !t.IsCorrect)
+            {
+                return t.ReplaceInvalidTokenToLiteral();
+            }
+
+            return new List<Token> { t };
+        }).SelectMany(t=>t);
     }
 
     private void CheckTokenAvailability(int index)
@@ -86,7 +92,7 @@ public class Tokenizer : ITokenizer
             
             var token = TokenDictionary[separator];
             token.CloseToken(separatorEnd);
-            token.Validate(text);
+            token.Validate(text,Tokens);
             
             CheckIntersectionAndSave(token);
 
@@ -113,7 +119,7 @@ public class Tokenizer : ITokenizer
 
     private void CheckIntersectionAndSave(Token token)
     {
-        if (token.IsCorrect)
+        if (token.IsCorrect || token.IsContented)
         {
             var intersections = FindIntersections(token);
             if (intersections.Any())
