@@ -65,7 +65,46 @@ public class Tokenizer : ITokenizer
 
     private void CheckTokenAvailability(int index)
     {
+        var separator = PotentialToken.ToString();
+        var separatorStart = index - separator.Length;
+        var separatorEnd = index - 1;
+
+        if (CheckScreening(separatorStart) || Token.IsSeparatorInsideDigit(separatorStart, separatorEnd, text))
+        {
+            LiteralBuilder.Append(separator);
+            return;
+        }
+
+        if (TokenDictionary.ContainsKey(separator) && Token.IsCorrectTokenCloseIndex(separatorStart, text))
+        {
+            SaveLiteralToken(separatorStart);
+            
+            var token = TokenDictionary[separator];
+            token.CloseToken(separatorEnd);
+            token.Validate(text);
+            
+            CheckIntersectionAndSave(token);
+
+            TokenDictionary.Remove(separator);
+            return;
+        }
+
+        if (Token.IsCorrectTokenOpenIndex(separatorEnd, text))
+        {
+            SaveLiteralToken(separatorStart);
+            var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);
+            if (token.IsClosed)
+            {
+                Tokens.Add(token);
+                return;
             }
+
+            TokenDictionary[separator] = token;
+            return;
+        }
+
+        LiteralBuilder.Append(separator);
+    }
 
     private void CheckIntersectionAndSave(Token token)
     {
