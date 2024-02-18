@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
 using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
@@ -58,65 +59,19 @@ public class Tokenizer : ITokenizer
 
         SaveLiteralToken(text.Length);
         CloseAllOpenedTokens(text.Length - 1);
+        
         return Tokens;
     }
 
     private void CheckTokenAvailability(int index)
     {
-        var separator = PotentialToken.ToString();
-        var separatorStart = index - separator.Length;
-        var separatorEnd = index - 1;
-
-        if (CheckScreening(separatorStart) || Token.IsSeparatorInsideDigit(separatorStart, separatorEnd, text))
-        {
-            LiteralBuilder.Append(separator);
-            return;
-        }
-
-        if (TokenDictionary.ContainsKey(separator) && Token.IsCorrectTokenCloseIndex(separatorStart, text))
-        {
-            SaveLiteralToken(separatorStart);
-            
-            var token = TokenDictionary[separator];
-            token.CloseToken(separatorEnd);
-            token.Validate(text);
-            
-           /* if (token.IsCorrect)
-            {
-                Tokens.Add(token);
             }
-            else Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
-            */
-            CheckIntersectionAndSave(token);
-
-            TokenDictionary.Remove(separator);
-            return;
-        }
-
-        if (Token.IsCorrectTokenOpenIndex(separatorEnd, text))
-        {
-            SaveLiteralToken(separatorStart);
-            var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);
-            if (token.IsClosed)
-            {
-                Tokens.Add(token);
-                return;
-            }
-
-            TokenDictionary[separator] = token;
-            return;
-        }
-
-        LiteralBuilder.Append(separator);
-    }
 
     private void CheckIntersectionAndSave(Token token)
     {
         if (token.IsCorrect)
         {
-            var intersections = Tokens.Where(t => t.OpeningIndex < token.OpeningIndex
-                                                  && t.ClosingIndex > token.OpeningIndex
-                                                  && t.ClosingIndex < token.ClosingIndex && !(t is LiteralToken)).ToArray();
+            var intersections = FindIntersections(token);
             if (intersections.Any())
             {
                 foreach (var intersect in intersections)
@@ -133,11 +88,11 @@ public class Tokenizer : ITokenizer
         Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
     }
     
-    private List<Token> FindIntersections(Token token)
+    private IEnumerable<Token> FindIntersections(Token token)
     {
-        return Tokens.Where(t =>
-            t.OpeningIndex < token.OpeningIndex && t.ClosingIndex > token.OpeningIndex &&
-            t.ClosingIndex < token.ClosingIndex).ToList();
+        return Tokens.Where(t => t.OpeningIndex < token.OpeningIndex
+                                 && t.ClosingIndex > token.OpeningIndex
+                                 && t.ClosingIndex < token.ClosingIndex && !(t is LiteralToken)).ToArray();
     }
 
     private void CloseAllOpenedTokens(int closeIndex)
