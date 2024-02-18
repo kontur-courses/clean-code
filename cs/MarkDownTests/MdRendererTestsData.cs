@@ -51,6 +51,7 @@ public class MdRendererTestsData
             yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|",
                     "<ul><li>ПЕРВЫЙ ПУНКТ</li> <li>ВТОРОЙ ПУНКТ</li> <li>ТРЕТИЙ ПУНКТ</li></ul>")
                 .SetName("ShouldPrintMarkedListToken");
+            
         }
     }
 }

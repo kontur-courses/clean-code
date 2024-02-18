@@ -29,7 +29,7 @@ public class TokenizerTestsData
 
             yield return new TestCaseData("# a b c", new List<Token>()
             {
-                new ParagraphToken(0, 6),
+                new ParagraphToken(0, 6){IsCorrect = true},
                 new LiteralToken(2, 6, "a b c")
             }).SetName("ShouldTokenizeInputToLiteralTokensAndItalicsToken_WhenInputContainsParagraphToken");
 

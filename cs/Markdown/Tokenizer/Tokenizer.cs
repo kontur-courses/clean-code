@@ -152,6 +152,7 @@ public class Tokenizer : ITokenizer
             if (token.IsSingleSeparator)
             {
                 token.CloseToken(closeIndex);
+                token.Validate(text,Tokens);
                 Tokens.Add(token);
                 continue;
             }
