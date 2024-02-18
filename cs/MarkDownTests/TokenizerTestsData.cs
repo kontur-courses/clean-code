@@ -17,19 +17,19 @@ public class TokenizerTestsData
             {
                 new LiteralToken(0, 1, "a "),
                 new LiteralToken(3, 3, "b"),
-                new ItalicsToken(2, 4){IsCorrect = true},
+                new ItalicsToken(2, 4) { IsCorrect = true },
             }).SetName("ShouldTokenizeInputToLiteralTokensAndItalicsToken_WhenInputContainsItalicsToken");
 
             yield return new TestCaseData("a __b__", new List<Token>()
             {
                 new LiteralToken(0, 1, "a "),
                 new LiteralToken(4, 4, "b"),
-                new BoldToken(2, 6) {IsCorrect = true}
+                new BoldToken(2, 6) { IsCorrect = true }
             }).SetName("ShouldTokenizeInputToLiteralTokensAndBoldToken_WhenInputContainsBoldToken");
 
             yield return new TestCaseData("# a b c", new List<Token>()
             {
-                new ParagraphToken(0, 6){IsCorrect = true},
+                new ParagraphToken(0, 6) { IsCorrect = true },
                 new LiteralToken(2, 6, "a b c")
             }).SetName("ShouldTokenizeInputToLiteralTokensAndItalicsToken_WhenInputContainsParagraphToken");
 
@@ -76,45 +76,44 @@ public class TokenizerTestsData
                 new LiteralToken(4, 4, "_"),
                 new LiteralToken(10, 10, "_")
             }).SetName("ShouldReplaceIntersectedTokens");
-            
+
             yield return new TestCaseData("_ a_", new List<Token>()
             {
                 new LiteralToken(0, 3, "_ a_"),
             }).SetName("ShouldIgnoreToken_WhenOpeningIndexIsNotValid");
-            
+
             yield return new TestCaseData("_a _", new List<Token>()
             {
                 new LiteralToken(1, 3, "a _"),
-                new LiteralToken(0,0,"_")
+                new LiteralToken(0, 0, "_")
             }).SetName("ShouldIgnoreToken_WhenClosingIndexIsNotValid");
 
             yield return new TestCaseData("_abc \nabc_", new List<Token>()
-            {  
-                new LiteralToken(0,0,"_"),
-                new LiteralToken(1,5,"abc \n"),
-                new LiteralToken(6,9,"abc_")
+            {
+                new LiteralToken(0, 0, "_"),
+                new LiteralToken(1, 5, "abc \n"),
+                new LiteralToken(6, 9, "abc_")
             }).SetName("ShouldIgnoreToken_WhenSeparatorsInDifferenrParagraphs");
-            
+
             yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|", new List<Token>()
-            {  
-                new LiteralToken(2,13,"ПЕРВЫЙ ПУНКТ"),
-                new ListItemToken(1,14){IsCorrect = true},
-                new LiteralToken(15,15," "){IsCorrect = true},
-                new LiteralToken(17,28,"ВТОРОЙ ПУНКТ"),
-                new ListItemToken(16,29){IsCorrect = true},
-                new LiteralToken(30,30," "){IsCorrect = true},
-                new LiteralToken(32,43,"ТРЕТИЙ ПУНКТ"),
-                new ListItemToken(31,44){IsCorrect = true},
-                new MarkedListToken(0,45){IsCorrect = true},
+            {
+                new LiteralToken(2, 13, "ПЕРВЫЙ ПУНКТ"),
+                new ListItemToken(1, 14) { IsCorrect = true },
+                new LiteralToken(15, 15, " ") { IsCorrect = true },
+                new LiteralToken(17, 28, "ВТОРОЙ ПУНКТ"),
+                new ListItemToken(16, 29) { IsCorrect = true },
+                new LiteralToken(30, 30, " ") { IsCorrect = true },
+                new LiteralToken(32, 43, "ТРЕТИЙ ПУНКТ"),
+                new ListItemToken(31, 44) { IsCorrect = true },
+                new MarkedListToken(0, 45) { IsCorrect = true },
             }).SetName("ShouldReturnMarkedListToken");
-            
+
             yield return new TestCaseData("*ПЕРВЫЙ ПУНКТ*", new List<Token>()
-            {  
-                new LiteralToken(1,12,"ПЕРВЫЙ ПУНКТ"),
-                new  LiteralToken(0,0,"*"),
-                new LiteralToken(13,13,"*")
+            {
+                new LiteralToken(1, 12, "ПЕРВЫЙ ПУНКТ"),
+                new LiteralToken(0, 0, "*"),
+                new LiteralToken(13, 13, "*")
             }).SetName("ShouldIgnoreListItemToken_WhenItNotCorrect");
-        
         }
     }
 }

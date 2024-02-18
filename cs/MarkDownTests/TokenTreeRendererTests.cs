@@ -22,7 +22,8 @@ public class TokenTreeRendererTests
         {
             new ParagraphToken(0, 20)
             {
-                Tokens = {
+                Tokens =
+                {
                     new LiteralToken(1, 5, "12345"),
                     new BoldToken(6, 9)
                     {
@@ -39,5 +40,4 @@ public class TokenTreeRendererTests
         var res = treeRenderer.ConvertTokensToHtml(input);
         res.Should().BeEquivalentTo(output);
     }
-    
 }

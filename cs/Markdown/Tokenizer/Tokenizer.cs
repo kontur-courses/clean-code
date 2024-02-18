@@ -29,7 +29,7 @@ public class Tokenizer : ITokenizer
             {
                 CloseAllOpenedTokens(i);
                 LiteralBuilder.Append(symbol);
-                SaveLiteralToken(i+1);
+                SaveLiteralToken(i + 1);
                 continue;
             }
 
@@ -62,7 +62,7 @@ public class Tokenizer : ITokenizer
 
         SaveLiteralToken(text.Length);
         CloseAllOpenedTokens(text.Length - 1);
-        
+
         return Tokens.Select(t =>
         {
             if (t.IsContented && !t.IsCorrect)
@@ -71,7 +71,7 @@ public class Tokenizer : ITokenizer
             }
 
             return new List<Token> { t };
-        }).SelectMany(t=>t);
+        }).SelectMany(t => t);
     }
 
     private void CheckTokenAvailability(int index)
@@ -89,11 +89,11 @@ public class Tokenizer : ITokenizer
         if (TokenDictionary.ContainsKey(separator) && Token.IsCorrectTokenCloseIndex(separatorStart, text))
         {
             SaveLiteralToken(separatorStart);
-            
+
             var token = TokenDictionary[separator];
             token.CloseToken(separatorEnd);
-            token.Validate(text,Tokens);
-            
+            token.Validate(text, Tokens);
+
             CheckIntersectionAndSave(token);
 
             TokenDictionary.Remove(separator);
@@ -129,15 +129,18 @@ public class Tokenizer : ITokenizer
                     Tokens.Remove(intersect);
                     Tokens.AddRange(intersect.ReplaceInvalidTokenToLiteral());
                 }
+
                 Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
                 return;
             }
+
             Tokens.Add(token);
             return;
         }
+
         Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
     }
-    
+
     private IEnumerable<Token> FindIntersections(Token token)
     {
         return Tokens.Where(t => t.OpeningIndex < token.OpeningIndex
@@ -152,7 +155,7 @@ public class Tokenizer : ITokenizer
             if (token.IsSingleSeparator)
             {
                 token.CloseToken(closeIndex);
-                token.Validate(text,Tokens);
+                token.Validate(text, Tokens);
                 Tokens.Add(token);
                 continue;
             }

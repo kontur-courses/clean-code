@@ -12,7 +12,7 @@ public class TokenTreeRenderer
         {
             token.Tokens = SetChilds(token, tokens);
         }
-        
+
         return tokenGraph;
     }
 
@@ -25,7 +25,7 @@ public class TokenTreeRenderer
             {
                 g.IsCorrect = false;
             }
-            
+
             var childs = GetRoots(tokens, g.OpeningIndex, g.ClosingIndex).ToList();
             foreach (var child in childs)
             {
@@ -33,6 +33,7 @@ public class TokenTreeRenderer
                 {
                     child.IsCorrect = false;
                 }
+
                 child.Tokens = SetChilds(child, tokens);
             }
 
@@ -45,6 +46,8 @@ public class TokenTreeRenderer
     private IEnumerable<Token> GetRoots(IEnumerable<Token> tokens, int min = -1, int max = int.MaxValue)
     {
         var insideTokens = tokens.Where(t => t.OpeningIndex > min && t.ClosingIndex <= max);
-        return  insideTokens.Where(t1 => !insideTokens.Any(t2 => t1!=t2 && t2.OpeningIndex <= t1.OpeningIndex && t2.ClosingIndex >= t1.ClosingIndex));
+        return insideTokens.Where(t1 =>
+            !insideTokens.Any(
+                t2 => t1 != t2 && t2.OpeningIndex <= t1.OpeningIndex && t2.ClosingIndex >= t1.ClosingIndex));
     }
 }
