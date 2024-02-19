@@ -4,19 +4,20 @@
     {
         private const string headerTag = "# ";
         private const int openTagLength = 2;
-        private const int clodeTagLength = 0;
+        private const int closeTagLength = 0;
 
         public ICollection<Token> Parse(string markdown)
         {
             var tagStart = 0;
             var tokens = new List<Token>();
+
             foreach (var paragraph in markdown.Split('\n'))
             {
                 var length = paragraph.Length;
 
                 if (IsHeaderTag(paragraph))
                 {
-                    AddHeaderTag(tagStart, tokens, tagStart, length);
+                    AddHeaderTag(tokens, tagStart, length);
                 }
 
                 tagStart += length;
@@ -25,7 +26,7 @@
             return tokens;
         }
 
-        private static void AddHeaderTag(int tagStart, List<Token> tokens, int position, int length)
+        private static void AddHeaderTag(List<Token> tokens, int position, int length)
         {
             tokens.Add(CreateHeaderTagToken(position, true));
             tokens.Add(CreateHeaderTagToken(position + length, false));
@@ -40,8 +41,9 @@
         {
             return new Token(
                 TagInfo.TagType.Header,
-                position, isOpeningTag ? TagInfo.Tag.Open : TagInfo.Tag.Close,
-                isOpeningTag ? openTagLength : clodeTagLength);
+                position,
+                isOpeningTag ? TagInfo.Tag.Open : TagInfo.Tag.Close,
+                isOpeningTag ? openTagLength : closeTagLength);
         }
     }
 }
