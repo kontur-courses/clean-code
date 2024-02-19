@@ -3,6 +3,9 @@
     public class HeaderTagParser : IMarkdownParser
     {
         private const string headerTag = "# ";
+        private const int openTagLength = 2;
+        private const int clodeTagLength = 0;
+
         public ICollection<Token> Parse(string markdown)
         {
             var tagStart = 0;
@@ -11,16 +14,34 @@
             {
                 var length = paragraph.Length;
 
-                if (paragraph.IndexOf(headerTag) == 0)
+                if (IsHeaderTag(paragraph))
                 {
-                    tokens.Add(new Token(TagInfo.TagType.Header, tagStart, TagInfo.Tag.Open, 2));
-                    tokens.Add(new Token(TagInfo.TagType.Header, tagStart + length, TagInfo.Tag.Close, 0));
+                    AddHeaderTag(tagStart, tokens, tagStart, length);
                 }
 
                 tagStart += length;
             }
 
             return tokens;
+        }
+
+        private static void AddHeaderTag(int tagStart, List<Token> tokens, int position, int length)
+        {
+            tokens.Add(CreateHeaderTagToken(position, true));
+            tokens.Add(CreateHeaderTagToken(position + length, false));
+        }
+
+        private static bool IsHeaderTag(string paragraph)
+        {
+            return paragraph.StartsWith(headerTag);
+        }
+
+        private static Token CreateHeaderTagToken(int position, bool isOpeningTag)
+        {
+            return new Token(
+                TagInfo.TagType.Header,
+                position, isOpeningTag ? TagInfo.Tag.Open : TagInfo.Tag.Close,
+                isOpeningTag ? openTagLength : clodeTagLength);
         }
     }
 }
