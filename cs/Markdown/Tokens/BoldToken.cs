@@ -22,4 +22,5 @@ public class BoldToken : Token
     {
         IsCorrect = !(this.IsSeparatorsInsideDifferentWords(str) || this.IsTokenHasNoContent());
     }
+    
 }

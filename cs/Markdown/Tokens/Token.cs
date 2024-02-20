@@ -41,6 +41,11 @@ public abstract class Token
 
     public abstract void Validate(string str, IEnumerable<Token> tokens);
 
+    public virtual bool CanCloseToken(int closeIndex, string str)
+    {
+        return true;
+    }
+
     public void CloseToken(int closingIndex)
     {
         if (closingIndex <= OpeningIndex)
@@ -52,9 +57,14 @@ public abstract class Token
         IsClosed = true;
     }
 
-    public static bool IsCorrectTokenOpenIndex(int index, string str)
+    public static bool IsCorrectTokenOpenSeparator(int separatorStart,int separatorEnd, string str)
     {
-        return index < str.Length - 1 && str[index + 1] != ' ';
+        return separatorEnd < str.Length - 1 && str[separatorEnd + 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+    }
+
+    public static bool IsCorrectTokenCloseSeparator(int separatorStart,int separatorEnd, string str)
+    {
+        return separatorEnd != 0 && str[separatorEnd - 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
     }
 
     public static bool IsSeparatorInsideDigit(int separatorStart, int separatorEnd, string str)
@@ -64,10 +74,6 @@ public abstract class Token
         return isLeftDigit || isRightDigit;
     }
 
-    public static bool IsCorrectTokenCloseIndex(int closeIndex, string text)
-    {
-        return closeIndex != 0 && text[closeIndex - 1] != ' ';
-    }
 
     public override string ToString()
     {

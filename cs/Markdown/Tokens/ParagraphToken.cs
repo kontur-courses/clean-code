@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tokens;
+﻿using Markdown.Extensions;
+
+namespace Markdown.Tokens;
 
 public class ParagraphToken : Token
 {
@@ -17,10 +19,16 @@ public class ParagraphToken : Token
     {
     }
     
-    
-
     public override void Validate(string str, IEnumerable<Token> tokens)
     {
-        IsCorrect = OpeningIndex == 0 || str[OpeningIndex - 1] == '\n';
+        IsCorrect = (OpeningIndex == 0 || str[OpeningIndex - 1] == '\n') && (str[ClosingIndex]=='\n'||ClosingIndex==str.Length-1) && !this.IsTokenHasNoContent();
     }
+
+    public override bool CanCloseToken(int closeIndex, string str)
+    {
+        if (str[closeIndex] == '\n' || closeIndex == str.Length - 1)
+            return true;
+        return false;
+    }
+
 }

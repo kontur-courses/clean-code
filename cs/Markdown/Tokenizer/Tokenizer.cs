@@ -28,7 +28,7 @@ public class Tokenizer : ITokenizer
             if (symbol == '\n' || symbol == '\r')
             {
                 CloseAllOpenedTokens(i);
-                SaveLiteralToken(i + 1);
+                SaveLiteralToken(i);
                 LiteralBuilder.Append(symbol);
                 continue;
             }
@@ -80,26 +80,33 @@ public class Tokenizer : ITokenizer
         var separator = PotentialToken.ToString();
         var separatorStart = index - separator.Length;
         var separatorEnd = index - 1;
-
-        if (CheckScreening(separatorStart) || Token.IsSeparatorInsideDigit(separatorStart, separatorEnd, text))
-        {
-            LiteralBuilder.Append(separator);
-            return;
-        }
-
+        
         if (TokenDictionary.ContainsKey(separator))
         {
             var token = TokenDictionary[separator];
 
-            if (!Token.IsCorrectTokenCloseIndex(separatorStart, text))
+            if (token.IsSingleSeparator)
+            {
+                if (Token.IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text) && token.CanCloseToken(separatorStart-1,text))
+                {
+                    token.CloseToken(separatorStart-1);
+                    Tokens.Add(token);
+                    TokenDictionary[separator] = TokensGenerators.Generators[separator].CreateToken(separatorStart);
+                    return;
+                }
+
+                LiteralBuilder.Append(separator);
+                return;
+            }
+
+            if (!Token.IsCorrectTokenCloseSeparator(separatorStart, separatorEnd,text))
             {
                 LiteralBuilder.Append(separator);
                 return;
             }
 
             SaveLiteralToken(separatorStart);
-
-
+            
             token.CloseToken(separatorEnd);
             token.Validate(text, Tokens);
 
@@ -110,7 +117,7 @@ public class Tokenizer : ITokenizer
             return;
         }
 
-        if (Token.IsCorrectTokenOpenIndex(separatorEnd, text))
+        if (Token.IsCorrectTokenOpenSeparator(separatorStart,separatorEnd, text))
         {
             SaveLiteralToken(separatorStart);
             var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);

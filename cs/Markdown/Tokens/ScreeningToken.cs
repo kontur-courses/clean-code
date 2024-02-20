@@ -14,7 +14,7 @@ public class ScreeningToken : Token
     {
         IsCorrect = true;
     }
-
+    
     public ScreeningToken(int openingIndex, int closingIndex) : base(openingIndex, closingIndex)
     {
     }
