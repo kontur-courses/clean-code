@@ -52,6 +52,9 @@ public class MdRendererTestsData
             
             yield return new TestCaseData("# a# b c", "<h1>a# b c</h1>").SetName(
                 "ShouldIgnoreParagraphSeparator_WhenItNotInStartOfParagraph");
+            
+            yield return new TestCaseData("# a \n# b c", "<h1>a </h1>\n<h1>b c</h1>").SetName(
+                "ShouldIgnoreParagraphSeparator_WhenItNotInStartOfParagraph");
 
             yield return new TestCaseData("# ", "# ").SetName(
                 "ShouldIgnoreParagraphToken_WhenTokenIsEmpty");

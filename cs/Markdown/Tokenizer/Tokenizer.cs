@@ -27,7 +27,7 @@ public class Tokenizer : ITokenizer
 
             if (symbol == '\n' || symbol == '\r')
             {
-                CloseAllOpenedTokens(i);
+                CloseAllOpenedTokens(i-1);
                 SaveLiteralToken(i);
                 LiteralBuilder.Append(symbol);
                 continue;
