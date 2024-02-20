@@ -47,7 +47,7 @@ public class MdRendererTestsData
             yield return new TestCaseData("__a _b__ c_", "__a _b__ c_").SetName(
                 "ShouldNotPrintTokens_WhenTokensIsIntersecting");
             
-            yield return new TestCaseData("# a b c", "<h1>a b c</h1>").SetName(
+            yield return new TestCaseData("# a ", "<h1>a </h1>").SetName(
                 "ShouldPrintParagraphToken_When_ParagraphTokenInInput");
             
             yield return new TestCaseData("# a# b c", "<h1>a# b c</h1>").SetName(

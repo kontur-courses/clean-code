@@ -21,7 +21,7 @@ public class ParagraphToken : Token
     
     public override void Validate(string str, IEnumerable<Token> tokens)
     {
-        IsCorrect = (OpeningIndex == 0 || str[OpeningIndex - 1] == '\n') && (str[ClosingIndex]=='\n'||ClosingIndex==str.Length-1) && !this.IsTokenHasNoContent();
+        IsCorrect = (OpeningIndex == 0 || str[OpeningIndex - 1] == '\n') && (str[ClosingIndex]=='\n'||ClosingIndex==str.Length-1);
     }
 
     public override bool CanCloseToken(int closeIndex, string str)
