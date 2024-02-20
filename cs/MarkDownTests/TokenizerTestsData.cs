@@ -91,9 +91,9 @@ public class TokenizerTestsData
             yield return new TestCaseData("_abc \nabc_", new List<Token>()
             {
                 new LiteralToken(0, 0, "_"),
-                new LiteralToken(1, 5, "abc \n"),
-                new LiteralToken(6, 9, "abc_")
-            }).SetName("ShouldIgnoreToken_WhenSeparatorsInDifferenrParagraphs");
+                new LiteralToken(1, 4, "abc "),
+                new LiteralToken(5, 9, "\nabc_")
+            }).SetName("ShouldIgnoreToken_WhenSeparatorsInDifferentParagraphs");
 
             yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|", new List<Token>()
             {

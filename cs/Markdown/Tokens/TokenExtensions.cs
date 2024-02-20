@@ -18,6 +18,16 @@ public static class TokenExtensions
         return token.ClosingIndex - token.OpeningIndex <= token.Separator.Length * 2 - 1;
     }
 
+    public static Token? FindTokenIntersection(this Token token, IEnumerable<Token> tokens)
+    {
+        return tokens
+            .OrderBy(t => t.OpeningIndex)
+            .FirstOrDefault(t => t.OpeningIndex < token.OpeningIndex
+                                 && t.ClosingIndex > token.OpeningIndex
+                                 && t.ClosingIndex < token.ClosingIndex
+            );
+    }
+
     public static IEnumerable<Token> ReplaceInvalidTokenToLiteral(this Token token)
     {
         yield return new LiteralToken(token.OpeningIndex, token.OpeningIndex + token.Separator.Length - 1,

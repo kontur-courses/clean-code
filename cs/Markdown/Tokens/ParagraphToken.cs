@@ -16,6 +16,8 @@ public class ParagraphToken : Token
     public ParagraphToken(int openingIndex) : base(openingIndex)
     {
     }
+    
+    
 
     public override void Validate(string str, IEnumerable<Token> tokens)
     {

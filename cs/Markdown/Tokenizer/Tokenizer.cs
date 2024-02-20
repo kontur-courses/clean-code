@@ -25,11 +25,11 @@ public class Tokenizer : ITokenizer
         {
             var symbol = text[i];
 
-            if (symbol == '\n')
+            if (symbol == '\n' || symbol == '\r')
             {
                 CloseAllOpenedTokens(i);
-                LiteralBuilder.Append(symbol);
                 SaveLiteralToken(i + 1);
+                LiteralBuilder.Append(symbol);
                 continue;
             }
 
@@ -45,8 +45,9 @@ public class Tokenizer : ITokenizer
                 PotentialToken.Clear();
             }
 
-            if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{symbol}")))
+            if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{symbol}")) && !CheckScreening(i))
             {
+                
                 PotentialToken.Append(symbol);
                 continue;
             }
@@ -86,17 +87,26 @@ public class Tokenizer : ITokenizer
             return;
         }
 
-        if (TokenDictionary.ContainsKey(separator) && Token.IsCorrectTokenCloseIndex(separatorStart, text))
+        if (TokenDictionary.ContainsKey(separator))
         {
+            var token = TokenDictionary[separator];
+
+            if (!Token.IsCorrectTokenCloseIndex(separatorStart, text))
+            {
+                LiteralBuilder.Append(separator);
+                return;
+            }
+
             SaveLiteralToken(separatorStart);
 
-            var token = TokenDictionary[separator];
+
             token.CloseToken(separatorEnd);
             token.Validate(text, Tokens);
 
             CheckIntersectionAndSave(token);
 
             TokenDictionary.Remove(separator);
+
             return;
         }
 
@@ -121,33 +131,21 @@ public class Tokenizer : ITokenizer
     {
         if (token.IsCorrect || token.IsContented)
         {
-            var intersections = FindIntersections(token);
-            if (intersections.Any())
+            var intersectedToken = token.FindTokenIntersection(Tokens);
+            if (intersectedToken!=null)
             {
-                foreach (var intersect in intersections)
-                {
-                    Tokens.Remove(intersect);
-                    Tokens.AddRange(intersect.ReplaceInvalidTokenToLiteral());
-                }
-
+                Tokens.Remove(intersectedToken);
+                Tokens.AddRange(intersectedToken.ReplaceInvalidTokenToLiteral());
                 Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
                 return;
             }
-
             Tokens.Add(token);
             return;
         }
 
         Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
     }
-
-    private IEnumerable<Token> FindIntersections(Token token)
-    {
-        return Tokens.Where(t => t.OpeningIndex < token.OpeningIndex
-                                 && t.ClosingIndex > token.OpeningIndex
-                                 && t.ClosingIndex < token.ClosingIndex && !(t is LiteralToken)).ToArray();
-    }
-
+    
     private void CloseAllOpenedTokens(int closeIndex)
     {
         foreach (var token in TokenDictionary.Values)
