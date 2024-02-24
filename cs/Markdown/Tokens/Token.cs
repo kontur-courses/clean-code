@@ -38,14 +38,7 @@ public abstract class Token
 
         OpeningIndex = openingIndex;
     }
-
-    public abstract void Validate(string str, IEnumerable<Token> tokens);
-
-    public virtual bool CanCloseToken(int closeIndex, string str)
-    {
-        return true;
-    }
-
+    
     public void CloseToken(int closingIndex)
     {
         if (closingIndex <= OpeningIndex)
@@ -56,6 +49,20 @@ public abstract class Token
         ClosingIndex = closingIndex;
         IsClosed = true;
     }
+
+    public string GetSeparator()
+    {
+        return Separator;
+    }
+
+    public abstract void Validate(string str, IEnumerable<Token> tokens);
+
+    public virtual bool CanCloseToken(int closeIndex, string str)
+    {
+        return true;
+    }
+
+   
 
     public static bool IsCorrectTokenOpenSeparator(int separatorStart,int separatorEnd, string str)
     {

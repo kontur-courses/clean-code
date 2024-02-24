@@ -6,6 +6,7 @@ public class BoldToken : Token
 {
     public override string TagWrapper { get; } = "strong";
     public override string Separator { get; } = "__";
+    public const string s = "__";
     public override bool IsCanContainAnotherTags { get; } = true;
     public override bool IsSingleSeparator { get; } = false;
     public override bool IsContented { get; } = false;

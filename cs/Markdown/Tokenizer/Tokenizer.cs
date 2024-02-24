@@ -9,8 +9,7 @@ public class Tokenizer : ITokenizer
     private readonly string text;
     private List<Token> Tokens { get; } = new();
     private StringBuilder LiteralBuilder { get; } = new();
-    private StringBuilder PotentialToken { get; } = new();
-    private Dictionary<string, Token> TokenDictionary { get; } = new();
+    private Dictionary<string, Token> OpenedTokens { get; } = new();
 
     public Tokenizer(string str)
     {
@@ -21,6 +20,7 @@ public class Tokenizer : ITokenizer
 
     public IEnumerable<Token> Tokenize()
     {
+        var potentialToken = new StringBuilder();
         for (var i = 0; i < text.Length; i++)
         {
             var symbol = text[i];
@@ -33,32 +33,32 @@ public class Tokenizer : ITokenizer
                 continue;
             }
 
-            if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{PotentialToken}{symbol}")))
+            if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{potentialToken}{symbol}")))
             {
-                PotentialToken.Append(symbol);
+                potentialToken.Append(symbol);
                 continue;
             }
 
-            if (TokensGenerators.Generators.ContainsKey($"{PotentialToken}"))
+            if (TokensGenerators.Generators.ContainsKey($"{potentialToken}"))
             {
-                CheckTokenAvailability(i);
-                PotentialToken.Clear();
+                CheckTokenAvailability(i,potentialToken.ToString());
+                potentialToken.Clear();
             }
 
             if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{symbol}")) && !CheckScreening(i))
             {
                 
-                PotentialToken.Append(symbol);
+                potentialToken.Append(symbol);
                 continue;
             }
 
             LiteralBuilder.Append(symbol);
         }
 
-        if (TokensGenerators.Generators.ContainsKey($"{PotentialToken}"))
+        if (TokensGenerators.Generators.ContainsKey($"{potentialToken}"))
         {
-            CheckTokenAvailability(text.Length);
-            PotentialToken.Clear();
+            CheckTokenAvailability(text.Length,potentialToken.ToString());
+            potentialToken.Clear();
         }
 
         SaveLiteralToken(text.Length);
@@ -75,15 +75,14 @@ public class Tokenizer : ITokenizer
         }).SelectMany(t => t);
     }
 
-    private void CheckTokenAvailability(int index)
+    private void CheckTokenAvailability(int index, string separator)
     {
-        var separator = PotentialToken.ToString();
         var separatorStart = index - separator.Length;
         var separatorEnd = index - 1;
         
-        if (TokenDictionary.ContainsKey(separator))
+        if (OpenedTokens.ContainsKey(separator))
         {
-            var token = TokenDictionary[separator];
+            var token = OpenedTokens[separator];
 
             if (token.IsSingleSeparator)
             {
@@ -91,7 +90,7 @@ public class Tokenizer : ITokenizer
                 {
                     token.CloseToken(separatorStart-1);
                     Tokens.Add(token);
-                    TokenDictionary[separator] = TokensGenerators.Generators[separator].CreateToken(separatorStart);
+                    OpenedTokens[separator] = TokensGenerators.Generators[separator].CreateToken(separatorStart);
                     return;
                 }
 
@@ -112,7 +111,7 @@ public class Tokenizer : ITokenizer
 
             CheckIntersectionAndSave(token);
 
-            TokenDictionary.Remove(separator);
+            OpenedTokens.Remove(separator);
 
             return;
         }
@@ -127,7 +126,7 @@ public class Tokenizer : ITokenizer
                 return;
             }
 
-            TokenDictionary[separator] = token;
+            OpenedTokens[separator] = token;
             return;
         }
 
@@ -155,7 +154,7 @@ public class Tokenizer : ITokenizer
     
     private void CloseAllOpenedTokens(int closeIndex)
     {
-        foreach (var token in TokenDictionary.Values)
+        foreach (var token in OpenedTokens.Values)
         {
             if (token.IsSingleSeparator)
             {
@@ -170,7 +169,7 @@ public class Tokenizer : ITokenizer
             Tokens.Add(literalToken);
         }
 
-        TokenDictionary.Clear();
+        OpenedTokens.Clear();
     }
 
     private void SaveLiteralToken(int endIndex)

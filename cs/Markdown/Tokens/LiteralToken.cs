@@ -13,12 +13,10 @@ public class LiteralToken : Token
     private string Content { get; set; }
 
 
-    public LiteralToken(int openingIndex, int closingIndex, string content) : base(0, 1)
+    public LiteralToken(int openingIndex, int closingIndex, string content) : base(openingIndex, closingIndex)
     {
-        if (openingIndex < 0 || openingIndex > closingIndex || string.IsNullOrEmpty(content))
+        if (string.IsNullOrEmpty(content))
             throw new ArgumentException();
-        this.OpeningIndex = openingIndex;
-        this.ClosingIndex = closingIndex;
         Content = content;
     }
 
