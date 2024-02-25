@@ -35,11 +35,14 @@ namespace Chess
         {
             var dir = TestContext.CurrentContext.TestDirectory;
             var testsCount = 0;
+
+
             foreach (var filename in Directory.GetFiles(Path.Combine(dir, "ChessTests"), "*.in"))
             {
                 TestOnFile(filename);
                 testsCount++;
             }
+
             Console.WriteLine("Tests passed: " + testsCount);
         }
 

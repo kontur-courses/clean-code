@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using System.Collections;
+
+namespace Chess
 {
     public class ChessProblem
     {
@@ -19,15 +21,13 @@
             {
                 foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
                 {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
+                    var move = board.PerformTemporaryMove(locFrom, locTo);
                     if (!IsCheckForWhite())
                         hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
+                    move.Undo();
                 }
             }
+
             if (isCheck)
                 if (hasMoves)
                     ChessStatus = ChessStatus.Check;
@@ -42,17 +42,15 @@
             var isCheck = false;
             foreach (var loc in board.GetPieces(PieceColor.Black))
             {
-                var piece = board.GetPiece(loc);
-                var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
+                foreach (var destination in board.GetPiece(loc).GetMoves(loc, board))
                 {
                     if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
+                            PieceColor.White, PieceType.King))
+                        return true;
                 }
             }
-            if (isCheck) return true;
-            return false;
+
+            return isCheck;
         }
     }
 }
