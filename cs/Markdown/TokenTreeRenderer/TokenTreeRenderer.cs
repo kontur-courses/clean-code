@@ -48,6 +48,6 @@ public class TokenTreeRenderer
         var insideTokens = tokens.Where(t => t.OpeningIndex > min && t.ClosingIndex <= max);
         return insideTokens.Where(t1 =>
             !insideTokens.Any(
-                t2 => t1 != t2 && t2.OpeningIndex <= t1.OpeningIndex && t2.ClosingIndex >= t1.ClosingIndex));
+                t2 => t1 != t2 && t2.OpeningIndex < t1.OpeningIndex && t2.ClosingIndex >= t1.ClosingIndex));
     }
 }

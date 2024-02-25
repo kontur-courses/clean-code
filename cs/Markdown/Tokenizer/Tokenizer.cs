@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿﻿using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
 
@@ -28,7 +28,7 @@ public class Tokenizer : ITokenizer
             if (symbol == '\n' || symbol == '\r')
             {
                 CloseAllOpenedTokens(i-1);
-                SaveLiteralToken(i-1);
+                SaveLiteralToken(i);
                 LiteralBuilder.Append(symbol);
                 continue;
             }
@@ -61,7 +61,7 @@ public class Tokenizer : ITokenizer
             potentialToken.Clear();
         }
 
-        SaveLiteralToken(text.Length-1);
+        SaveLiteralToken(text.Length);
         CloseAllOpenedTokens(text.Length - 1);
 
         return Tokens.Select(t =>
@@ -73,6 +73,7 @@ public class Tokenizer : ITokenizer
 
             return new List<Token> { t };
         }).SelectMany(t => t);
+
     }
 
     private void CheckTokenAvailability(int index, string separator)
@@ -86,7 +87,7 @@ public class Tokenizer : ITokenizer
 
             if (token.IsSingleSeparator)
             {
-                if (Token.IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text) && token.CanCloseToken(separatorStart-1,text))
+                if (IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text) && token.CanCloseToken(separatorStart-1,text))
                 {
                     token.CloseToken(separatorStart-1);
                     Tokens.Add(token);
@@ -98,13 +99,13 @@ public class Tokenizer : ITokenizer
                 return;
             }
 
-            if (!Token.IsCorrectTokenCloseSeparator(separatorStart, separatorEnd,text))
+            if (!IsCorrectTokenCloseSeparator(separatorStart, separatorEnd,text))
             {
                 LiteralBuilder.Append(separator);
                 return;
             }
 
-            SaveLiteralToken(separatorStart-1);
+            SaveLiteralToken(separatorStart);
             
             token.CloseToken(separatorEnd);
             token.Validate(text, Tokens);
@@ -116,9 +117,9 @@ public class Tokenizer : ITokenizer
             return;
         }
 
-        if (Token.IsCorrectTokenOpenSeparator(separatorStart,separatorEnd, text))
+        if (IsCorrectTokenOpenSeparator(separatorStart,separatorEnd, text))
         {
-            SaveLiteralToken(separatorStart-1);
+            SaveLiteralToken(separatorStart);
             var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);
             if (token.IsClosed)
             {
@@ -177,7 +178,7 @@ public class Tokenizer : ITokenizer
         if (LiteralBuilder.Length != 0)
         {
             var literalToken =
-                new LiteralToken(endIndex - LiteralBuilder.Length+1, endIndex, LiteralBuilder.ToString());
+                new LiteralToken(endIndex - LiteralBuilder.Length, endIndex - 1, LiteralBuilder.ToString());
             Tokens.Add(literalToken);
         }
 
@@ -196,5 +197,22 @@ public class Tokenizer : ITokenizer
         }
 
         return false;
+    }
+    
+    private static bool IsCorrectTokenOpenSeparator(int separatorStart,int separatorEnd, string str)
+    {
+        return separatorEnd < str.Length - 1 && str[separatorEnd + 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+    }
+
+    private static bool IsCorrectTokenCloseSeparator(int separatorStart,int separatorEnd, string str)
+    {
+        return separatorEnd != 0 && str[separatorStart - 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+    }
+
+    private static bool IsSeparatorInsideDigit(int separatorStart, int separatorEnd, string str)
+    {
+        var isLeftDigit = (separatorStart > 0 && char.IsDigit(str[separatorStart - 1]));
+        var isRightDigit = (separatorEnd < str.Length - 1 && char.IsDigit(str[separatorEnd + 1]));
+        return isLeftDigit || isRightDigit;
     }
 }

@@ -83,14 +83,13 @@ public class MdRendererTestsData
 
             yield return new TestCaseData("__bc __", "__bc __").SetName(
                 "ShouldIgnoreTokenCloseSeparator_WhenItsIncorrect");
-            
+
             yield return new TestCaseData("|*ПЕРВЫЙ ПУНКТ* *ВТОРОЙ ПУНКТ* *ТРЕТИЙ ПУНКТ*|",
                     "<ul><li>ПЕРВЫЙ ПУНКТ</li> <li>ВТОРОЙ ПУНКТ</li> <li>ТРЕТИЙ ПУНКТ</li></ul>")
                 .SetName("ShouldPrintMarkedListToken");
-            
-            
-            yield return new TestCaseData("|*1 a* *2 b* _c_|", "|*1 a* *2 b* <em>c</em>|").SetName("123");
-            
+
+            yield return new TestCaseData("|*a* _c a c_ *c*|", "|*a* <em>c a c</em> *c*|").SetName(
+                "ShouldIgnoreMarkedListToken_WhenItContainsNotSupportedTags");
         }
     }
 }
