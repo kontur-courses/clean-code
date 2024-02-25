@@ -1,4 +1,4 @@
-﻿﻿using System.Text;
+﻿using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
 
@@ -27,7 +27,7 @@ public class Tokenizer : ITokenizer
 
             if (symbol == '\n' || symbol == '\r')
             {
-                CloseAllOpenedTokens(i-1);
+                CloseAllOpenedTokens(i - 1);
                 SaveLiteralToken(i);
                 LiteralBuilder.Append(symbol);
                 continue;
@@ -41,13 +41,12 @@ public class Tokenizer : ITokenizer
 
             if (TokensGenerators.Generators.ContainsKey($"{potentialToken}"))
             {
-                CheckTokenAvailability(i,potentialToken.ToString());
+                CheckTokenAvailability(i, potentialToken.ToString());
                 potentialToken.Clear();
             }
 
             if (TokensGenerators.Generators.Keys.Any(key => key.StartsWith($"{symbol}")) && !CheckScreening(i))
             {
-                
                 potentialToken.Append(symbol);
                 continue;
             }
@@ -57,7 +56,7 @@ public class Tokenizer : ITokenizer
 
         if (TokensGenerators.Generators.ContainsKey($"{potentialToken}"))
         {
-            CheckTokenAvailability(text.Length,potentialToken.ToString());
+            CheckTokenAvailability(text.Length, potentialToken.ToString());
             potentialToken.Clear();
         }
 
@@ -73,25 +72,25 @@ public class Tokenizer : ITokenizer
 
             return new List<Token> { t };
         }).SelectMany(t => t);
-
     }
 
     private void CheckTokenAvailability(int index, string separator)
     {
         var separatorStart = index - separator.Length;
         var separatorEnd = index - 1;
-        
+
         if (OpenedTokens.ContainsKey(separator))
         {
             var token = OpenedTokens[separator];
 
             if (token.IsSingleSeparator)
             {
-                if (IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text) && token.CanCloseToken(separatorStart-1,text))
+                if (IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text) &&
+                    token.CanCloseToken(separatorStart - 1, text))
                 {
-                    token.CloseToken(separatorStart-1);
+                    token.CloseToken(separatorStart - 1);
                     Tokens.Add(token);
-                    OpenedTokens[separator] = TokensGenerators.Generators[separator].CreateToken(separatorStart);
+                    OpenedTokens[separator] = TokensGenerators.Generators[separator](separatorStart);
                     return;
                 }
 
@@ -99,14 +98,14 @@ public class Tokenizer : ITokenizer
                 return;
             }
 
-            if (!IsCorrectTokenCloseSeparator(separatorStart, separatorEnd,text))
+            if (!IsCorrectTokenCloseSeparator(separatorStart, separatorEnd, text))
             {
                 LiteralBuilder.Append(separator);
                 return;
             }
 
             SaveLiteralToken(separatorStart);
-            
+
             token.CloseToken(separatorEnd);
             token.Validate(text, Tokens);
 
@@ -117,10 +116,10 @@ public class Tokenizer : ITokenizer
             return;
         }
 
-        if (IsCorrectTokenOpenSeparator(separatorStart,separatorEnd, text))
+        if (IsCorrectTokenOpenSeparator(separatorStart, separatorEnd, text))
         {
             SaveLiteralToken(separatorStart);
-            var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);
+            var token = TokensGenerators.Generators[separator](separatorStart);
             if (token.IsClosed)
             {
                 Tokens.Add(token);
@@ -139,20 +138,21 @@ public class Tokenizer : ITokenizer
         if (token.IsCorrect || token.IsContented)
         {
             var intersectedToken = token.FindTokenIntersection(Tokens);
-            if (intersectedToken!=null)
+            if (intersectedToken != null)
             {
                 Tokens.Remove(intersectedToken);
                 Tokens.AddRange(intersectedToken.ReplaceInvalidTokenToLiteral());
                 Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
                 return;
             }
+
             Tokens.Add(token);
             return;
         }
 
         Tokens.AddRange(token.ReplaceInvalidTokenToLiteral());
     }
-    
+
     private void CloseAllOpenedTokens(int closeIndex)
     {
         foreach (var token in OpenedTokens.Values)
@@ -198,15 +198,17 @@ public class Tokenizer : ITokenizer
 
         return false;
     }
-    
-    private static bool IsCorrectTokenOpenSeparator(int separatorStart,int separatorEnd, string str)
+
+    private static bool IsCorrectTokenOpenSeparator(int separatorStart, int separatorEnd, string str)
     {
-        return separatorEnd < str.Length - 1 && str[separatorEnd + 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+        return separatorEnd < str.Length - 1 && str[separatorEnd + 1] != ' ' &&
+               !IsSeparatorInsideDigit(separatorStart, separatorEnd, str);
     }
 
-    private static bool IsCorrectTokenCloseSeparator(int separatorStart,int separatorEnd, string str)
+    private static bool IsCorrectTokenCloseSeparator(int separatorStart, int separatorEnd, string str)
     {
-        return separatorEnd != 0 && str[separatorStart - 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+        return separatorEnd != 0 && str[separatorStart - 1] != ' ' &&
+               !IsSeparatorInsideDigit(separatorStart, separatorEnd, str);
     }
 
     private static bool IsSeparatorInsideDigit(int separatorStart, int separatorEnd, string str)

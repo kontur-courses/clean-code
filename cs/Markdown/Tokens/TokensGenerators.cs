@@ -2,41 +2,32 @@
 
 public static class TokensGenerators
 {
-    public static readonly IReadOnlyDictionary<string, TokenGenerator> Generators =
-        new Dictionary<string, TokenGenerator>()
+    public static readonly IReadOnlyDictionary<string, Func<int, Token>> Generators =
+        new Dictionary<string, Func<int, Token>>()
         {
             {
-                "_", new TokenGenerator(
-                    (int openIndex) => new ItalicsToken(openIndex))
+                new ItalicsToken(0, 0).Separator, 
+                (int openIndex) => new ItalicsToken(openIndex)
             },
             {
-                "__", new TokenGenerator(
-                    (int openIndex) => new BoldToken(openIndex))
+                new BoldToken(0, 0).Separator,
+                (int openIndex) => new BoldToken(openIndex)
             },
             {
-                "# ", new TokenGenerator(
-                    (int openIndex) => new ParagraphToken(openIndex))
+                new ParagraphToken(0, 0).Separator, 
+                (int openIndex) => new ParagraphToken(openIndex)
             },
             {
-                "\\", new TokenGenerator(
-                    (int openIndex) => new ScreeningToken(openIndex, openIndex))
+                new ScreeningToken(0, 0).Separator,
+                (int openIndex) => new ScreeningToken(openIndex, openIndex)
             },
             {
-                "*", new TokenGenerator(
-                    (int openIndex) => new ListItemToken(openIndex))
+                new ListItemToken(0, 0).Separator, 
+                (int openIndex) => new ListItemToken(openIndex)
             },
             {
-                "|", new TokenGenerator((int openIndex) => new MarkedListToken(openIndex))
+                new MarkedListToken(0, 0).Separator, 
+                (int openIndex) => new MarkedListToken(openIndex)
             }
         };
-}
-
-public class TokenGenerator
-{
-    public readonly Func<int, Token> CreateToken;
-
-    public TokenGenerator(Func<int, Token> createToken)
-    {
-        CreateToken = createToken;
-    }
 }

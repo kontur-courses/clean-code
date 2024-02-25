@@ -115,9 +115,6 @@ public class TokenizerTestsData
                 new LiteralToken(13, 13, "*")
             }).SetName("ShouldIgnoreListItemToken_WhenItNotCorrect");
 
-            yield return new TestCaseData("|*1 a* *2 b* _3 c_|\"", new List<Token>()
-            {
-            }).SetName("1223");
         }
     }
 }
