@@ -28,7 +28,7 @@ public class Tokenizer : ITokenizer
             if (symbol == '\n' || symbol == '\r')
             {
                 CloseAllOpenedTokens(i-1);
-                SaveLiteralToken(i);
+                SaveLiteralToken(i-1);
                 LiteralBuilder.Append(symbol);
                 continue;
             }
@@ -61,7 +61,7 @@ public class Tokenizer : ITokenizer
             potentialToken.Clear();
         }
 
-        SaveLiteralToken(text.Length);
+        SaveLiteralToken(text.Length-1);
         CloseAllOpenedTokens(text.Length - 1);
 
         return Tokens.Select(t =>
@@ -104,7 +104,7 @@ public class Tokenizer : ITokenizer
                 return;
             }
 
-            SaveLiteralToken(separatorStart);
+            SaveLiteralToken(separatorStart-1);
             
             token.CloseToken(separatorEnd);
             token.Validate(text, Tokens);
@@ -118,7 +118,7 @@ public class Tokenizer : ITokenizer
 
         if (Token.IsCorrectTokenOpenSeparator(separatorStart,separatorEnd, text))
         {
-            SaveLiteralToken(separatorStart);
+            SaveLiteralToken(separatorStart-1);
             var token = TokensGenerators.Generators[separator].CreateToken(separatorStart);
             if (token.IsClosed)
             {
@@ -177,7 +177,7 @@ public class Tokenizer : ITokenizer
         if (LiteralBuilder.Length != 0)
         {
             var literalToken =
-                new LiteralToken(endIndex - LiteralBuilder.Length, endIndex - 1, LiteralBuilder.ToString());
+                new LiteralToken(endIndex - LiteralBuilder.Length+1, endIndex, LiteralBuilder.ToString());
             Tokens.Add(literalToken);
         }
 

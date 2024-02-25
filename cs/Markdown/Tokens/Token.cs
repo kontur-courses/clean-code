@@ -61,9 +61,7 @@ public abstract class Token
     {
         return true;
     }
-
-   
-
+    
     public static bool IsCorrectTokenOpenSeparator(int separatorStart,int separatorEnd, string str)
     {
         return separatorEnd < str.Length - 1 && str[separatorEnd + 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
@@ -71,7 +69,7 @@ public abstract class Token
 
     public static bool IsCorrectTokenCloseSeparator(int separatorStart,int separatorEnd, string str)
     {
-        return separatorEnd != 0 && str[separatorEnd - 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
+        return separatorEnd != 0 && str[separatorStart - 1] != ' ' && !IsSeparatorInsideDigit(separatorStart,separatorEnd,str);
     }
 
     public static bool IsSeparatorInsideDigit(int separatorStart, int separatorEnd, string str)
