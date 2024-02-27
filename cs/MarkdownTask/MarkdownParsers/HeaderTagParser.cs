@@ -5,10 +5,11 @@
         private const string headerTag = "# ";
         private const int openTagLength = 2;
         private const int closeTagLength = 0;
+        private const TagInfo.TagType tagType = TagInfo.TagType.Header;
 
         public ICollection<Token> Parse(string markdown)
         {
-            var tagStart = 0;
+            var tagSearchStart = 0;
             var tokens = new List<Token>();
 
             foreach (var paragraph in markdown.Split('\n'))
@@ -17,10 +18,10 @@
 
                 if (IsHeaderTag(paragraph))
                 {
-                    AddHeaderTag(tokens, tagStart, length);
+                    AddHeaderTag(tokens, tagSearchStart, length);
                 }
 
-                tagStart += length;
+                tagSearchStart += length;
             }
 
             return tokens;
@@ -40,7 +41,7 @@
         private static Token CreateHeaderTagToken(int position, bool isOpeningTag)
         {
             return new Token(
-                TagInfo.TagType.Header,
+                tagType,
                 position,
                 isOpeningTag ? TagInfo.Tag.Open : TagInfo.Tag.Close,
                 isOpeningTag ? openTagLength : closeTagLength);

@@ -2,29 +2,36 @@
 {
     public class EscapedCharactersParsing : IMarkdownParser
     {
-        private const char escapeChar = '\\';
         private const int tagLength = 1;
-        private readonly HashSet<char> escapedChars = new HashSet<char> { '_', '#', '\\' };
+        private const TagInfo.TagType tagType = TagInfo.TagType.Empty;
+        private readonly char[] escapedChars = new char[] { '_', '#', '\\' };
 
-        public ICollection<Token> Parse(string markdown)
+        public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
-            tokens.AddRange(FindEscapedTokens(markdown));
+            tokens.AddRange(FindEscapedTokens(text));
+
             return tokens.OrderBy(x => x.Position).ToList();
         }
 
-        private IEnumerable<Token> FindEscapedTokens(string markdown)
+        private IEnumerable<Token> FindEscapedTokens(string text)
         {
-            for (int i = 0; i < markdown.Length - 1; i++)
-            {
-                var n = markdown[i + 1];
+            var ecsapedCharPosition = text.IndexOfAny(escapedChars);
 
-                if (markdown[i] == escapeChar && escapedChars.Contains(n))
+            while (ecsapedCharPosition >= 0)
+            {
+                if (Utils.IsEscaped(text, ecsapedCharPosition))
                 {
-                    yield return new Token(TagInfo.TagType.Empty, i, TagInfo.Tag.Open, tagLength);
-                    i++;
+                    yield return BuildEscapeTag(ecsapedCharPosition);
                 }
+
+                ecsapedCharPosition = text.IndexOfAny(escapedChars, ecsapedCharPosition + 1);
             }
+        }
+
+        private static Token BuildEscapeTag(int i)
+        {
+            return new Token(tagType, i - 1, TagInfo.Tag.Open, tagLength);
         }
     }
 }
