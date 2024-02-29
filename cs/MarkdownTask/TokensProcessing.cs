@@ -54,9 +54,8 @@ namespace MarkdownTask
                 return true;
             }
 
-            List<TagType> disallowed;
 
-            if (!disallowedNesting.TryGetValue(parent.TagType, out disallowed))
+            if (!disallowedNesting.TryGetValue(parent.TagType, out List<TagType> disallowed))
             {
                 return true;
             }

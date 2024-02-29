@@ -23,21 +23,17 @@ namespace MarkdownTask.HtmlTools
 
         private static string GetHtlmTag(string inputText, Token token)
         {
-            var htmlTag = String.Empty;
-
             if (token.TagType == TagType.Link)
             {
-                htmlTag = BuildLinkTag(inputText, token);
+                return BuildLinkTag(inputText, token);
             }
             else
             {
-                htmlTag = BuildHtmlTag(inputText, token);
+                return BuildHtmlTag(token);
             }
-
-            return htmlTag;
         }
 
-        private static string BuildHtmlTag(string text, Token token)
+        private static string BuildHtmlTag(Token token)
         {
             var htmlTag = token.TagType.GetHtmlString();
 
