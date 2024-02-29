@@ -4,58 +4,48 @@ namespace MarkdownTask.MarkdownParsers
 {
     public class LinkTagParser : IMarkdownParser
     {
-        public ICollection<Token> Parse(string markdown)
+        private const TagType tagType = TagType.Link;
+
+        public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
-            var startIndex = 0;
+            var tagsPair = TryFindLinkTagPosition(text, 0);
 
-            while ((startIndex = markdown.IndexOf("[", startIndex)) != -1)
+            while (tagsPair.Any())
             {
-                var sequenceLength = CorrectBracketsSequenceLength(markdown, startIndex);
+                tokens.AddRange(tagsPair);
 
-                if (sequenceLength != -1)
-                {
-                    tokens.Add(new Token(TagType.Link, startIndex, Tag.Open, sequenceLength));
-                    tokens.Add(new Token(TagType.Link, startIndex + sequenceLength - 1, Tag.Close, 0));
-
-                    startIndex += sequenceLength;
-                }
-                else
-                {
-                    startIndex++;
-                }
+                tagsPair = TryFindLinkTagPosition(text, tagsPair.Last().Position);
             }
 
             return tokens;
         }
 
-        private static int CorrectBracketsSequenceLength(string text, int startIndex)
+        private static Token[] TryFindLinkTagPosition(string text, int startIndex)
         {
-            string sequence = "]()";
-
-            if (startIndex == -1)
+            try
             {
-                return -1;
-            }
+                var start = text.IndexOf('[', startIndex);
+                var mid = text.IndexOf("](", start);
+                var end = text.IndexOf(")", start);
 
-            var bracketsPosition = new List<int>() { startIndex };
-
-            foreach (char c in sequence)
-            {
-                var bracketIndex = text.IndexOf(c, bracketsPosition.Last());
-
-                if (bracketIndex == -1)
+                if (start < end && mid < end)
                 {
-                    return -1;
+                    return CreateLinkTokenPair(start, end - start + 1);
                 }
-
-                bracketsPosition.Add(bracketIndex);
+            }
+            catch
+            {
+                return Array.Empty<Token>();
             }
 
-            if (bracketsPosition[2] != bracketsPosition[1] + 1)
-                return -1;
+            return Array.Empty<Token>();
+        }
 
-            return bracketsPosition.Last() - bracketsPosition.First() + 1;
+        private static Token[] CreateLinkTokenPair(int startIndex, int sequenceLength)
+        {
+            return new Token[] { new Token(tagType, startIndex, Tag.Open, sequenceLength),
+                new Token(tagType, startIndex + sequenceLength - 1, Tag.Close, 0)};
         }
     }
 }
