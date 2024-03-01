@@ -2,7 +2,7 @@
 
 namespace Markdown;
 
-public class MarkdownToHtmlConverter
+public static class MarkdownToHtmlConverter
 {
     private static readonly Dictionary<TagInfo, string> tagToString = new()
     {
@@ -65,24 +65,7 @@ public class MarkdownToHtmlConverter
 
             else if (linkTags.TryGetValue(i, out tag))
             {
-                var linkTextEnd = text.IndexOf(']', i);
-                var linkStart = linkTextEnd + 1;
-                var titleStart = text.IndexOf(' ', linkStart);
-                var linkEnd = text.IndexOf(')', linkStart);
-                var linkText = text.Substring(i + 1, linkTextEnd - i - 1);
-                if (titleStart == -1)
-                {
-                    var link = text.Substring(linkStart + 1, linkEnd - linkStart - 1);
-                    html.Append($"<a href=\"{link}\">{linkText}</a>");
-                }
-                else
-                {
-                    var link = text.Substring(linkStart + 1, titleStart - linkStart - 1);
-                    var title = text.Substring(titleStart + 2, text.IndexOf('"', titleStart + 2) - titleStart - 2);
-                    html.Append($"<a href=\"{link}\" title=\"{title}\">{linkText}</a>");
-                }
-
-                i += tag.Length - 1;
+                i = ProcessLink(text, i, html, tag);
             }
 
             else if (!shieldPositions.Contains(i))
@@ -92,5 +75,28 @@ public class MarkdownToHtmlConverter
         if (isH1)
             html.Append("</h1>");
         return html.ToString();
+    }
+
+    private static int ProcessLink(string text, int i, StringBuilder html, Tag tag)
+    {
+        var linkTextEnd = text.IndexOf(']', i);
+        var linkStart = linkTextEnd + 1;
+        var titleStart = text.IndexOf(' ', linkStart);
+        var linkEnd = text.IndexOf(')', linkStart);
+        var linkText = text.Substring(i + 1, linkTextEnd - i - 1);
+        if (titleStart == -1)
+        {
+            var link = text.Substring(linkStart + 1, linkEnd - linkStart - 1);
+            html.Append($"<a href=\"{link}\">{linkText}</a>");
+        }
+        else
+        {
+            var link = text.Substring(linkStart + 1, titleStart - linkStart - 1);
+            var title = text.Substring(titleStart + 2, text.IndexOf('"', titleStart + 2) - titleStart - 2);
+            html.Append($"<a href=\"{link}\" title=\"{title}\">{linkText}</a>");
+        }
+
+        i += tag.Length - 1;
+        return i;
     }
 }

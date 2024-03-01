@@ -5,7 +5,7 @@ public class Tags
     public List<PairTags> PairTags;
     public List<Tag> SingleTags;
 
-    private static List<TagInfo> pairTagsInfo = new()
+    private static readonly List<TagInfo> pairTagsInfo = new()
     {
         TagInfo.Em,
         TagInfo.Strong

@@ -28,7 +28,7 @@ public class Tests
     [TestCase("[l](https://www.google.com \"F\")", "<a href=\"https://www.google.com\" title=\"F\">l</a>")]
     [TestCase("[l](https://www.google.com)", "<a href=\"https://www.google.com\">l</a>")]
     [TestCase("\\[l](https://www.google.com)", "[l](https://www.google.com)")]
-    public void Render_Should(string input, string expectedOutput)
+    public void RenderIsCorrect(string input, string expectedOutput)
     {
         Md.Render(input).Should().Be(expectedOutput);
     }
@@ -37,7 +37,7 @@ public class Tests
     [TestCase(" __sf__ ", 100, 2)]
     [TestCase(" sf ", 100, 8)]
     [TestCase(" _s_ \n\n __s__  ", 100, 8)]
-    public void RenderTime_Should(string text, int repetitionsCount, int factor)
+    public void RenderTimeIsCorrect(string text, int repetitionsCount, int factor)
     {
         var firstInputBuilder = new StringBuilder();
         for (var i = 0; i < repetitionsCount; i++)
