@@ -1,0 +1,5 @@
+# It's hard to be a _Washington Capitals_ fan.\n
+             It's ____ hard to #be a \_Washington Capitals\_ fan.\n
+             # It's __hard__ to be a \\_Washington Capitals_ fan.\n
+             It's __hard to be a _Washington Capitals_ fan.__
+             It's hard to be a Washington Capitals fan in _202_3.
