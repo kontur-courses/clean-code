@@ -5,18 +5,18 @@ namespace Markdown;
 
 public static class Md
 {
-    private static readonly List<ITag> tags;
+    private static readonly List<ITag> Tags = [];
 
     static Md()
     {
-        tags.Add(new BoldTag());
-        tags.Add(new HeaderTag());
-        tags.Add(new ItalicTag());
+        Tags.Add(new BoldTag());
+        Tags.Add(new HeaderTag());
+        Tags.Add(new ItalicTag());
     }
 
     public static string Render(string text)
     {
-        var tokenizer = new MdTokenizer(text, tags);
+        var tokenizer = new MdTokenizer(text, Tags);
         return tokenizer.Tokenize().HandleTokens().TransformToText();
     }
 
