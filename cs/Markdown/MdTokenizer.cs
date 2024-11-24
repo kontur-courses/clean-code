@@ -1,19 +1,13 @@
-using Markdown.Tags;
+using Markdown.Scanners;
 using Markdown.Tokens;
 
 namespace Markdown;
 
 public class MdTokenizer
 {
-    private readonly SortedDictionary<string, Func<IToken>> registeredTokens;
-    private readonly string text;
+    private ITokenScanner[] scanners = [new SpecScanner(), new TextScanner()];
 
-    public MdTokenizer(string text, IEnumerable<ITag> tags)
-    {
-        throw new NotImplementedException();
-    }
-
-    public LinkedList<IToken> Tokenize()
+    public List<Token> Tokenize(string text)
     {
         throw new NotImplementedException();
     }
