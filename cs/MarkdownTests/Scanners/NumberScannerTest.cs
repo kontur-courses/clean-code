@@ -14,7 +14,7 @@ public class NumberScannerTest
     [TestCase("12345", 2)]
     [TestCase("ab1234", 2)]
     [TestCase("123ab", 0)]
-    public void Scan_ShouldReturnNumberToken(string text, int begin)
+    public void Scan_ShouldReturnNumberToken_WhenBeginPointsOnNumber(string text, int begin)
     {
         var scanner = new NumberScanner();
         
@@ -26,10 +26,10 @@ public class NumberScannerTest
 
     [TestCase(" 123", 0)]
     [TestCase("_\n", 0)]
-    [TestCase("abcd", 0)]
+    [TestCase("abc", 0)]
     [TestCase("ab1234", 0)]
     [TestCase("123ab", 3)]
-    public void Scan_ShouldScanNullFromText(string text, int begin)
+    public void Scan_ShouldScanNull_WhenBeginPointsNotOnNumber(string text, int begin)
     {
         var scanner = new NumberScanner();
         
@@ -41,7 +41,7 @@ public class NumberScannerTest
     [TestCase("123", 0, 3)]
     [TestCase("a123", 1, 3)]
     [TestCase("123a", 0, 3)]
-    public void Scan_ShoudldReturnNumberWithRightLength(string text, int begin, int expectedLength)
+    public void Scan_ShouldReturnNumberWithRightLength(string text, int begin, int expectedLength)
     {
         var scanner = new NumberScanner();
         
