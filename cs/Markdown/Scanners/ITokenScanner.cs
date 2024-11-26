@@ -4,5 +4,5 @@ namespace Markdown.Scanners;
 
 public interface ITokenScanner
 {
-    public Token? Scan(string text);
+    public Token? Scan(string text, int begin);
 }
