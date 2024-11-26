@@ -6,12 +6,16 @@ public class TextScanner : ITokenScanner
 {
     private readonly SpecScanner specScanner = new();
 
-    public Token? Scan(string text)
+    public Token? Scan(string text, int begin = 0)
     {
-        var textValue = text
-            .Select(c => c.ToString())
-            .TakeWhile(c => specScanner.Scan(c) != null)
-            .ToString();
-        return textValue == null ? null : new Token(TokenType.Text, textValue);
+        var valueEnumerable = text
+            .Skip(begin)
+            .TakeWhile(CanScan);
+        var valueLen = valueEnumerable.Count();
+        return valueLen == 0 ? null : new Token(TokenType.Text, begin, valueLen, text);
     }
+
+    private static bool CanScan(char symbol) 
+        => !SpecScanner.CanScan(symbol) && !NumberScanner.CanScan(symbol);
+
 }
