@@ -1,0 +1,52 @@
+using FluentAssertions;
+using Markdown.Scanners;
+using Markdown.Tokens;
+
+namespace MarkdownTests.Scanners;
+
+[TestFixture]
+[TestOf(typeof(NumberScanner))]
+public class NumberScannerTest
+{
+
+    [TestCase("1", 0)]
+    [TestCase("42", 0)]
+    [TestCase("12345", 2)]
+    [TestCase("ab1234", 2)]
+    [TestCase("123ab", 0)]
+    public void Scan_ShouldReturnNumberToken(string text, int begin)
+    {
+        var scanner = new NumberScanner();
+        
+        var token = scanner.Scan(text, begin);
+
+        token.Should().NotBeNull();
+        token.Type.Should().Be(TokenType.Number);
+    }
+
+    [TestCase(" 123", 0)]
+    [TestCase("_\n", 0)]
+    [TestCase("abcd", 0)]
+    [TestCase("ab1234", 0)]
+    [TestCase("123ab", 3)]
+    public void Scan_ShouldScanNullFromText(string text, int begin)
+    {
+        var scanner = new NumberScanner();
+        
+        var token = scanner.Scan(text, begin);
+        
+        token.Should().BeNull();
+    }
+
+    [TestCase("123", 0, 3)]
+    [TestCase("a123", 1, 3)]
+    [TestCase("123a", 0, 3)]
+    public void Scan_ShoudldReturnNumberWithRightLength(string text, int begin, int expectedLength)
+    {
+        var scanner = new NumberScanner();
+        
+        var token = scanner.Scan(text, begin);
+        
+        token!.GetValue().Length.Should().Be(expectedLength);
+    }
+}
