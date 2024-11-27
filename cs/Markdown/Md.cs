@@ -1,3 +1,5 @@
+using Markdown.Parser;
+
 namespace Markdown;
 
 public static class Md

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Markdown.Scanners;
+using Markdown.Tokenizer.Scanners;
 using Markdown.Tokens;
 
 namespace MarkdownTests.Scanners;

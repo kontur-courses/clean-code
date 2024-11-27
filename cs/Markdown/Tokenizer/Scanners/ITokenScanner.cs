@@ -1,6 +1,6 @@
 using Markdown.Tokens;
 
-namespace Markdown.Scanners;
+namespace Markdown.Tokenizer.Scanners;
 
 public interface ITokenScanner
 {

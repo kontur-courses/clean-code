@@ -1,7 +1,8 @@
-using Markdown.Rules;
+using Markdown.Parser.Nodes;
+using Markdown.Parser.Rules;
 using Markdown.Tokens;
 
-namespace Markdown;
+namespace Markdown.Parser;
 
 public class TokenParser
 {

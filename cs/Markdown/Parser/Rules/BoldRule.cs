@@ -1,8 +1,9 @@
+using Markdown.Parser.Nodes;
 using Markdown.Tokens;
 
-namespace Markdown.Rules;
+namespace Markdown.Parser.Rules;
 
-public class ItalicRule : IParsingRule
+public class BoldRule : IParsingRule
 {
     public Node Match(List<Token> tokens)
     {

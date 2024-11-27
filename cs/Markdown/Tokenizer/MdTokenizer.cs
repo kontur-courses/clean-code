@@ -1,4 +1,4 @@
-using Markdown.Scanners;
+using Markdown.Tokenizer.Scanners;
 using Markdown.Tokens;
 
 namespace Markdown;

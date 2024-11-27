@@ -1,6 +1,7 @@
-using Markdown.Scanners;
 using Markdown.Tokens;
 using FluentAssertions;
+using Markdown.Tokenizer.Scanners;
+
 namespace MarkdownTests.Scanners;
 
 [TestFixture]

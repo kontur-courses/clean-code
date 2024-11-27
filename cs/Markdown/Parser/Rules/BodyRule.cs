@@ -1,6 +1,7 @@
+using Markdown.Parser.Nodes;
 using Markdown.Tokens;
 
-namespace Markdown.Rules;
+namespace Markdown.Parser.Rules;
 
 public class BodyRule : IParsingRule
 {

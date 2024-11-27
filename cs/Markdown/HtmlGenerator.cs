@@ -1,3 +1,5 @@
+using Markdown.Parser.Nodes;
+
 namespace Markdown;
 
 public class HtmlGenerator
