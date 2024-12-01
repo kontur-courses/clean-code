@@ -47,7 +47,7 @@ public class TextScannerTest
         
         var token = scanner.Scan(text, begin);
         
-        token!.GetValue().Length.Should().Be(expectedLength);
+        token!.Value.Length.Should().Be(expectedLength);
     }
     
 }
