@@ -7,31 +7,36 @@ namespace Markdown.Parser.Rules;
 
 public class InWordItalicRule : IParsingRule
 {
-    private readonly List<IParsingRule> pattern = 
+    private readonly List<TokenType> possibleContinues =
     [
-        new PatternRule(TokenType.Underscore),
-        new PatternRule(TokenType.Word),
-        new PatternRule(TokenType.Underscore),
+        TokenType.Newline, TokenType.Space, TokenType.Word
     ];
-    
-    private readonly OrRule continuesRule = new(
-        [TokenType.Newline, TokenType.Space, TokenType.Word]
-    );
 
     public Node? Match(List<Token> tokens, int begin = 0)
-    {
-        var match = tokens.MatchPattern(pattern, begin);
+    { 
+        var pattern = new AndRule([
+            new PatternRule(TokenType.Underscore), 
+            new PatternRule(TokenType.Word), 
+            new PatternRule(TokenType.Underscore),
+        ]);
+        var continuesRule = new OrRule(possibleContinues);
 
-        if (match.Count != pattern.Count) return null;
-        if (match.Second() is not TextNode textNode) return null;
-        if (!HasRightContinues(tokens, begin + textNode.Consumed + 2)) return null;
-
-        return new TagNode(NodeType.Italic, textNode, textNode.Consumed + 2);
+        var resultRule = new ContinuesRule(pattern, continuesRule);
+        return resultRule.Match(tokens, begin) is SpecNode node ? BuildNode(node) : null;
     }
 
-    private bool HasRightContinues(List<Token> tokens, int begin)
+    private static TagNode BuildNode(SpecNode node)
+        => new(NodeType.Italic, node.Children.Second()!, node.Consumed);
+
+    public static bool IsTagInWord(List<Token> tokens, int begin = 0)
     {
-        if (tokens.Count == begin) return true;
-        return continuesRule.Match(tokens, begin) is not null;
+        if (begin != 0 && tokens[begin - 1].TokenType == TokenType.Word) 
+            return true;
+
+        var inStartRule = new PatternRule([
+            TokenType.Underscore, TokenType.Word, 
+            TokenType.Underscore, TokenType.Word,
+        ]);
+        return inStartRule.Match(tokens, begin) is not null;
     }
 }
