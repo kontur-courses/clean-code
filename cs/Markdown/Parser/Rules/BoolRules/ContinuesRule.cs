@@ -5,7 +5,7 @@ namespace Markdown.Parser.Rules.BoolRules;
 
 public class ContinuesRule(IParsingRule rule, IParsingRule continuesRule) : IParsingRule
 {
-    public Node? Match(List<Token>? tokens, int begin = 0)
+    public Node? Match(List<Token> tokens, int begin = 0)
     {
         if (rule.Match(tokens, begin) is { } node)
         {
