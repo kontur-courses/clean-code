@@ -21,7 +21,7 @@ public class NumberScannerTest
         var token = scanner.Scan(text, begin);
 
         token.Should().NotBeNull();
-        token.Type.Should().Be(TokenType.Number);
+        token.TokenType.Should().Be(TokenType.Number);
     }
 
     [TestCase(" 123", 0)]

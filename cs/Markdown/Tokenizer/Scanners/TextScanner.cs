@@ -12,7 +12,7 @@ public class TextScanner : ITokenScanner
             .Skip(begin)
             .TakeWhile(CanScan);
         var valueLen = valueEnumerable.Count();
-        return valueLen == 0 ? null : new Token(TokenType.Text, begin, valueLen, text);
+        return valueLen == 0 ? null : new Token(TokenType.Word, begin, valueLen, text);
     }
 
     private static bool CanScan(char symbol) 

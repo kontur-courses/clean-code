@@ -44,7 +44,7 @@ public class MdTokenizerTest
         
         var tokens = tokenizer.Tokenize(text);
         var resultStringBuilder = tokens
-            .Aggregate(new StringBuilder(), (sb, token) => sb.Append(token.GetValue()));
+            .Aggregate(new StringBuilder(), (sb, token) => sb.Append(token.Value));
         
         resultStringBuilder.ToString().Should().Be(text);
     }

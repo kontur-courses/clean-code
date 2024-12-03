@@ -2,7 +2,7 @@ namespace Markdown.Tokens;
 
 public enum TokenType
 {
-    Text,
+    Word,
     Space,
     Number,
     Newline,

@@ -20,7 +20,7 @@ public class TextScannerTest
         var token = scanner.Scan(text, begin);
         
         token.Should().NotBeNull();
-        token.Type.Should().Be(TokenType.Text);
+        token.TokenType.Should().Be(TokenType.Word);
     }
 
     [TestCase("_a", 0)]
