@@ -18,7 +18,7 @@ public class HeaderRule : IParsingRule
 
     private static TagNode BuildNode(SpecNode specNode)
     {
-        var valueNode = (specNode.Children.Second() as TagNode)!;
-        return new TagNode(NodeType.Header, valueNode.Children, specNode.Consumed);
+        var valueNode = (specNode.Nodes.Second() as TagNode)!;
+        return new TagNode(NodeType.Header, valueNode.Children, specNode.Start,specNode.Consumed);
     }
 }

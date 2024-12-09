@@ -22,9 +22,9 @@ public class AndRuleTest
         var node = rule.Match(tokens) as SpecNode;
         
         node.Should().NotBeNull();
-        node.Children.Select(n => n.NodeType).Should().BeEquivalentTo(
+        node.Nodes.Select(n => n.NodeType).Should().BeEquivalentTo(
             [NodeType.Text, NodeType.Text], options => options.WithStrictOrdering());
-        node.ToText().Should().Be(text);
+        node.ToText(tokens).Should().Be(text);
     }
 
     [TestCase("123abc")]

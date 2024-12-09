@@ -16,9 +16,9 @@ public class InWordBoldRule : IParsingRule
     {
         var valueRule = new OrRule(new InWordItalicRule(), new PatternRule(TokenType.Word));
         var pattern = new AndRule([
-            PatternRule.DoubleUnderscoreRule(),
+            PatternRuleFactory.DoubleUnderscore(),
             new KleeneStarRule(valueRule),
-            PatternRule.DoubleUnderscoreRule(),
+            PatternRuleFactory.DoubleUnderscore(),
         ]);
         var continuesRule = new OrRule(possibleContinues);
 
@@ -28,8 +28,8 @@ public class InWordBoldRule : IParsingRule
 
     private static TagNode BuildNode(SpecNode node)
     {
-        var valueNode = (node.Children.Second() as SpecNode)!;
-        return new TagNode(NodeType.Bold, valueNode.Children, node.Consumed);
+        var valueNode = (node.Nodes.Second() as SpecNode)!;
+        return new TagNode(NodeType.Bold, valueNode.Nodes, node.Start, node.Consumed);
     }
 
     public static bool IsTagInWord(List<Token> tokens, int begin = 0)

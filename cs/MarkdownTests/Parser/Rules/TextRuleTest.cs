@@ -2,6 +2,7 @@ using FluentAssertions;
 using Markdown;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules;
+using Markdown.Tokens;
 
 namespace MarkdownTests.Parser.Rules;
 
@@ -22,7 +23,7 @@ public class TextRuleTest
         
         node.Should().NotBeNull();
         node.Consumed.Should().Be(1);
-        node.Text.Should().Be(text);
+        node.ToText(tokens).Should().Be(text);
     }
 
     [TestCase("_")]
@@ -45,22 +46,17 @@ public class TextRuleTest
         var node = rule.Match(tokens) as TextNode;
         
         node.Should().NotBeNull();
-        node.Tokens.Should().BeEquivalentTo(tokens);
+        node.ToText(tokens).Should().BeEquivalentTo(text);
     }
 
-    [TestCase("abc _def_")]
-    [TestCase("abc \ndef")]
-    public void Match_ShouldBeInterrupted_ByNonSpaceOrWordType(string text, int begin = 0)
+    [TestCase("abc _def_", ExpectedResult = "abc ")]
+    [TestCase("abc \ndef", ExpectedResult = "abc ")]
+    public string? Match_ShouldBeInterrupted_ByNonSpaceOrWordType(string text, int begin = 0)
     {
         var tokens = tokenizer.Tokenize(text);
         
         var node = rule.Match(tokens, begin) as TextNode;
-        
-        node.Should().NotBeNull();
-        node.Tokens.Should().NotBeEquivalentTo(tokens);
-        node.Tokens.Should().BeEquivalentTo(tokens
-            .Skip(begin)
-            .Take(node.Consumed)
-            .ToList());
+
+        return node?.ToText(tokens);
     }
 }

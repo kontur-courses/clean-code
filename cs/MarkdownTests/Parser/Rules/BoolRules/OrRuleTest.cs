@@ -33,7 +33,7 @@ public class OrRuleTest
         var node = rule.Match(tokens) as TextNode;
         
         node.Should().NotBeNull();
-        node.ToText().Should().Be("abc");
+        node.ToText(tokens).Should().Be("abc");
     }
     [TestCase("_abc def ghi_")]
     [TestCase(" 123")]

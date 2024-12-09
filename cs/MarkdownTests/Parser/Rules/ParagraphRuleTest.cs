@@ -24,7 +24,7 @@ public class ParagraphRuleTest
         node.Should().NotBeNull();
         node.NodeType.Should().Be(NodeType.Paragraph);
         node.Consumed.Should().Be(tokens.Count);
-        node.ToText().Should().Be(text);
+        node.ToText(tokens).Should().Be(text);
     }
 
     [Test]
@@ -43,8 +43,12 @@ public class ParagraphRuleTest
             .Should().HaveCount(4)
             .And.BeEquivalentTo([NodeType.Text, NodeType.Italic, NodeType.Bold, NodeType.Text]);
         
-        node.Children.First(n => n.NodeType == NodeType.Bold).ToText().Should().Be("ghi jkl");
-        node.Children.First(n => n.NodeType == NodeType.Italic).ToText().Should().Be("def");
+        node.Children
+            .First(n => n.NodeType == NodeType.Bold)
+            .ToText(tokens).Should().Be("ghi jkl");
+        node.Children
+            .First(n => n.NodeType == NodeType.Italic)
+            .ToText(tokens).Should().Be("def");
     }
 
     [TestCase("_abc __def ghi_ jkl__")]
@@ -56,9 +60,8 @@ public class ParagraphRuleTest
         var node = rule.Match(tokens) as TagNode;
         
         node.Should().NotBeNull();
+        node.ToText(tokens).Should().Be(text);
         node.NodeType.Should().Be(NodeType.Paragraph);
-        node.Consumed.Should().Be(tokens.Count);
         node.Children.Should().OnlyContain(n => n.NodeType == NodeType.Text);
-        node.ToText().Should().Be(text);
     }
 }

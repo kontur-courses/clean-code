@@ -26,11 +26,11 @@ public class ConditionalRuleTest
     public void ConditionalRule_Match_ShouldMatchNodeWithRightCondition(string text)
     {
         var tokens = tokenizer.Tokenize(text);
-        var rule = new ConditionalRule(primaryRule, node => node.NodeType == NodeType.Text);
+        var rule = new ConditionalRule(primaryRule, (node, _) => node.NodeType == NodeType.Text);
         
         var match = rule.Match(tokens);
         match.Should().NotBeNull();
-        match.ToText().Should().Be(text);
+        match.ToText(tokens).Should().Be(text);
         match.NodeType.Should().Be(NodeType.Text);
     }
     
@@ -38,7 +38,7 @@ public class ConditionalRuleTest
     public void ConditionalRule_Match_ShouldNotMatchWithWrongCondition(string text)
     {
         var tokens = tokenizer.Tokenize(text);
-        var rule = new ConditionalRule(primaryRule, _ => false);
+        var rule = new ConditionalRule(primaryRule, (_,_) => false);
         
         var match = rule.Match(tokens);
         match.Should().BeNull();

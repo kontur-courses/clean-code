@@ -1,11 +1,8 @@
 namespace Markdown.Parser.Nodes;
 
-public class TagNode(NodeType nodeType, List<Node> children, int consumed) : Node(nodeType, consumed)
+public record TagNode(NodeType NodeType, List<Node> Children, int Start, int Consumed) : Node(NodeType, Start, Consumed)
 {
-    public List<Node> Children { get; } = children;
-
-    public TagNode(NodeType nodeType, Node child, int consumed) :
-        this(nodeType, [child], consumed)
-    {
-    }
+    public TagNode(NodeType nodeType, Node child, int start, int consumed) 
+        : this(nodeType, [child], start, consumed)
+    { }
 }

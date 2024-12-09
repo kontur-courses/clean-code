@@ -2,6 +2,7 @@ using FluentAssertions;
 using Markdown;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules;
+using Markdown.Parser.Rules.Tools;
 
 namespace MarkdownTests.Parser.Rules;
 
@@ -23,7 +24,7 @@ public class ItalicRuleTest
         node.Should().NotBeNull();
         node.NodeType.Should().Be(NodeType.Italic);
         node.Children.Should().ContainSingle(n => n.NodeType == NodeType.Text);
-        node.Children.First().As<TextNode>().Text.Should().Be(text);
+        node.ToText(tokens).Should().Be(text);
     }
 
     [TestCase("abc def ghi_123_jkl", 5)]
@@ -50,7 +51,7 @@ public class ItalicRuleTest
         
         node.Should().NotBeNull();
         node.Children.Should().ContainSingle(n => n.NodeType == NodeType.Text);
-        return node.Children.First().As<TextNode>().Text;
+        return node.ToText(tokens);
     }
 
     [TestCase("ab_c def gh_i", 1)]
@@ -96,5 +97,18 @@ public class ItalicRuleTest
         var node = rule.Match(tokens, begin) as TagNode;
         
         node.Should().BeNull();
+    }
+    
+    [TestCase("__abc def__ ghi jkl")]
+    [TestCase("abc __def ghi__ jkl")]
+    [TestCase("abc def __ghi jkl__")]
+    public void ItalicRule_Match_BoldTagInItalicShouldNotBeMatched(string text)
+    {
+        var tokens = tokenizer.Tokenize($"_{text}_");
+        
+        var node = rule.Match(tokens) as TagNode;
+        
+        node.Should().NotBeNull();
+        node.ToText(tokens).Should().Be(text);
     }
 }

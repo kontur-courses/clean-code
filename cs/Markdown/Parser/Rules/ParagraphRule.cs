@@ -13,7 +13,7 @@ public class ParagraphRule: IParsingRule
             new ItalicRule(), new BoldRule(), new TextRule(),
         ]);
         var tokenRules = new OrRule([
-            PatternRule.DoubleUnderscoreRule(),
+            PatternRuleFactory.DoubleUnderscore(),
             new PatternRule(TokenType.Number),
             new PatternRule(TokenType.Underscore)
         ]);
@@ -28,7 +28,7 @@ public class ParagraphRule: IParsingRule
 
     private static TagNode BuildNode(SpecNode node)
     {
-        var valueNode = (node.Children.First() as SpecNode)!;
-        return new TagNode(NodeType.Paragraph, valueNode.Children, node.Consumed);
+        var valueNode = (node.Nodes.First() as SpecNode)!;
+        return new TagNode(NodeType.Paragraph, valueNode.Nodes, node.Start, node.Consumed);
     }
 }

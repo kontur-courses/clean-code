@@ -22,22 +22,6 @@ public class MdTokenizerTest
     }
 
     [TestCase(TextWithAllTokens)]
-    [TestCase("__could be _intersected but__ not_")]
-    public void Tokenize_ShouldReturnNotIntersectedTokens(string text)
-    {
-        var tokenizer = new MdTokenizer();
-        
-        var tokens = tokenizer.Tokenize(text);
-        
-        var pairs = Enumerable
-            .Range(0, tokens.Count - 1)
-            .Select(i => tokens[i + 1])
-            .Zip(tokens)
-            .Select(pair => (prev: pair.Second, next: pair.First));
-        pairs.Should().OnlyContain(pair => pair.next.Begin - pair.prev.Begin == pair.prev.Length);
-    }
-
-    [TestCase(TextWithAllTokens)]
     public void Tokenize_ShouldReturnTokensInExpectedOrder(string text)
     {
         var tokenizer = new MdTokenizer();

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Markdown;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules;
+using Markdown.Parser.Rules.Tools;
 
 namespace MarkdownTests.Parser.Rules;
 
@@ -21,9 +22,9 @@ public class BoldRuleTest
         var node = rule.Match(tokens) as TagNode;
         
         node.Should().NotBeNull();
+        node.ToText(tokens).Should().Be(text);
         node.NodeType.Should().Be(NodeType.Bold);
         node.Children.Should().ContainSingle(n => n.NodeType == NodeType.Text);
-        node.Children.First().As<TextNode>().Text.Should().Be(text);
     }
 
     [TestCase("abc")]
@@ -36,8 +37,8 @@ public class BoldRuleTest
         
         node.Should().NotBeNull();
         node.NodeType.Should().Be(NodeType.Bold);
+        node.ToText(tokens).Should().Be($"{text}");
         node.Children.Should().ContainSingle(n => n.NodeType == NodeType.Italic);
-        node.Children.First().As<TagNode>().Children.First().As<TextNode>().Text.Should().Be(text);
     }
 
     [TestCase("abc def _ghi_")]
@@ -82,7 +83,7 @@ public class BoldRuleTest
         
         node.Should().NotBeNull();
         node.Children.Should().ContainSingle(n => n.NodeType == NodeType.Text);
-        return node.Children.First().As<TextNode>().Text;
+        return node.Children.ToText(tokens);
     }
 
     [TestCase("a__bc_def_gh__i", 1)]

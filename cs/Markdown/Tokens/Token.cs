@@ -1,16 +1,10 @@
 namespace Markdown.Tokens;
 
-public class Token(TokenType tokenType, int begin, int length, string sourceText)
+public record Token(TokenType TokenType, string Value)
 {
-    public int Begin { get; } = begin;
-    public int Length { get; } = length;
-    public TokenType TokenType { get; } = tokenType;
-    public string Value => value.Value;
-    
-    private readonly Lazy<string> value = new(() => sourceText[begin..(begin + length)]);
+    public Token(TokenType tokenType, int start, int length, string sourceText)
+        : this(tokenType, sourceText.Substring(start, length))
+    { }
 
-    public override string ToString()
-    {
-        return $"Token {TokenType}: Value \"{Value}\"";
-    }
+    public int Length { get; } = Value.Length;
 }
