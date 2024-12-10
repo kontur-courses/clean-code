@@ -11,16 +11,16 @@ public class EscapeRuleTest
 {
     private readonly EscapeRule rule = new();
     private readonly MdTokenizer tokenizer = new();
-    [TestCase("\\_", ExpectedResult = "_")]
-    [TestCase("\\#", ExpectedResult = "#")]
+    [TestCase(@"\_", ExpectedResult = "_")]
+    [TestCase(@"\#", ExpectedResult = "#")]
     public string? EscapeRule_Match_ShouldEscapeTagsSymbols(string text)
     {
         var tokens = tokenizer.Tokenize(text);
         var match = rule.Match(tokens);
         return match?.ToText(tokens);
     }
-    [TestCase("\\abc def")]
-    [TestCase("\\ abc def")]
+    [TestCase(@"\abc def")]
+    [TestCase(@"\ abc def")]
     public void EscapeRule_Match_ShouldNotEscapeNonTagSymbols(string text)
     {
         var tokens = tokenizer.Tokenize(text);

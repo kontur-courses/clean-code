@@ -23,6 +23,7 @@ public class SpecScanner : ITokenScanner
     {
         ' ' => TokenType.Space,
         '\n' => TokenType.Newline,
+        '\\' => TokenType.Backslash,
         '_' => TokenType.Underscore,
         '#' => TokenType.Octothorpe,
         _ => null

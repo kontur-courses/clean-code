@@ -14,8 +14,10 @@ public class ParagraphRule: IParsingRule
         ]);
         var tokenRules = new OrRule([
             PatternRuleFactory.DoubleUnderscore(),
-            new PatternRule(TokenType.Number),
-            new PatternRule(TokenType.Underscore)
+            new PatternRule(TokenType.Number), 
+            new PatternRule(TokenType.Octothorpe),
+            new PatternRule(TokenType.Underscore), 
+            new PatternRule(TokenType.Backslash),
         ]);
 
         var resultRule = new AndRule([
