@@ -22,7 +22,8 @@ public class SpecScanner : ITokenScanner
     private static TokenType? GetTokenType(char symbol) => symbol switch
     {
         ' ' => TokenType.Space,
-        '\n' => TokenType.Newline,
+        '*' => TokenType.Asterisk,
+        '\n' or '\r' => TokenType.Newline,
         '\\' => TokenType.Backslash,
         '_' => TokenType.Underscore,
         '#' => TokenType.Octothorpe,

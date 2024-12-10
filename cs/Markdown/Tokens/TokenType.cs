@@ -6,6 +6,7 @@ public enum TokenType
     Space,
     Number,
     Newline,
+    Asterisk,
     Backslash,
     Underscore,
     Octothorpe,

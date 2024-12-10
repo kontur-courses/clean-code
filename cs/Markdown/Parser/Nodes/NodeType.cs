@@ -9,5 +9,7 @@ public enum NodeType
     Escape,
     Header,
     Special,
-    Paragraph
+    ListItem,
+    Paragraph,
+    UnorderedList
 }
