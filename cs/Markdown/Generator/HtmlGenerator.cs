@@ -24,6 +24,12 @@ public class HtmlGenerator : IGenerator
         TagNode { NodeType: NodeType.Paragraph, Children: var children } 
             => $"<p>{RenderChildren(children, tokens)}</p>",
         
+        TagNode { NodeType: NodeType.UnorderedList, Children: var children }
+            => $"<ul>{RenderChildren(children, tokens)}</ul>",
+        
+        TagNode { NodeType: NodeType.ListItem, Children: var children }
+            => $"<li>{RenderChildren(children, tokens)}</li>",
+        
         TagNode { NodeType: NodeType.Header, Children: var children } 
             => $"<h1>{RenderChildren(children, tokens)}</h1>",
         

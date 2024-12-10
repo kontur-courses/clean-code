@@ -50,6 +50,15 @@ public class HtmlGeneratorTest
         var html = generator.Render(root, tokens);
         html.Should().Be("<div><h1>abc <em>def</em> <strong>ghi</strong></h1></div>");
     }
+
+    [Test]
+    public void Render_ShouldCorrectlyRenderUnorderedList()
+    {
+        var root = GenerateNode("* abc def\n* ghi jkl", out var tokens);
+        var html = generator.Render(root, tokens);
+        html.Should().Be("<div><ul><li>abc def</li><li>ghi jkl</li></ul></div>");
+    }
+    
     private Node GenerateNode(string text, out List<Token> tokens)
     {
         tokens = tokenizer.Tokenize($"{text}\n");
