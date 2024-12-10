@@ -1,15 +1,16 @@
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules.BoolRules;
+using Markdown.Parser.Rules.Tools;
 using Markdown.Tokens;
 
 namespace Markdown.Parser.Rules;
 
-public class EscapeRule : IParsingRule
+public class EscapeRule(List<TokenType> escapedTokens) : IParsingRule
 {
-    private readonly List<TokenType> escapedTokens = 
-    [
-        TokenType.Underscore, TokenType.Octothorpe
-    ];
+    public EscapeRule(TokenType escapedTokenType)
+        : this([escapedTokenType])
+    { }
+
     
     public Node? Match(List<Token> tokens, int begin = 0)
     {
@@ -19,5 +20,6 @@ public class EscapeRule : IParsingRule
         ]);
         return resultRule.Match(tokens, begin) is SpecNode node ? BuildNode(node) : null;
     }
-    private static TextNode BuildNode(SpecNode node) => new(node.End, 1);
+    private static TagNode BuildNode(SpecNode node) 
+        => new(NodeType.Escape, node.Nodes.Second()!, node.Start, node.Consumed);
 }

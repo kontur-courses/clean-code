@@ -5,6 +5,7 @@ public enum NodeType
     Text,
     Bold,
     Italic,
+    Escape,
     Header,
     Special,
     Paragraph

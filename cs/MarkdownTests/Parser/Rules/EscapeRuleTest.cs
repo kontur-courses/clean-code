@@ -2,6 +2,7 @@ using FluentAssertions;
 using Markdown;
 using Markdown.Parser.Rules;
 using Markdown.Parser.Rules.Tools;
+using Markdown.Tokens;
 
 namespace MarkdownTests.Parser.Rules;
 
@@ -9,7 +10,7 @@ namespace MarkdownTests.Parser.Rules;
 [TestOf(typeof(EscapeRule))]
 public class EscapeRuleTest
 {
-    private readonly EscapeRule rule = new();
+    private readonly EscapeRule rule = new([TokenType.Underscore, TokenType.Octothorpe]);
     private readonly MdTokenizer tokenizer = new();
     [TestCase(@"\_", ExpectedResult = "_")]
     [TestCase(@"\#", ExpectedResult = "#")]
