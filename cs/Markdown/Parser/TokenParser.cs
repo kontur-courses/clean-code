@@ -4,9 +4,9 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser;
 
-public class TokenParser
+public static class TokenParser
 {
-    public Node? Parse(List<Token> tokens)
+    public static Node? Parse(List<Token> tokens)
     {
         return new BodyRule().Match(tokens);
     }

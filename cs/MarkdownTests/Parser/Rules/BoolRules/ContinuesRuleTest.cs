@@ -1,8 +1,8 @@
 using FluentAssertions;
-using Markdown;
 using Markdown.Parser.Rules;
 using Markdown.Parser.Rules.BoolRules;
 using Markdown.Parser.Rules.Tools;
+using Markdown.Tokenizer;
 using Markdown.Tokens;
 
 namespace MarkdownTests.Parser.Rules.BoolRules;

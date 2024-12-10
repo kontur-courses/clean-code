@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules.BoolRules;
 using Markdown.Parser.Rules.Tools;
@@ -18,7 +19,8 @@ public class ListItemRule : IParsingRule
 
     private static TagNode BuildNode(SpecNode specNode)
     {
-        var valueNode = (specNode.Nodes.Second() as TagNode)!;
+        var valueNode = (specNode.Nodes.Second() as TagNode);
+        Debug.Assert(valueNode != null, nameof(valueNode) + " != null");
         return new TagNode(NodeType.ListItem, valueNode.Children, specNode.Start, specNode.Consumed);
     }
 }

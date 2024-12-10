@@ -26,7 +26,7 @@ public class InWordItalicRule : IParsingRule
     }
 
     private static TagNode BuildNode(SpecNode node)
-        => new(NodeType.Italic, node.Nodes.Second()!, node.Start, node.Consumed);
+        => new(NodeType.Italic, node.Nodes.Second() ?? throw new InvalidOperationException(), node.Start, node.Consumed);
 
     public static bool IsTagInWord(List<Token> tokens, int begin = 0)
     {

@@ -1,8 +1,8 @@
 using FluentAssertions;
-using Markdown;
 using Markdown.Generator;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules;
+using Markdown.Tokenizer;
 using Markdown.Tokens;
 
 namespace MarkdownTests.Generator;
@@ -59,9 +59,9 @@ public class HtmlGeneratorTest
         html.Should().Be("<div><ul><li>abc def</li><li>ghi jkl</li></ul></div>");
     }
     
-    private Node GenerateNode(string text, out List<Token> tokens)
+    private Node? GenerateNode(string text, out List<Token> tokens)
     {
         tokens = tokenizer.Tokenize($"{text}\n");
-        return rule.Match(tokens)!;
+        return rule.Match(tokens);
     }
 }

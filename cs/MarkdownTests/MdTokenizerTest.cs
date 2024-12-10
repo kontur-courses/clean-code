@@ -1,6 +1,6 @@
 using System.Text;
 using FluentAssertions;
-using Markdown;
+using Markdown.Tokenizer;
 
 namespace MarkdownTests;
 

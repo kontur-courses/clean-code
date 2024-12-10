@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules.BoolRules;
 using Markdown.Parser.Rules.Tools;
@@ -32,7 +33,8 @@ public class ParagraphRule: IParsingRule
 
     private static TagNode BuildNode(SpecNode node)
     {
-        var valueNode = (node.Nodes.First() as SpecNode)!;
+        var valueNode = (node.Nodes.First() as SpecNode);
+        Debug.Assert(valueNode != null, nameof(valueNode) + " != null");
         return new TagNode(NodeType.Paragraph, valueNode.Nodes, node.Start, node.Consumed);
     }
 }

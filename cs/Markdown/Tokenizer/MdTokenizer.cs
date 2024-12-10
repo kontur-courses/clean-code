@@ -1,7 +1,8 @@
+using System.Diagnostics;
 using Markdown.Tokenizer.Scanners;
 using Markdown.Tokens;
 
-namespace Markdown;
+namespace Markdown.Tokenizer;
 
 public class MdTokenizer
 {
@@ -19,8 +20,9 @@ public class MdTokenizer
             var token = scanners
                 .Select(scanner => scanner.Scan(text, begin))
                 .First(token => token != null);
-            
-            begin += token!.Length;
+
+            Debug.Assert(token != null, nameof(token) + " != null");
+            begin += token.Length;
             tokenList.Add(token);
         }
         return tokenList;

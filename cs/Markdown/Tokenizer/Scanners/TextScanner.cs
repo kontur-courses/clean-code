@@ -4,8 +4,6 @@ namespace Markdown.Tokenizer.Scanners;
 
 public class TextScanner : ITokenScanner
 {
-    private readonly SpecScanner specScanner = new();
-
     public Token? Scan(string text, int begin = 0)
     {
         var valueEnumerable = text

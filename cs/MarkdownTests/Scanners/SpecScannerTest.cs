@@ -24,7 +24,7 @@ public class SpecScannerTest
         
         var token = scanner.Scan(text, begin);
         
-        token!.TokenType.Should().Be(expectedType);
+        token?.TokenType.Should().Be(expectedType);
     }
 
     [TestCase("abc", 0)]

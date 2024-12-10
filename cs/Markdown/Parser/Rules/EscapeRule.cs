@@ -21,5 +21,5 @@ public class EscapeRule(List<TokenType> escapedTokens) : IParsingRule
         return resultRule.Match(tokens, begin) is SpecNode node ? BuildNode(node) : null;
     }
     private static TagNode BuildNode(SpecNode node) 
-        => new(NodeType.Escape, node.Nodes.Second()!, node.Start, node.Consumed);
+        => new(NodeType.Escape, node.Nodes.Second() ?? throw new InvalidOperationException(), node.Start, node.Consumed);
 }

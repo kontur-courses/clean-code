@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
-using Markdown;
 using Markdown.Generator;
 using Markdown.Parser.Rules;
+using Markdown.Tokenizer;
 
 namespace MarkdownTests;
 
@@ -40,10 +40,10 @@ public class Tests
         return Enumerable.Range(0, len).Aggregate(new StringBuilder(), 
             (sb, _) => sb.Append(allElements[rand.Next(allElements.Count)])).ToString();
     }
-    private string RenderMarkdown(string markdown)
+    private void RenderMarkdown(string markdown)
     {
         var tokens = tokenizer.Tokenize($"{markdown}\n");
-        var root = rule.Match(tokens)!;
-        return generator.Render(root, tokens);
+        var root = rule.Match(tokens);
+        generator.Render(root, tokens);
     }
 }

@@ -1,10 +1,10 @@
 using System.Collections;
 using FluentAssertions;
-using Markdown;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules;
 using Markdown.Parser.Rules.BoolRules;
 using Markdown.Parser.Rules.Tools;
+using Markdown.Tokenizer;
 
 namespace MarkdownTests.Parser.Rules.BoolRules;
 

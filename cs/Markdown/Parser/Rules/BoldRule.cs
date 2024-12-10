@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Markdown.Parser.Nodes;
 using Markdown.Parser.Rules.BoolRules;
 using Markdown.Parser.Rules.Tools;
@@ -29,7 +30,8 @@ public class BoldRule : IParsingRule
     }
     private static TagNode BuildNode(SpecNode node)
     {
-        var valueNode = (node.Nodes.Second() as SpecNode)!;
+        var valueNode = (node.Nodes.Second() as SpecNode);
+        Debug.Assert(valueNode != null, nameof(valueNode) + " != null");
         return new TagNode(NodeType.Bold, valueNode.Nodes, node.Start, node.Consumed);
     }
     private static bool HasRightBorders(Node node, List<Token> tokens)
