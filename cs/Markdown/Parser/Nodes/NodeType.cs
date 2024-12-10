@@ -4,6 +4,7 @@ public enum NodeType
 {
     Text,
     Bold,
+    Body,
     Italic,
     Escape,
     Header,
