@@ -17,7 +17,8 @@ public class ParagraphRule: IParsingRule
             PatternRuleFactory.DoubleUnderscore(),
             new PatternRule(TokenType.Number), 
             new PatternRule(TokenType.Octothorpe),
-            new PatternRule(TokenType.Underscore), 
+            new PatternRule(TokenType.Underscore),
+            new PatternRule(TokenType.Asterisk),
             new PatternRule(TokenType.Backslash),
         ]);
 
