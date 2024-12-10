@@ -64,4 +64,12 @@ public class ParagraphRuleTest
         node.NodeType.Should().Be(NodeType.Paragraph);
         node.Children.Should().OnlyContain(n => n.NodeType == NodeType.Text);
     }
+    
+    [TestCase(@"abc \_def\_ ghi", ExpectedResult = "abc _def_ ghi")]
+    public string? Match_ShouldMatchCorrectly_WhenTagsInParagraphAreEscaped(string text)
+    {
+        var tokens = tokenizer.Tokenize($"{text}\n");
+        var node = rule.Match(tokens) as TagNode;
+        return node?.ToText(tokens);
+    }
 }
