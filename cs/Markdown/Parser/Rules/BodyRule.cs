@@ -9,8 +9,10 @@ public class BodyRule : IParsingRule
     public Node? Match(List<Token> tokens, int begin = 0)
     {
         var tagRules = new OrRule([
-            new EscapeRule(TokenType.Octothorpe),
-            new HeaderRule(), new ParagraphRule(),
+            new EscapeRule([TokenType.Octothorpe, TokenType.Asterisk]),
+            new HeaderRule(),
+            new UnorderedListRule(),
+            new ParagraphRule()
         ]);
         var tokenRules = new PatternRule(TokenType.Newline);
         
