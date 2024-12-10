@@ -1,3 +1,4 @@
+using Markdown.Generator;
 using Markdown.Parser;
 
 namespace Markdown;
@@ -12,7 +13,7 @@ public static class Md
         
         var tokens = tokenizer.Tokenize(text);
         var root = parser.Parse(tokens);
-        return htmlGenerator.GenerateHtml(root);
+        return htmlGenerator.Render(root, tokens);
 
     }
 }
