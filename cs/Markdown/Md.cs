@@ -11,9 +11,14 @@ public static class Md
         var parser = new TokenParser();
         var htmlGenerator = new HtmlGenerator();
         
-        var tokens = tokenizer.Tokenize(text);
+        var tokens = tokenizer.Tokenize($"{RemoveCarriageTransfer(text)}\n");
         var root = parser.Parse(tokens);
+        
         return htmlGenerator.Render(root, tokens);
+    }
 
+    private static string RemoveCarriageTransfer(string text)
+    {
+        return text.Replace("\r\n", "\n").Replace("\n\r", "\n");
     }
 }
