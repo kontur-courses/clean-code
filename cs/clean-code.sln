@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{F35B0204-2EFC-492F-92DA-42D0529A7474}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{00D3BD71-5B3C-49C5-8B65-F280C98C0A01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +31,13 @@ Global
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F35B0204-2EFC-492F-92DA-42D0529A7474}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F35B0204-2EFC-492F-92DA-42D0529A7474}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F35B0204-2EFC-492F-92DA-42D0529A7474}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F35B0204-2EFC-492F-92DA-42D0529A7474}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00D3BD71-5B3C-49C5-8B65-F280C98C0A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00D3BD71-5B3C-49C5-8B65-F280C98C0A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00D3BD71-5B3C-49C5-8B65-F280C98C0A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00D3BD71-5B3C-49C5-8B65-F280C98C0A01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
