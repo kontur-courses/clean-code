@@ -1,9 +1,3 @@
 namespace Markdown;
 
-public class Token
-{
-    public int Position;
-    public int Length;
-    public string Value;
-    public TokenType Type;
-}
+public record Token(int Position, int Length, string Value, TokenType Type);

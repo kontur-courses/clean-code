@@ -1,5 +1,3 @@
-using System.Security.AccessControl;
-
 namespace Markdown;
 
 public enum TokenType

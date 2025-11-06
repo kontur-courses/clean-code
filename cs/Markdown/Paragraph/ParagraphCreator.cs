@@ -1,10 +1,9 @@
 namespace Markdown;
 
-public static class ParagraphCreator
+public class ParagraphCreator : IParagraphCreator
 {
-    public static List<Paragraph> CreateParagraphs(string markdownString)
+    public List<Paragraph> GetParagraphs(string markdownString)
     {
-        //разбивает текст по переносам на параграфы
         throw new NotImplementedException();
     }
 }

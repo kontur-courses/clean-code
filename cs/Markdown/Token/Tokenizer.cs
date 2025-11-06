@@ -1,8 +1,8 @@
 namespace Markdown;
 
-public static class Tokenizer
+public class Tokenizer : ITokenizer
 {
-    public static List<Token> CreateTokens(Paragraph paragraph)
+    public List<Token> GetTokens(Paragraph paragraph)
     {
         throw new NotImplementedException();
     }
