@@ -11,9 +11,7 @@ public abstract class MarkdownNode
         this.value = value;
     }
 
-    public virtual void Add(MarkdownNode node) {}
+    public virtual void AddChild(MarkdownNode node) {}
     public virtual List<MarkdownNode> GetChildren() => [];
     public abstract string ToHtml();
-    
-
 }

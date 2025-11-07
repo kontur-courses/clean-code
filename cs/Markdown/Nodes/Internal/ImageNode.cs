@@ -1,8 +1,8 @@
 using Markdown.Nodes.Interfaces;
 
-namespace Markdown.Nodes.Leaf;
+namespace Markdown.Nodes.Internal;
 
-public class ImageNode : LeafMarkdownNode
+public class ImageNode : InternalMarkdownNode
 {
     public override string ToHtml()
     {

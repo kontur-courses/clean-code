@@ -3,7 +3,7 @@ namespace Markdown.Nodes.Interfaces;
 public abstract class InternalMarkdownNode : MarkdownNode
 {
     protected readonly List<MarkdownNode> children = [];
-    public override void Add(MarkdownNode node)
+    public override void AddChild(MarkdownNode node)
     {
 
     }

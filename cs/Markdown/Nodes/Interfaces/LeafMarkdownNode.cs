@@ -6,7 +6,7 @@ public abstract class LeafMarkdownNode : MarkdownNode
     {
     }
     
-    public override void Add(MarkdownNode node)
+    public override void AddChild(MarkdownNode node)
     {
         throw new NotImplementedException();
     }

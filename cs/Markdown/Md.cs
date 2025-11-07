@@ -1,19 +1,15 @@
-using Markdown.Parsing;
-
 namespace Markdown;
 
 public class Md
 {
-    private MarkdownParser markdownParser;
-
-    public Md(MarkdownParser markdownParser)
-    {
-        this.markdownParser = markdownParser;
-    }
-
     public string Render(string markdownText)
     {
-        var markdownDocument = markdownParser.Parse(markdownText);
-        return markdownDocument.ToHtml();
+        var tokenizer = new MarkdownTokenizer(markdownText);
+        var tokens = tokenizer.Tokenize();
+        var parser = new MarkdownParser(tokens);
+        var markdownDocument = parser.ParseTokens();
+        var htmlText = markdownDocument.ToHtml();
+        
+        return htmlText;
     }
 }
