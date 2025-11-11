@@ -10,7 +10,7 @@ public class Md
 
 		var mdSymbols = SplitIntoSubstrings(text.AsMemory(), t => t == '\n')
 			.Select(t => SplitIntoSubstrings(t, char.IsWhiteSpace))
-            .SelectMany(MdKeySymbol.GetMdKeySymbolsInLine)
+            .SelectMany(MdKeySymbolOperations.GetMdKeySymbolsInLine)
             .ToArray();
 
         MdKeySymbol.Validate(mdSymbols);
@@ -22,7 +22,7 @@ public class Md
         return BuildConvertedString(text, onlyValidatedMdSymbols);
     }
 
-    private IEnumerable<ReadOnlyMemory<char>> SplitIntoSubstrings(ReadOnlyMemory<char> text, Func<char, bool> predicate)
+    private IEnumerable<ReadOnlyMemory<char>> SplitIntoSubstrings(ReadOnlyMemory<char> text, Predicate<char> predicate)
     {
         var lastIndex = 0;
 
@@ -60,10 +60,10 @@ public class Md
 			}
 
             var mdSymbol = mdSymbols[mdSymbolIndex++];
-            sb.Append(mdSymbol.ToHtmlTag());
+            sb.Append(mdSymbol.Render(MdToHtmlMapping.Mapping));
 
             if (stringIndex < text.Length)
-                stringIndex += mdSymbol.CalculateSymbolLength();
+                stringIndex += mdSymbol.ToString().Length;
         }
 
         return sb.ToString();
