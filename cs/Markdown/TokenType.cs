@@ -5,6 +5,8 @@ public enum TokenType
     Hash,
     Underscore,
     DoubleUnderscore,
+    WordUnderscore,
+    WordDoubleUnderscore,
     Text,
     NewLine,
     Exclamation,
@@ -12,5 +14,7 @@ public enum TokenType
     RBracket,
     LParenthesis,
     RParenthesis,
-    Escape
+    Escape,
+    Space,
+    Eof,
 }

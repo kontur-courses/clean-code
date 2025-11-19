@@ -6,7 +6,9 @@ public class Md
     {
         var tokenizer = new MarkdownTokenizer(markdownText);
         var tokens = tokenizer.Tokenize();
-        var parser = new MarkdownParser(tokens);
+        var context = new ParserContext(tokens);
+        var parserSelector = new ParseSelector(context);
+        var parser = new MarkdownParser(context, parserSelector);
         var markdownDocument = parser.ParseTokens();
         var htmlText = markdownDocument.ToHtml();
         

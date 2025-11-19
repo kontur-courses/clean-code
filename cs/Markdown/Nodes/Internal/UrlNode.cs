@@ -3,9 +3,9 @@ using Markdown.Nodes.Interfaces;
 
 namespace Markdown.Nodes.Internal;
 
-public class ItalicNode : InternalMarkdownNode
+public class UrlNode : InternalMarkdownNode
 {
-    public ItalicNode(MarkdownNode? parent, string value) : base(parent, value)
+    public UrlNode(MarkdownNode? parent, string value) : base(parent, value)
     {
     }
 
@@ -17,6 +17,6 @@ public class ItalicNode : InternalMarkdownNode
             textBuilder.Append(child.ToHtml());
         }
 
-        return $"<em>{textBuilder}</em>";
+        return textBuilder.ToString();
     }
 }
