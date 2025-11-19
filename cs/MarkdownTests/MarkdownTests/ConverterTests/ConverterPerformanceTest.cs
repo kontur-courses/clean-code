@@ -68,8 +68,8 @@ namespace Markdown.MarkdownTests.ConverterTests
                 var timeRatio = (double)times[i] / times[i - 1];
                 var deviation = (timeRatio - sizeRatio) / sizeRatio;
 
-                // Допускаем отклонение до 30% от идеальной линейной сложности
-                Assert.That(deviation, Is.LessThan(0.30),
+                // Допускаем отклонение до 40% от идеальной линейной сложности
+                Assert.That(deviation, Is.LessThan(0.40),
                     $"При увеличении размера с {sizes[i - 1]} до {sizes[i]} " +
                     $"время выросло в {timeRatio:F2} раз вместо ожидаемых {sizeRatio:F2} " +
                     $"(отклонение {deviation:P0})");

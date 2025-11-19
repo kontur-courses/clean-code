@@ -62,7 +62,7 @@ namespace Markdown.Models.SyntaxTree
             currentIndex++;
 
             var headerContent = new List<Node>();
-            while (CanContinueParsingHeaderContent())
+            while (CanContinueParsingMarkerContent(TokenType.Newline))
             {
                 var inlineNode = ParseInline();
                 if (inlineNode != null)
@@ -71,7 +71,7 @@ namespace Markdown.Models.SyntaxTree
                 }
             }
 
-            if (HasNewlineTokenAtCurrentPosition())
+            if (HasMarkerTokenAtCurrentPosition(TokenType.Newline))
             {
                 currentIndex++;
             }
@@ -83,7 +83,7 @@ namespace Markdown.Models.SyntaxTree
         {
             var paragraphContent = new List<Node>();
 
-            while (CanContinueParsingParagraphContent())
+            while (CanContinueParsingMarkerContent(TokenType.Newline))
             {
                 var inlineNode = ParseInline();
                 if (inlineNode != null)
@@ -92,7 +92,7 @@ namespace Markdown.Models.SyntaxTree
                 }
             }
 
-            if (HasNewlineTokenAtCurrentPosition())
+            if (HasMarkerTokenAtCurrentPosition(TokenType.Newline))
             {
                 currentIndex++;
             }
@@ -119,9 +119,66 @@ namespace Markdown.Models.SyntaxTree
             {
                 TokenType.BoldStart => ParseBold(),
                 TokenType.ItalicsStart => ParseItalic(),
+                TokenType.LinkStart => ParseLink(),
                 TokenType.Text => ParseText(),
                 _ => HandleUnexpectedToken()
             };
+        }
+
+        private Node ParseLink()
+        {
+            currentIndex++;
+
+            var linkContent = new List<Node>();
+            string url = null;
+            string title = null;
+
+            while (currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.LinkEnd)
+            {
+                if (tokens[currentIndex].Type == TokenType.LinkText)
+                {
+                    linkContent.Add(new Node(NodeType.Text, null, tokens[currentIndex].Value));
+                }
+                else
+                {
+                    var inlineNode = ParseInline();
+                    if (inlineNode != null)
+                    {
+                        linkContent.Add(inlineNode);
+                    }
+                }
+                currentIndex++;
+            }
+
+            if (currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.LinkEnd)
+            {
+                currentIndex++;
+            }
+
+            if (currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.UrlStart)
+            {
+                currentIndex++;
+
+                while (currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.UrlEnd)
+                {
+                    if (tokens[currentIndex].Type == TokenType.Url)
+                    {
+                        url = tokens[currentIndex].Value;
+                    }
+                    else if (tokens[currentIndex].Type == TokenType.UrlTitle)
+                    {
+                        title = tokens[currentIndex].Value;
+                    }
+                    currentIndex++;
+                }
+
+                if (currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.UrlEnd)
+                {
+                    currentIndex++;
+                }
+            }
+
+            return new Node(NodeType.Link, linkContent, url) { Title = title };
         }
 
         private Node ParseBold()
@@ -130,7 +187,7 @@ namespace Markdown.Models.SyntaxTree
 
             var boldContent = new List<Node>();
 
-            while (CanContinueParsingBoldContent())
+            while (CanContinueParsingMarkerContent(TokenType.BoldEnd))
             {
                 var inlineNode = ParseInline();
                 if (inlineNode != null)
@@ -139,7 +196,7 @@ namespace Markdown.Models.SyntaxTree
                 }
             }
 
-            if (HasBoldEndTokenAtCurrentPosition())
+            if (HasMarkerTokenAtCurrentPosition(TokenType.BoldEnd))
             {
                 currentIndex++;
             }
@@ -153,7 +210,7 @@ namespace Markdown.Models.SyntaxTree
 
             var italicContent = new List<Node>();
 
-            while (CanContinueParsingItalicContent())
+            while (CanContinueParsingMarkerContent(TokenType.ItalicsEnd))
             {
                 var inlineNode = ParseInline();
                 if (inlineNode != null)
@@ -162,7 +219,7 @@ namespace Markdown.Models.SyntaxTree
                 }
             }
 
-            if (HasItalicsEndTokenAtCurrentPosition())
+            if (HasMarkerTokenAtCurrentPosition(TokenType.ItalicsEnd))
             {
                 currentIndex++;
             }
@@ -183,39 +240,14 @@ namespace Markdown.Models.SyntaxTree
             return null;
         }
 
-        private bool CanContinueParsingHeaderContent()
+        private bool CanContinueParsingMarkerContent(TokenType stopTokenType)
         {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.Newline;
+            return currentIndex < tokens.Count && tokens[currentIndex].Type != stopTokenType;
         }
 
-        private bool HasNewlineTokenAtCurrentPosition()
+        private bool HasMarkerTokenAtCurrentPosition(TokenType expectedTokenType)
         {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.Newline;
-        }
-
-        private bool CanContinueParsingParagraphContent()
-        {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.Newline;
-        }
-
-        private bool CanContinueParsingBoldContent()
-        {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.BoldEnd;
-        }
-
-        private bool HasBoldEndTokenAtCurrentPosition()
-        {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.BoldEnd;
-        }
-
-        private bool CanContinueParsingItalicContent()
-        {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type != TokenType.ItalicsEnd;
-        }
-
-        private bool HasItalicsEndTokenAtCurrentPosition()
-        {
-            return currentIndex < tokens.Count && tokens[currentIndex].Type == TokenType.ItalicsEnd;
+            return currentIndex < tokens.Count && tokens[currentIndex].Type == expectedTokenType;
         }
     }
 }

@@ -22,25 +22,25 @@ namespace Markdown.Entities.Converters
     /// </remarks>
     public class Converter : IConverter
     {
-        public IBuilder Builder { get; }
-        public ITokenizer Tokenizer { get; }
+        private readonly IBuilder builder;
+        private readonly ITokenizer tokenizer;
 
         public Converter(IBuilder builder, ITokenizer tokenizer)
         {
-            Builder = builder;
-            Tokenizer = tokenizer;
+            this.builder = builder;
+            this.tokenizer = tokenizer;
         }
 
         public string Convert(string text)
         {
-            if (Builder != null && Tokenizer != null)
-            {
-                var tokens = Tokenizer.Tokenize(text);
-                var ast = new SyntaxTree(tokens);
-                var convertedText = Builder.Build(ast);
-                return convertedText;
-            }
-            throw new NullReferenceException();
+            if (builder == null) throw new NullReferenceException("Builder can't be null");
+            if (tokenizer == null) throw new NullReferenceException("Tokenizer can't be null");
+            
+            var tokens = tokenizer.Tokenize(text); 
+            var ast = new SyntaxTree(tokens);
+            var convertedText = builder.Build(ast);
+
+            return convertedText;
         }
     }
 }

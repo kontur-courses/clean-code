@@ -496,6 +496,75 @@ namespace Markdown.MarkdownTests.TokenizersTests
         }
 
         [TestFixture]
+        public class LinkTests
+        {
+            private MarkdownTokenizer _tokenizer;
+
+            [SetUp]
+            public void Setup()
+            {
+                _tokenizer = new MarkdownTokenizer();
+            }
+
+            [Test]
+            public void TokenizeLine_ReturnsLinkTokens_WithValidLinkFormat()
+            {
+                var line = "Посетите [наш сайт](https://example.com) для деталей";
+
+                var tokens = _tokenizer.TokenizeLine(line);
+
+                Assert.That(tokens, Has.Count.EqualTo(8));
+
+                Assert.That(tokens[0].Type, Is.EqualTo(TokenType.Text));
+                Assert.That(tokens[0].Value, Is.EqualTo("Посетите "));
+
+                Assert.That(tokens[1].Type, Is.EqualTo(TokenType.LinkStart));
+                Assert.That(tokens[2].Type, Is.EqualTo(TokenType.LinkText));
+                Assert.That(tokens[2].Value, Is.EqualTo("наш сайт"));
+                Assert.That(tokens[3].Type, Is.EqualTo(TokenType.LinkEnd));
+
+                Assert.That(tokens[4].Type, Is.EqualTo(TokenType.UrlStart));
+                Assert.That(tokens[5].Type, Is.EqualTo(TokenType.Url));
+                Assert.That(tokens[5].Value, Is.EqualTo("https://example.com"));
+                Assert.That(tokens[6].Type, Is.EqualTo(TokenType.UrlEnd));
+
+                Assert.That(tokens[7].Type, Is.EqualTo(TokenType.Text));
+                Assert.That(tokens[7].Value, Is.EqualTo(" для деталей"));
+            }
+
+            [Test]
+            public void TokenizeLine_ReturnsLinkTokens_WithNestedFormatting()
+            {
+                var line = "[текст с _курсивом_ и __жирным__](https://example.com)";
+
+                var tokens = _tokenizer.TokenizeLine(line);
+
+                Assert.That(tokens[0].Type, Is.EqualTo(TokenType.LinkStart));
+                Assert.That(tokens[1].Type, Is.EqualTo(TokenType.LinkText));
+                Assert.That(tokens[1].Value, Is.EqualTo("текст с "));
+
+                Assert.That(tokens[2].Type, Is.EqualTo(TokenType.ItalicsStart));
+                Assert.That(tokens[3].Type, Is.EqualTo(TokenType.Text));
+                Assert.That(tokens[3].Value, Is.EqualTo("курсивом"));
+                Assert.That(tokens[4].Type, Is.EqualTo(TokenType.ItalicsEnd));
+
+                Assert.That(tokens[5].Type, Is.EqualTo(TokenType.LinkText));
+                Assert.That(tokens[5].Value, Is.EqualTo(" и "));
+
+                Assert.That(tokens[6].Type, Is.EqualTo(TokenType.BoldStart));
+                Assert.That(tokens[7].Type, Is.EqualTo(TokenType.Text));
+                Assert.That(tokens[7].Value, Is.EqualTo("жирным"));
+                Assert.That(tokens[8].Type, Is.EqualTo(TokenType.BoldEnd));
+
+                Assert.That(tokens[9].Type, Is.EqualTo(TokenType.LinkEnd));
+                Assert.That(tokens[10].Type, Is.EqualTo(TokenType.UrlStart));
+                Assert.That(tokens[11].Type, Is.EqualTo(TokenType.Url));
+                Assert.That(tokens[11].Value, Is.EqualTo("https://example.com"));
+                Assert.That(tokens[12].Type, Is.EqualTo(TokenType.UrlEnd));
+            }
+        }
+
+        [TestFixture]
         public class HelperMethodsTests
         {
             private MarkdownTokenizer _tokenizer;

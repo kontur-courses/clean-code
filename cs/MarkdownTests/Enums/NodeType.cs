@@ -7,6 +7,7 @@
         Header,
         Bold,
         Italic,
-        Text
+        Text,
+        Link
     }
 }

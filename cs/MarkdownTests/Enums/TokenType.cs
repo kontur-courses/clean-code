@@ -13,6 +13,14 @@
         BoldEnd,
         ItalicsStart,
         ItalicsEnd,
-        Newline
+        Newline,
+        UrlTitleDelimiter,
+        Url,
+        UrlTitle,
+        UrlEnd,
+        UrlStart,
+        LinkEnd,
+        LinkText,
+        LinkStart
     }
 }

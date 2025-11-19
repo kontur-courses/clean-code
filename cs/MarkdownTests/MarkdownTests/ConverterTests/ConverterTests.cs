@@ -23,7 +23,8 @@ namespace Markdown.MarkdownTests.ConverterTests
             {
                 var converter = new Converter(null, new MarkdownTokenizer());
 
-                Assert.Throws<NullReferenceException>(() => converter.Convert("test"));
+                var exception = Assert.Throws<NullReferenceException>(() => converter.Convert("test"));
+                Assert.That(exception.Message, Is.EqualTo("Builder can't be null"));
             }
 
             [Test]
@@ -31,7 +32,8 @@ namespace Markdown.MarkdownTests.ConverterTests
             {
                 var converter = new Converter(new HtmlBuilder(), null);
 
-                Assert.Throws<NullReferenceException>(() => converter.Convert("test"));
+                var exception = Assert.Throws<NullReferenceException>(() => converter.Convert("test"));
+                Assert.That(exception.Message, Is.EqualTo("Tokenizer can't be null"));
             }
 
             [Test]
@@ -431,6 +433,38 @@ namespace Markdown.MarkdownTests.ConverterTests
                 Assert.That(result, Contains.Substring("_экранированный</em>"));
                 Assert.That(result, Contains.Substring("<strong>жирный</strong>"));
                 Assert.That(result, Contains.Substring("__незакрытый жирный"));
+            }
+        }
+
+        [TestFixture]
+        public class LinkTests
+        {
+            private Converter _converter;
+
+            [SetUp]
+            public void Setup()
+            {
+                _converter = new Converter(new HtmlBuilder(), new MarkdownTokenizer());
+            }
+
+            [Test]
+            public void Convert_ReturnsAnchorTag_WithSimpleLink()
+            {
+                var markdown = "[пример ссылки](https://example.com)";
+
+                var result = _converter.Convert(markdown);
+
+                Assert.That(result, Is.EqualTo("<p><a href=\"https://example.com\">пример ссылки</a></p>"));
+            }
+
+            [Test]
+            public void Convert_ReturnsHeaderWithAnchor_WithLinkInHeader()
+            {
+                var markdown = "# Заголовок с [ссылкой](https://header.com)";
+
+                var result = _converter.Convert(markdown);
+
+                Assert.That(result, Is.EqualTo("<h1>Заголовок с <a href=\"https://header.com\">ссылкой</a></h1>"));
             }
         }
     }

@@ -262,6 +262,85 @@ namespace Markdown.MarkdownTests.BuildersTests
             Assert.That(result, Is.EqualTo("<p><em>незакрытый курсив</em> и обычный текст</p>"));
         }
 
+        [Test]
+        public void Build_ReturnsAnchorTag_WithSimpleLink()
+        {
+            var tree = CreateSyntaxTree(
+                CreateParagraph(
+                    CreateLink("пример ссылки", "https://example.com")
+                )
+            );
+
+            var result = _htmlBuilder.Build(tree);
+
+            Assert.That(result, Is.EqualTo("<p><a href=\"https://example.com\">пример ссылки</a></p>"));
+        }
+
+        [Test]
+        public void Build_ReturnsAnchorTagWithTitle_WithLinkWithTitle()
+        {
+            var tree = CreateSyntaxTree(
+                CreateParagraph(
+                    CreateLinkWithTitle("ссылка с заголовком", "https://site.com", "Заголовок ссылки")
+                )
+            );
+
+            var result = _htmlBuilder.Build(tree);
+
+            Assert.That(result, Is.EqualTo("<p><a href=\"https://site.com\" title=\"Заголовок ссылки\">ссылка с заголовком</a></p>"));
+        }
+
+        [Test]
+        public void Build_ReturnsAnchorWithStrongTag_WithLinkContainingBoldText()
+        {
+            var tree = CreateSyntaxTree(
+                CreateParagraph(
+                    CreateLink(
+                        CreateText("это "),
+                        CreateBold("жирный текст")
+                    , "https://example.com")
+                )
+            );
+
+            var result = _htmlBuilder.Build(tree);
+
+            Assert.That(result, Is.EqualTo("<p><a href=\"https://example.com\">это <strong>жирный текст</strong></a></p>"));
+        }
+
+        [Test]
+        public void Build_ReturnsAnchorWithEmTag_WithLinkContainingItalicText()
+        {
+            var tree = CreateSyntaxTree(
+                CreateParagraph(
+                    CreateLink(
+                        CreateText("это "),
+                        CreateItalic("курсивный текст")
+                    , "https://example.com")
+                )
+            );
+
+            var result = _htmlBuilder.Build(tree);
+
+            Assert.That(result, Is.EqualTo("<p><a href=\"https://example.com\">это <em>курсивный текст</em></a></p>"));
+        }
+
+        [Test]
+        public void Build_ReturnsParagraphWithAnchor_WithLinkInText()
+        {
+            var tree = CreateSyntaxTree(
+                CreateParagraph(
+                    CreateText("Посетите "),
+                    CreateLink("наш сайт", "https://example.com"),
+                    CreateText(" для деталей")
+                )
+            );
+
+            var result = _htmlBuilder.Build(tree);
+
+            Assert.That(result, Is.EqualTo("<p>Посетите <a href=\"https://example.com\">наш сайт</a> для деталей</p>"));
+        }
+
+
         // Вспомогательные методы для создания тестовых данных
         private MockSyntaxTree CreateSyntaxTree(params Node[] nodes)
         {
@@ -301,6 +380,41 @@ namespace Markdown.MarkdownTests.BuildersTests
         private Node CreateItalic(string text)
         {
             return new Node(NodeType.Italic, new List<Node> { CreateText(text) }, null);
+        }
+
+        // Новые вспомогательные методы для ссылок
+        private Node CreateLink(string text, string url)
+        {
+            return new Node(NodeType.Link, new List<Node> { CreateText(text) }, url);
+        }
+
+        private Node CreateLinkWithTitle(string text, string url, string title)
+        {
+            return new Node(NodeType.Link, new List<Node> { CreateText(text) }, url)
+            {
+                Title = title
+            };
+        }
+
+        private Node CreateLink(params object[] childrenAndUrl)
+        {
+            // Последний элемент - это URL
+            var url = childrenAndUrl[childrenAndUrl.Length - 1] as string;
+            var children = new List<Node>();
+
+            for (int i = 0; i < childrenAndUrl.Length - 1; i++)
+            {
+                if (childrenAndUrl[i] is Node node)
+                {
+                    children.Add(node);
+                }
+                else if (childrenAndUrl[i] is string text)
+                {
+                    children.Add(CreateText(text));
+                }
+            }
+
+            return new Node(NodeType.Link, children, url);
         }
     }
 

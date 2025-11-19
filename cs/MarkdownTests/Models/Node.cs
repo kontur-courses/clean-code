@@ -10,6 +10,7 @@ namespace Markdown.Models
         public NodeType Type { get; }
         public List<Node> ChildrenNodes { get; }
         public string Value { get; }
+        public string? Title { get; set; }
 
         public Node(NodeType type, List<Node> childrenNodes, string value)
         {

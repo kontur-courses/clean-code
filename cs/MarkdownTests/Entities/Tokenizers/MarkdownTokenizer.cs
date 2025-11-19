@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Markdown.Enums;
 using Markdown.Models;
+using Newtonsoft.Json.Linq;
 
 namespace Markdown.Entities.Parsers
 {
@@ -9,6 +11,15 @@ namespace Markdown.Entities.Parsers
     /// </summary>
     public class MarkdownTokenizer : ITokenizer
     {
+        private const char Underscore = '_';
+        private const string DoubleUnderscore = "__";
+        private const char EscapeCharacter = '\\';
+        private const char SpaceCharacter = ' ';
+        private const string HeaderCharacter = "# ";
+        private const char SquareOpen = '[';
+        private const char SquareClose = ']';
+        private const char RoundOpen = '(';
+        private const char RoundClose = ')';
         public List<Token> Tokenize(string text)
         {
             return TokenizeLines(TextToLines(text));
@@ -56,7 +67,7 @@ namespace Markdown.Entities.Parsers
             {
                 var currentChar = line[currentPosition];
 
-                if (currentChar == '\\')
+                if (currentChar == EscapeCharacter)
                 {
                     ProcessEscapeCharacter(line, ref currentPosition, textBuffer);
                     continue;
@@ -64,13 +75,19 @@ namespace Markdown.Entities.Parsers
 
                 if (IsBoldMarker(line, currentPosition))
                 {
-                    ProcessBoldMarker(line, ref currentPosition, tokens, textBuffer);
+                    ProcessBoldMarker(line, ref currentPosition, tokens, textBuffer, TokenType.Text);
                     continue;
                 }
 
                 if (IsItalicsMarker(line, currentPosition))
                 {
-                    ProcessItalicsMarker(line, ref currentPosition, tokens, textBuffer, false);
+                    ProcessItalicsMarker(line, ref currentPosition, tokens, textBuffer, false, TokenType.Text);
+                    continue;
+                }
+
+                if (currentChar == SquareOpen)
+                {
+                    ProcessLink(line, ref currentPosition, tokens, textBuffer);
                     continue;
                 }
 
@@ -78,8 +95,111 @@ namespace Markdown.Entities.Parsers
                 currentPosition++;
             }
 
-            if(textBuffer.Length > 0) FlushTextBufferIfNotEmpty(textBuffer, tokens);
+            if(textBuffer.Length > 0) FlushTextBufferIfNotEmpty(textBuffer, tokens, TokenType.Text);
             return tokens;
+        }
+
+        private void ProcessLink(string line, ref int currentPosition, List<Token> tokens, StringBuilder textBuffer)
+        {
+            FlushTextBufferIfNotEmpty(textBuffer, tokens, TokenType.Text);
+
+            tokens.Add(new Token(TokenType.LinkStart));
+            currentPosition++;
+
+            var linkTextBuffer = new StringBuilder();
+
+            while (currentPosition < line.Length && line[currentPosition] != SquareClose)
+            {
+                if (line[currentPosition] == EscapeCharacter)
+                {
+                    ProcessEscapeCharacter(line, ref currentPosition, linkTextBuffer);
+                }
+
+                if (IsBoldMarker(line, currentPosition))
+                {
+                    ProcessBoldMarker(line, ref currentPosition, tokens, linkTextBuffer, TokenType.LinkText);
+                    continue;
+                }
+
+                if (IsItalicsMarker(line, currentPosition))
+                {
+                    ProcessItalicsMarker(line, ref currentPosition, tokens, linkTextBuffer, false, TokenType.LinkText);
+                    continue;
+                }
+
+                linkTextBuffer.Append(line[currentPosition]);
+                currentPosition++;
+
+            }
+
+            if (linkTextBuffer.Length > 0)
+            {
+                tokens.Add(new Token(TokenType.LinkText, linkTextBuffer.ToString()));
+            }
+
+            if (currentPosition < line.Length && line[currentPosition] == SquareClose)
+            {
+                tokens.Add(new Token(TokenType.LinkEnd));
+                currentPosition++;
+            }
+
+            if (currentPosition < line.Length && line[currentPosition] == RoundOpen)
+            {
+                ProcessUrl(line, ref currentPosition, tokens);
+            }
+        }
+
+        private void ProcessUrl(string line, ref int currentPosition, List<Token> tokens)
+        {
+            tokens.Add(new Token(TokenType.UrlStart));
+            currentPosition++;
+
+            var urlBuffer = new StringBuilder();
+            var titleBuffer = new StringBuilder();
+            var isParsingTitle = false;
+
+            while (currentPosition < line.Length && line[currentPosition] != RoundClose)
+            {
+                if (line[currentPosition] == EscapeCharacter)
+                {
+                    ProcessEscapeCharacter(line, ref currentPosition, isParsingTitle ? titleBuffer : urlBuffer);
+                }
+                else if (line[currentPosition] == '"' && !isParsingTitle && urlBuffer.Length > 0)
+                {
+                    isParsingTitle = true;
+                    tokens.Add(new Token(TokenType.Url, urlBuffer.ToString()));
+                    tokens.Add(new Token(TokenType.UrlTitleDelimiter));
+                    currentPosition++;
+                }
+                else
+                {
+                    if (isParsingTitle)
+                    {
+                        titleBuffer.Append(line[currentPosition]);
+                    }
+                    else
+                    {
+                        urlBuffer.Append(line[currentPosition]);
+                    }
+                    currentPosition++;
+                }
+            }
+
+            if (!isParsingTitle && urlBuffer.Length > 0)
+            {
+                tokens.Add(new Token(TokenType.Url, urlBuffer.ToString()));
+            }
+            else if (isParsingTitle && titleBuffer.Length > 0)
+            {
+                tokens.Add(new Token(TokenType.UrlTitle, titleBuffer.ToString()));
+                tokens.Add(new Token(TokenType.UrlTitleDelimiter));
+            }
+
+            if (currentPosition < line.Length && line[currentPosition] == RoundClose)
+            {
+                tokens.Add(new Token(TokenType.UrlEnd));
+                currentPosition++;
+            }
         }
 
         /// <summary>
@@ -91,7 +211,8 @@ namespace Markdown.Entities.Parsers
         /// <param name="tokens"></param>
         /// <param name="originalTextBuffer"></param>
         /// <param name="isNestedCall"> - флаг для обработки случая когда находим курсив внутри полужирного текста</param>
-        private void ProcessItalicsMarker(string line, ref int currentPosition, List<Token> tokens, StringBuilder originalTextBuffer, bool isNestedCall)
+        private void ProcessItalicsMarker(string line, ref int currentPosition, List<Token> tokens, StringBuilder originalTextBuffer, 
+            bool isNestedCall, TokenType textType)
         {
             var isInWord = false;
             var startPosition = currentPosition;
@@ -118,27 +239,27 @@ namespace Markdown.Entities.Parsers
 
                     if (foundBoldMarker)
                     {
-                        PrependMarkerToBuffer(textBuffer, false);
+                        textBuffer.Insert(0, Underscore);
                         originalTextBuffer.Append(textBuffer);
                         return;
                     }
 
-                    FlushTextBufferIfNotEmpty(originalTextBuffer, tokens);
+                    FlushTextBufferIfNotEmpty(originalTextBuffer, tokens, textType);
                     AddTokensFromBufferWithSpecifiedTags(textBuffer, tokens, TokenType.ItalicsStart, TokenType.ItalicsEnd);
                     SkipItalicsMarker(ref currentPosition);
                     return;
                 }
 
-                if (currentChar == '_')
+                if (currentChar == Underscore)
                 {
-                    if (line[currentPosition + 1] == '_')
+                    if (line[currentPosition + 1] == Underscore)
                     {
                         if (isNestedCall)
                         {
-                            AppendMarkerToBuffer(textBuffer, true);
+                            textBuffer.Append(DoubleUnderscore);
                             SkipBoldMarker(ref currentPosition);
 
-                            AppendMarkerToBuffer(originalTextBuffer, false);
+                            originalTextBuffer.Append(Underscore);
                             originalTextBuffer.Append(textBuffer);
                             return;
                         }
@@ -147,18 +268,18 @@ namespace Markdown.Entities.Parsers
                     }
                 }
 
-                if (currentChar == ' ')
+                if (currentChar == SpaceCharacter)
                 {
                     if (isInWord)
                     {
-                        AppendMarkerToBuffer(originalTextBuffer, false);
+                        originalTextBuffer.Append(Underscore);
                         originalTextBuffer.Append(textBuffer);
                         return;
                     }
 
                 }
 
-                if (currentChar == '\\')
+                if (currentChar == EscapeCharacter)
                 {
                     ProcessEscapeCharacter(line, ref currentPosition, textBuffer);
                     continue;
@@ -168,7 +289,7 @@ namespace Markdown.Entities.Parsers
                 currentPosition++;
             }
 
-            PrependMarkerToBuffer(textBuffer, false);
+            textBuffer.Insert(0, Underscore);
             originalTextBuffer.Append(textBuffer);
         }
 
@@ -179,7 +300,8 @@ namespace Markdown.Entities.Parsers
         /// <param name="currentPosition"></param>
         /// <param name="tokens"></param>
         /// <param name="originalTextBuffer"></param>
-        private void ProcessBoldMarker(string line, ref int currentPosition, List<Token> tokens, StringBuilder originalTextBuffer)
+        private void ProcessBoldMarker(string line, ref int currentPosition, List<Token> tokens, 
+            StringBuilder originalTextBuffer, TokenType textType)
         {
             var isClosingFound = false;
             var isInWord = IsMarkerInsideWord(line, currentPosition, true);
@@ -196,47 +318,47 @@ namespace Markdown.Entities.Parsers
 
                 if (IsValidClosingMarker(line, currentPosition, true))
                 {
-                    var isEmptyWord =  IsEmptyMarkedWord(currentPosition, startPosition, true);
+                    var isEmptyWord = IsEmptyMarkedWord(currentPosition, startPosition, true);
                     if (isEmptyWord)
                     {
-                        AppendMarkerToBuffer(textBuffer, true);
+                        textBuffer.Append(DoubleUnderscore);
                         originalTextBuffer.Append(textBuffer);
                         return;
                     }
 
-                    //если нашли токены после вложенного вызова ProcessItalicsMarker 
-                    if (innerTokens.Count > 0)
+                    bool shouldProcessNestedItalics = innerTokens.Count > 0;
+
+                    if (shouldProcessNestedItalics)
                     {
-                        FlushTextBufferIfNotEmpty(originalTextBuffer, tokens);
-                        AddNestedItalicsTokens(textBuffer, tokens, innerTokens);
-                        SkipBoldMarker(ref currentPosition);
-                        return;
+                        ProcessNestedItalicsTokens(originalTextBuffer, textBuffer, tokens, innerTokens,
+                            ref currentPosition, TokenType.Text);
+                    }
+                    else
+                    {
+                        ProcessBoldTokens(originalTextBuffer, textBuffer, tokens, ref currentPosition, textType);
                     }
 
-                    FlushTextBufferIfNotEmpty(originalTextBuffer, tokens);
-                    AddTokensFromBufferWithSpecifiedTags(textBuffer, tokens, TokenType.BoldStart, TokenType.BoldEnd);
-                    SkipBoldMarker(ref currentPosition);
                     return;
                 }
 
-                if (currentChar == '_')
+                if (currentChar == Underscore)
                 {
-                    ProcessItalicsMarker(line, ref currentPosition, innerTokens, textBuffer, true);
+                    ProcessItalicsMarker(line, ref currentPosition, innerTokens, textBuffer, true, TokenType.Text);
                     continue;
                 }
 
-                if (currentChar == ' ')
+                if (currentChar == SpaceCharacter)
                 {
                     if (isInWord)
                     {
-                        AppendMarkerToBuffer(originalTextBuffer, true);
+                        originalTextBuffer.Append(DoubleUnderscore);
                         originalTextBuffer.Append(textBuffer);
                         return;
                     }
 
                 }
 
-                if (currentChar == '\\')
+                if (currentChar == EscapeCharacter)
                 {
                     ProcessEscapeCharacter(line, ref currentPosition, textBuffer);
                     continue;
@@ -246,22 +368,38 @@ namespace Markdown.Entities.Parsers
                 currentPosition++;
             }
 
-            PrependMarkerToBuffer(textBuffer, true);
+            textBuffer.Insert(0, DoubleUnderscore);
             originalTextBuffer.Append(textBuffer);
+        }
+
+        private void ProcessBoldTokens(StringBuilder originalTextBuffer, StringBuilder textBuffer, List<Token> tokens, 
+            ref int currentPosition, TokenType textType)
+        {
+            FlushTextBufferIfNotEmpty(originalTextBuffer, tokens, textType);
+            AddTokensFromBufferWithSpecifiedTags(textBuffer, tokens, TokenType.BoldStart, TokenType.BoldEnd);
+            SkipBoldMarker(ref currentPosition);
+        }
+
+        private void ProcessNestedItalicsTokens(StringBuilder originalTextBuffer, StringBuilder textBuffer, 
+            List<Token> tokens, List<Token> innerTokens, ref int currentPosition, TokenType textType)
+        {
+            FlushTextBufferIfNotEmpty(originalTextBuffer, tokens, textType);
+            AddNestedItalicsTokens(textBuffer, tokens, innerTokens);
+            SkipBoldMarker(ref currentPosition);
         }
 
         private void AddNestedItalicsTokens(StringBuilder textBuffer, List<Token> tokens, List<Token> innerTokens)
         {
             tokens.Add(new Token(TokenType.BoldStart));
             tokens.AddRange(innerTokens);
-            FlushTextBufferIfNotEmpty(textBuffer, tokens);
+            FlushTextBufferIfNotEmpty(textBuffer, tokens, TokenType.Text);
             tokens.Add(new Token(TokenType.BoldEnd));
         }
 
         private void AddTokensFromBufferWithSpecifiedTags(StringBuilder textBuffer, List<Token> tokens, TokenType startToken, TokenType endToken)
         {
             tokens.Add(new Token(startToken));
-            FlushTextBufferIfNotEmpty(textBuffer, tokens);
+            FlushTextBufferIfNotEmpty(textBuffer, tokens, TokenType.Text);
             tokens.Add(new Token(endToken));
         }
 
@@ -279,30 +417,6 @@ namespace Markdown.Entities.Parsers
         private void SkipBoldMarker(ref int currentPosition)
         {
             currentPosition += 2;
-        }
-
-        private void PrependMarkerToBuffer(StringBuilder textBuffer, bool isBold)
-        {
-            if (isBold)
-            {
-                textBuffer.Insert(0, "__");
-            }
-            else
-            {
-                textBuffer.Insert(0, '_');
-            }
-        }
-
-        private void AppendMarkerToBuffer(StringBuilder textBuffer, bool isBold)
-        {
-            if (isBold)
-            {
-                textBuffer.Append("__");
-            }
-            else
-            {
-                textBuffer.Append('_');
-            }
         }
 
         //проверяем что открывающий маркер находится внутри слова
@@ -327,26 +441,26 @@ namespace Markdown.Entities.Parsers
             if (isBold)
             {
                 return currentPosition + 1 < line.Length
-                    && line[currentPosition] == '_' 
-                    && line[currentPosition + 1] == '_'
+                    && line[currentPosition] == Underscore
+                    && line[currentPosition + 1] == Underscore
                     && !char.IsWhiteSpace(line[currentPosition - 1]);
             }
             //обработка для курсива
             if (currentPosition + 1 < line.Length)
             {
-                return line[currentPosition] == '_'
-                       && line[currentPosition + 1] != '_'
-                       && line[currentPosition - 1] != '_'
+                return line[currentPosition] == Underscore
+                       && line[currentPosition + 1] != Underscore
+                       && line[currentPosition - 1] != Underscore
                        && !char.IsWhiteSpace(line[currentPosition - 1]);
             }
-            return line[currentPosition] == '_'
+            return line[currentPosition] == Underscore
                    && !char.IsWhiteSpace(line[currentPosition - 1]);
         }
 
         private bool IsItalicsMarker(string line, int currentPosition)
         {
             return currentPosition + 1 < line.Length
-                && line[currentPosition] == '_' && line[currentPosition + 1] != '_'
+                && line[currentPosition] == Underscore && line[currentPosition + 1] != Underscore
                 && !IsSpaceAfterMarker(line, currentPosition, false)
                 && !IsAmongDigits(line, currentPosition, false);
         }
@@ -378,8 +492,8 @@ namespace Markdown.Entities.Parsers
         private bool IsBoldMarker(string line, int currentPosition)
         {
             return currentPosition + 1 < line.Length
-                    && line[currentPosition] == '_' 
-                    && line[currentPosition + 1] == '_'
+                    && line[currentPosition] == Underscore 
+                    && line[currentPosition + 1] == Underscore
                     && !IsSpaceAfterMarker(line, currentPosition, true)
                     && !IsAmongDigits(line, currentPosition, true);
         }
@@ -390,11 +504,11 @@ namespace Markdown.Entities.Parsers
             return char.IsWhiteSpace(line[currentPosition + 1]);
         }
 
-        private void FlushTextBufferIfNotEmpty(StringBuilder textBuffer, List<Token> tokens)
+        private void FlushTextBufferIfNotEmpty(StringBuilder textBuffer, List<Token> tokens, TokenType textType)
         {
             if (textBuffer.Length > 0)
             {
-                tokens.Add(new Token(TokenType.Text, textBuffer.ToString()));
+                tokens.Add(new Token(textType, textBuffer.ToString()));
                 textBuffer.Clear();
             }
         }
@@ -409,7 +523,7 @@ namespace Markdown.Entities.Parsers
                 {
                     currentPosition++;
                     textBuffer.Append(line[currentPosition]);
-                    if (line[currentPosition] == '_' && line[currentPosition + 1] == '_')
+                    if (line[currentPosition] == Underscore && line[currentPosition + 1] == Underscore)
                     {
                         currentPosition++;
                         textBuffer.Append(line[currentPosition]);
@@ -442,14 +556,14 @@ namespace Markdown.Entities.Parsers
         {
             if (currentPosition + 2 < line.Length)
             {
-                return (line[currentPosition + 1] == '_' ||
-                        line[currentPosition + 1] == '\\' ||
-                        (line[currentPosition + 1] == '_' && line[currentPosition + 2] == '_'));
+                return (line[currentPosition + 1] == Underscore ||
+                        line[currentPosition + 1] == EscapeCharacter ||
+                        (line[currentPosition + 1] == Underscore && line[currentPosition + 2] == Underscore));
             }
             else if (currentPosition + 1 < line.Length)
             {
-                return (line[currentPosition + 1] == '_' ||
-                        line[currentPosition + 1] == '\\');
+                return (line[currentPosition + 1] == Underscore ||
+                        line[currentPosition + 1] == EscapeCharacter);
             }
             return false;
         }
@@ -462,7 +576,7 @@ namespace Markdown.Entities.Parsers
 
         private bool IsHeader(string line)
         {
-            return line.StartsWith("# ");
+            return line.StartsWith(HeaderCharacter);
         }
 
     }

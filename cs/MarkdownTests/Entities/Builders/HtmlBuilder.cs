@@ -20,31 +20,26 @@ namespace Markdown.Entities.Builders
     /// </remarks>
     public class HtmlBuilder : IBuilder
     {
-        private readonly StringBuilder _htmlBuilder;
-        private readonly Dictionary<NodeType, string> _tagMapping;
-
-        public HtmlBuilder()
+        private readonly StringBuilder htmlBuilder = new StringBuilder();
+        private readonly Dictionary<NodeType, string> tagMapping = new Dictionary<NodeType, string> 
         {
-            _htmlBuilder = new StringBuilder();
-            _tagMapping = new Dictionary<NodeType, string>
-            {
-                { NodeType.Document, "" },
-                { NodeType.Paragraph, "p" },
-                { NodeType.Header, "h1" },
-                { NodeType.Bold, "strong" },
-                { NodeType.Italic, "em" },
-                { NodeType.Text, "" }
-            };
-        }
+            { NodeType.Document, "" },
+            { NodeType.Paragraph, "p" },
+            { NodeType.Header, "h1" },
+            { NodeType.Bold, "strong" },
+            { NodeType.Italic, "em" },
+            { NodeType.Text, "" },
+            { NodeType.Link, "a" }
+        };
 
         public string Build(ISyntaxTree tree)
         {
             if (tree == null)
                 return string.Empty;
 
-            _htmlBuilder.Clear();
+            htmlBuilder.Clear();
             BuildNodes(tree.Tree);
-            return _htmlBuilder.ToString();
+            return htmlBuilder.ToString();
         }
 
         private void BuildNodes(List<Node> nodes)
@@ -65,6 +60,9 @@ namespace Markdown.Entities.Builders
                 case NodeType.Document:
                     BuildDocumentNode(node);
                     break;
+                case NodeType.Link:
+                    BuildLinkNode(node);
+                    break;
                 default:
                     BuildFormattedNode(node);
                     break;
@@ -76,7 +74,7 @@ namespace Markdown.Entities.Builders
             if (!string.IsNullOrEmpty(node.Value))
             {
                 var escapedText = EscapeHtml(node.Value);
-                _htmlBuilder.Append(escapedText);
+                htmlBuilder.Append(escapedText);
             }
         }
 
@@ -90,11 +88,11 @@ namespace Markdown.Entities.Builders
 
         private void BuildFormattedNode(Node node)
         {
-            var tagName = _tagMapping[node.Type];
+            var tagName = tagMapping[node.Type];
 
             if (!string.IsNullOrEmpty(tagName))
             {
-                _htmlBuilder.Append($"<{tagName}>");
+                htmlBuilder.Append($"<{tagName}>");
             }
 
             if (node.ChildrenNodes != null && node.ChildrenNodes.Count > 0)
@@ -108,8 +106,42 @@ namespace Markdown.Entities.Builders
 
             if (!string.IsNullOrEmpty(tagName))
             {
-                _htmlBuilder.Append($"</{tagName}>");
+                htmlBuilder.Append($"</{tagName}>");
             }
+        }
+
+        /// <summary>
+        /// Строит HTML для узла-ссылки
+        /// </summary>
+        /// <param name="node">Узел ссылки с атрибутами URL и Title</param>
+        private void BuildLinkNode(Node node)
+        {
+            if (string.IsNullOrEmpty(node.Value))
+            {
+                if (node.ChildrenNodes != null && node.ChildrenNodes.Count > 0)
+                {
+                    BuildNodes(node.ChildrenNodes);
+                }
+                return;
+            }
+
+            var url = EscapeHtmlAttribute(node.Value);
+            htmlBuilder.Append($"<a href=\"{url}\"");
+
+            if (!string.IsNullOrEmpty(node.Title))
+            {
+                var title = EscapeHtmlAttribute(node.Title);
+                htmlBuilder.Append($" title=\"{title}\"");
+            }
+
+            htmlBuilder.Append(">");
+
+            if (node.ChildrenNodes != null && node.ChildrenNodes.Count > 0)
+            {
+                BuildNodes(node.ChildrenNodes);
+            }
+
+            htmlBuilder.Append("</a>");
         }
 
         private string EscapeHtml(string text)
@@ -122,6 +154,21 @@ namespace Markdown.Entities.Builders
                 .Replace("&", "&amp;")
                 .Replace("<", "&lt;")
                 .Replace(">", "&gt;")
+                .Replace("\"", "&quot;")
+                .Replace("'", "&#39;");
+        }
+
+        /// <summary>
+        /// Эскейпинг для атрибутов HTML (URL и title)
+        /// </summary>
+        private string EscapeHtmlAttribute(string attribute)
+        {
+            if (string.IsNullOrEmpty(attribute))
+                return attribute;
+
+            // Для атрибутов нужно экранировать кавычки и амперсанды
+            return attribute
+                .Replace("&", "&amp;")
                 .Replace("\"", "&quot;")
                 .Replace("'", "&#39;");
         }

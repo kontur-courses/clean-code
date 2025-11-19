@@ -311,5 +311,100 @@ namespace Markdown.MarkdownTests.SyntaxTreeTests
             Assert.That(secondParagraph.Type, Is.EqualTo(NodeType.Paragraph));
             Assert.That(secondParagraph.ChildrenNodes[0].Value, Is.EqualTo("Новый абзац"));
         }
+
+        [Test]
+        public void Parse_SimpleLink_ReturnsLinkNode()
+        {
+            var tokens = new List<Token>
+            {
+                new Token(TokenType.LinkStart),
+                new Token(TokenType.LinkText, "пример ссылки"),
+                new Token(TokenType.LinkEnd),
+                new Token(TokenType.UrlStart),
+                new Token(TokenType.Url, "https://example.com"),
+                new Token(TokenType.UrlEnd),
+                new Token(TokenType.Newline)
+            };
+
+            var syntaxTree = new SyntaxTree(tokens);
+            var result = syntaxTree.Tree;
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            var paragraph = result[0];
+            Assert.That(paragraph.Type, Is.EqualTo(NodeType.Paragraph));
+            Assert.That(paragraph.ChildrenNodes, Has.Count.EqualTo(1));
+
+            var linkNode = paragraph.ChildrenNodes[0];
+            Assert.That(linkNode.Type, Is.EqualTo(NodeType.Link));
+            Assert.That(linkNode.Value, Is.EqualTo("https://example.com"));
+            Assert.That(linkNode.ChildrenNodes, Has.Count.EqualTo(1));
+            Assert.That(linkNode.ChildrenNodes[0].Type, Is.EqualTo(NodeType.Text));
+            Assert.That(linkNode.ChildrenNodes[0].Value, Is.EqualTo("пример ссылки"));
+        }
+
+        [Test]
+        public void Parse_LinkWithTitle_ReturnsLinkNodeWithTitle()
+        {
+            var tokens = new List<Token>
+            {
+                new Token(TokenType.LinkStart),
+                new Token(TokenType.LinkText, "ссылка с заголовком"),
+                new Token(TokenType.LinkEnd),
+                new Token(TokenType.UrlStart),
+                new Token(TokenType.Url, "https://site.com"),
+                new Token(TokenType.UrlTitleDelimiter),
+                new Token(TokenType.UrlTitle, "Заголовок ссылки"),
+                new Token(TokenType.UrlTitleDelimiter),
+                new Token(TokenType.UrlEnd),
+                new Token(TokenType.Newline)
+            };
+
+            var syntaxTree = new SyntaxTree(tokens);
+            var result = syntaxTree.Tree;
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            var paragraph = result[0];
+
+            var linkNode = paragraph.ChildrenNodes[0];
+            Assert.That(linkNode.Type, Is.EqualTo(NodeType.Link));
+            Assert.That(linkNode.Value, Is.EqualTo("https://site.com"));
+            Assert.That(linkNode.Title, Is.EqualTo("Заголовок ссылки"));
+        }
+
+        [Test]
+        public void Parse_LinkWithBoldText_CreatesNestedBoldNode()
+        {
+            var tokens = new List<Token>
+            {
+                new Token(TokenType.LinkStart),
+                new Token(TokenType.LinkText, "текст с "),
+                new Token(TokenType.BoldStart),
+                new Token(TokenType.Text, "жирным"),
+                new Token(TokenType.BoldEnd),
+                new Token(TokenType.LinkEnd),
+                new Token(TokenType.UrlStart),
+                new Token(TokenType.Url, "https://example.com"),
+                new Token(TokenType.UrlEnd),
+                new Token(TokenType.Newline)
+            };
+
+            var syntaxTree = new SyntaxTree(tokens);
+            var result = syntaxTree.Tree;
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            var paragraph = result[0];
+
+            var linkNode = paragraph.ChildrenNodes[0];
+            Assert.That(linkNode.Type, Is.EqualTo(NodeType.Link));
+            Assert.That(linkNode.ChildrenNodes, Has.Count.EqualTo(2));
+
+            Assert.That(linkNode.ChildrenNodes[0].Type, Is.EqualTo(NodeType.Text));
+            Assert.That(linkNode.ChildrenNodes[0].Value, Is.EqualTo("текст с "));
+
+            var boldNode = linkNode.ChildrenNodes[1];
+            Assert.That(boldNode.Type, Is.EqualTo(NodeType.Bold));
+            Assert.That(boldNode.ChildrenNodes[0].Type, Is.EqualTo(NodeType.Text));
+            Assert.That(boldNode.ChildrenNodes[0].Value, Is.EqualTo("жирным"));
+        }
     }
 }
