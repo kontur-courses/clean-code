@@ -1,0 +1,56 @@
+# Introduction to Markdown
+
+Markdown is a lightweight markup language __created__ by John Gruber, with contributions from Aaron Swartz. It’s designed to be easy to read and write, using plain text conventions that translate to valid HTML.
+
+Markdown allows you to write __bold__ and _italic_ text, create # headings, lists, links, and more — all while keeping the text legible in a raw form.
+
+---
+
+## Basic Formatting
+
+Here is an example of __bold text__ and _italic text_ in Markdown. Double underscores surround bold text, while single underscores can be used for italics. Like this:
+
+__This is bold__, _this is italic_, and __this is __bold with some inner _italic_ text__ too__.
+
+---
+
+## Combining Tags
+
+You can combine __bold__ and _italic_ like this: ___bold italic___ text.
+
+# Headers
+
+Markdown supports headers starting with `#`:
+
+# Heading level 1
+
+## Heading level 2
+
+### Heading level 3
+
+#### Heading level 4
+
+---
+
+## Paragraphs and line breaks
+
+Markdown treats one or more empty lines as paragraph breaks.
+
+Use two spaces at the end of a line for a line break.  
+Example here with a break.
+
+___
+
+## Lists
+
+- __Bold item__
+- _Italic item_
+- Combined __bold and _italic_ item__
+
+1. First numbered item
+2. Second item with _italic_
+3. Third item with __bold__
+
+
+[Name Link](https://www.example.com \"Tooltip\")
+---
