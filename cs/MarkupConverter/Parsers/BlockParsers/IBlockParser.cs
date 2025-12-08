@@ -1,9 +1,9 @@
-using MarkupConverter.AST.Blocks;
+using MarkupConverter.Parsers.BlockParsers.OpenBlocks;
 
 namespace MarkupConverter.Parsers.BlockParsers;
 
 public interface IBlockParser
 {
-    public bool CanParse(string text);
-    public Block Parse(string text);
+    bool CanParse(string line);
+    IOpenBlock Parse(string line);
 }
