@@ -14,11 +14,16 @@ public class HeaderOpenBlock : IOpenBlock
         Content = content;
         this.level = level;
     }
-    
-    public bool CanAccept(IOpenBlock block) => false;
-    
-    public void Accept(IOpenBlock block) { }
-    
+
+    public bool CanAccept(IOpenBlock block)
+    {
+        return false;
+    }
+
+    public void Accept(IOpenBlock block)
+    {
+    }
+
     public Block Close(IInlineParser parser)
     {
         return new Header(parser.Parse(Content), level);

@@ -12,7 +12,7 @@ public class MarkupConverterTestBase
     [SetUp]
     public void Setup()
     {
-        var parser = new Parser(
+        var parser = new MarkdownParser(
             [new HeaderParser(), new ParagraphParser()],
             new InlineParser()
         );

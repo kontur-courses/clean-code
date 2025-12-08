@@ -8,7 +8,7 @@ public class HeaderParser : IBlockParser
     {
         var trimmed = line.TrimStart();
         var headingLevel = CountHeadingLevel(trimmed);
-        
+
         return headingLevel is >= 1 and <= 6
                && (headingLevel == trimmed.Length || char.IsWhiteSpace(trimmed[headingLevel]));
     }
@@ -18,7 +18,7 @@ public class HeaderParser : IBlockParser
         var trimmed = line.TrimStart();
         var headingLevel = CountHeadingLevel(trimmed);
         var content = trimmed.Substring(headingLevel + 1).Trim();
-        
+
         return new HeaderOpenBlock(content, headingLevel);
     }
 
@@ -26,11 +26,9 @@ public class HeaderParser : IBlockParser
     {
         var level = 0;
         foreach (var c in line)
-        {
             if (c == '#') level++;
             else break;
-        }
-        
+
         return level;
     }
 }

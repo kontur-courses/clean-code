@@ -5,20 +5,20 @@ namespace MarkupConverter;
 
 public class MarkupConverter
 {
-    private readonly IParser _parser;
-    private readonly IRenderer _renderer;
+    private readonly IParser parser;
+    private readonly IRenderer renderer;
 
     public MarkupConverter(IParser parser, IRenderer renderer)
     {
-        _parser = parser;
-        _renderer = renderer;
+        this.parser = parser;
+        this.renderer = renderer;
     }
 
     public string Convert(string text)
     {
-        var ast = _parser.Parse(text);
-        var markup =  _renderer.Render(ast);
-        
+        var ast = parser.Parse(text);
+        var markup = renderer.Render(ast);
+
         return markup;
     }
 }

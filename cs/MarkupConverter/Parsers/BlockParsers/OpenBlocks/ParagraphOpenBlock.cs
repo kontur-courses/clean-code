@@ -7,7 +7,7 @@ public class ParagraphOpenBlock : IOpenBlock
 {
     public string Content { get; private set; }
     public Type BlockType => typeof(Paragraph);
-    
+
     public ParagraphOpenBlock(string content)
     {
         Content = content;

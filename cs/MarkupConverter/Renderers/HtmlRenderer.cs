@@ -39,12 +39,9 @@ public class HtmlRenderer : IRenderer
     {
         var res = string.Empty;
         foreach (var variabInline in inlineContent)
-        {
             if (variabInline is Text text)
-            {
                 res = text.Content;
-            }
-        }
+
         return res;
     }
 }

@@ -8,10 +8,11 @@ public class ParagraphParser : IBlockParser
     {
         return !string.IsNullOrWhiteSpace(line);
     }
+
     public IOpenBlock Parse(string line)
     {
         var content = line.Trim();
-        
+
         return new ParagraphOpenBlock(content);
     }
 }
