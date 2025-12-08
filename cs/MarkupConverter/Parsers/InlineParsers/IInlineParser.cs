@@ -4,6 +4,5 @@ namespace MarkupConverter.Parsers.InlineParsers;
 
 public interface IInlineParser
 {
-    public bool CanParse(string text);
-    public Inline Parse(string text);
+    public List<Inline> Parse(string text);
 }
