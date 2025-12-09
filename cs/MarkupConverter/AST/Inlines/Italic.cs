@@ -1,10 +1,10 @@
 namespace MarkupConverter.AST.Inlines;
 
-public class Italic : Inline
+public class Italic : InlineLeaf
 {
-    public List<InlineLeaf> InlineLeaves { get; }
+    public List<Inline> InlineLeaves { get; }
 
-    public Italic(List<InlineLeaf> inlineLeaves)
+    public Italic(List<Inline> inlineLeaves)
     {
         InlineLeaves = inlineLeaves;
     }
