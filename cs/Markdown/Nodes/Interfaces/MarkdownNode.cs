@@ -1,16 +1,22 @@
 namespace Markdown.Nodes.Interfaces;
 
 public abstract class MarkdownNode
-{   
-    public MarkdownNode? Parent;
-    protected string value;
+{
+    public readonly List<MarkdownNode> Children = [];
+    public readonly string Value;
 
-    protected MarkdownNode(MarkdownNode? parent, string value)
+    protected MarkdownNode(string value)
     {
-        Parent = parent;
-        this.value = value;
+        Value = value;
     }
 
-    public virtual void AddChild(MarkdownNode node) { }
+    public virtual void AddChild(MarkdownNode node)
+    {
+    }
+
+    public virtual void AddChildren(List<MarkdownNode> nodes)
+    {
+    }
+
     public abstract string ToHtml();
 }

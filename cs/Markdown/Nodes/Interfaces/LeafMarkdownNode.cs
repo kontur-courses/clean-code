@@ -2,7 +2,7 @@ namespace Markdown.Nodes.Interfaces;
 
 public abstract class LeafMarkdownNode : MarkdownNode
 {
-    protected LeafMarkdownNode(MarkdownNode? parent, string value) : base(parent, value)
+    protected LeafMarkdownNode(string value) : base(value)
     {
     }
 }

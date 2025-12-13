@@ -1,3 +1,6 @@
+using Markdown.Parsers;
+using Markdown.Tokenizer;
+
 namespace Markdown;
 
 public class Md
@@ -6,12 +9,10 @@ public class Md
     {
         var tokenizer = new MarkdownTokenizer(markdownText);
         var tokens = tokenizer.Tokenize();
-        var context = new ParserContext(tokens);
-        var parserSelector = new ParseSelector(context);
-        var parser = new MarkdownParser(context, parserSelector);
+        var parser = new MarkdownParser(tokens);
         var markdownDocument = parser.ParseTokens();
         var htmlText = markdownDocument.ToHtml();
-        
+
         return htmlText;
     }
 }

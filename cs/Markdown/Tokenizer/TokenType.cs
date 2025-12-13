@@ -1,4 +1,4 @@
-namespace Markdown;
+namespace Markdown.Tokenizer;
 
 public enum TokenType
 {
@@ -16,5 +16,6 @@ public enum TokenType
     RParenthesis,
     Escape,
     Space,
-    Eof,
+    Carriage,
+    Eof
 }

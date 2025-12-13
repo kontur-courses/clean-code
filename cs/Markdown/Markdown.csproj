@@ -8,9 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FluentAssertions" Version="8.8.0" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-      <PackageReference Include="NUnit" Version="4.4.0" />
+        <PackageReference Include="ApprovalTests" Version="7.0.0"/>
+        <PackageReference Include="FluentAssertions" Version="8.8.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
+        <PackageReference Include="NUnit" Version="4.4.0"/>
     </ItemGroup>
 
 </Project>

@@ -1,17 +1,18 @@
-using System.Text;
-
 namespace Markdown.Nodes.Interfaces;
 
 public abstract class InternalMarkdownNode : MarkdownNode
 {
-    protected readonly List<MarkdownNode> children = [];
-    
-    protected InternalMarkdownNode(MarkdownNode? parent, string value) : base(parent, value)
-    { }
-    
+    protected InternalMarkdownNode(string value) : base(value)
+    {
+    }
+
     public override void AddChild(MarkdownNode node)
     {
-        children.Add(node);
+        Children.Add(node);
     }
-    
+
+    public override void AddChildren(List<MarkdownNode> nodes)
+    {
+        Children.AddRange(nodes);
+    }
 }

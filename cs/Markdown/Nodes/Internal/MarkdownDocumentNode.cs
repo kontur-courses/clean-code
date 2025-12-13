@@ -5,18 +5,15 @@ namespace Markdown.Nodes.Internal;
 
 public class MarkdownDocumentNode : InternalMarkdownNode
 {
-    public MarkdownDocumentNode(MarkdownNode? parent, string value) : base(parent, value)
+    public MarkdownDocumentNode(string value) : base(value)
     {
-        
     }
 
     public override string ToHtml()
     {
         var textBuilder = new StringBuilder();
-        foreach (var child in children)
-        {
+        foreach (var child in Children)
             textBuilder.Append(child.ToHtml());
-        }
 
         return textBuilder.ToString();
     }

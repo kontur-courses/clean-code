@@ -1,40 +1,28 @@
+using Markdown.Nodes.Interfaces;
+using Markdown.Nodes.Leaf;
 using Markdown.Parsers.Interfaces;
+using Markdown.Tokenizer;
 
 namespace Markdown.Parsers;
 
-public class EscapeParser : ITokenParser
+public class EscapeParser : IParser
 {
-    private readonly ParserContext context;
-    private readonly HashSet<TokenType> escapableTokens =
-    [
-        TokenType.Underscore,
-        TokenType.DoubleUnderscore,
-        TokenType.WordUnderscore,
-        TokenType.WordDoubleUnderscore,
-        TokenType.LBracket,
-        TokenType.RBracket,
-        TokenType.LParenthesis,
-        TokenType.RParenthesis,
-        TokenType.Hash,
-        TokenType.Escape,
-        TokenType.Exclamation
-    ];
+    private readonly MarkdownParser parser;
 
-    public EscapeParser(ParserContext context)
+    public EscapeParser(MarkdownParser parser)
     {
-        this.context = context;
+        this.parser = parser;
     }
 
-    public void Parse()
+    public ParseStatus TryParse(out MarkdownNode node)
     {
-        if (context.Next != null && escapableTokens.Contains(context.Next.Type))
-        {
-            context.Next.Type = TokenType.Text;
-            context.Current.Type = TokenType.Text;
-            context.Current.Value = "";
-            return;
-        }
+        node = new TextNode(@"\");
+        if (parser.CurrentToken.Type != TokenType.Escape)
+            return ParseStatus.Fail();
 
-        context.Current.Type = TokenType.Text;
+        parser.MoveNext();
+        node = new TextNode($"{parser.CurrentToken.Value}");
+        
+        return ParseStatus.Ok();
     }
 }

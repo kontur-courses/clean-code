@@ -4,14 +4,14 @@ namespace Markdown.Nodes.Internal;
 
 public class ImageNode : InternalMarkdownNode
 {
-    public ImageNode(MarkdownNode? parent, string value) : base(parent, value)
+    public ImageNode(string value) : base(value)
     {
     }
 
     public override string ToHtml()
     {
-        var alt = children[0].ToHtml();
-        var url = children[1].ToHtml();
+        var alt = Children[0].ToHtml();
+        var url = Children[1].ToHtml();
         return $"<img src =\"{url}\" alt=\"{alt}\">";
-    } 
+    }
 }
