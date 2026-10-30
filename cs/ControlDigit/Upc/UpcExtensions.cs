@@ -7,6 +7,7 @@ namespace ControlDigit
         public static int CalculateUpc(this long number)
         {
             throw new NotImplementedException();
+
         }
     }
 }
