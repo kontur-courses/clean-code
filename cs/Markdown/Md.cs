@@ -1,9 +1,17 @@
-﻿namespace Markdown;
+﻿using Markdown.Parsers;
+
+namespace Markdown;
 
 public class Md
 {
-    public static string Render(string markdown)
+    public string Render(string markdown)
     {
-        throw new NotImplementedException();
+        var inlineParser = new InlineParser();
+        var blockParser = new BlockParser(inlineParser);
+        var renderer = new HtmlRenderer();
+
+        var blockNodes = blockParser.Parse(markdown);
+
+        return renderer.Render(blockNodes);
     }
 }
