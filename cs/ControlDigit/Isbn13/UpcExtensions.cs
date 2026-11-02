@@ -1,4 +1,6 @@
-﻿namespace ControlDigit
+﻿using System.Collections;
+
+namespace ControlDigit
 {
     public static class Isbn13Extensions
     {
@@ -18,6 +20,16 @@
             if (m == 0)
                 return 0;
             return 10 - m;
+        }
+
+        public static IEnumerable GetPeriodweights(int number, int period, int factor)
+        {
+            var position = 1;
+            while (number > 0)
+            {
+                yield return position % period == 0 ? factor : 1;
+                number /= 10;
+            }
         }
     }
 }
