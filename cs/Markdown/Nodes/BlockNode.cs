@@ -1,4 +1,4 @@
-﻿namespace Markdown.Domain;
+﻿namespace Markdown.Nodes;
 
 public abstract record BlockNode();
 

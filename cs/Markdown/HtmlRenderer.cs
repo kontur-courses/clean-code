@@ -1,4 +1,4 @@
-﻿using Markdown.Domain;
+﻿using Markdown.Nodes;
 
 namespace Markdown;
 
