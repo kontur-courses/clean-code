@@ -1,6 +1,4 @@
-﻿using static Markdown.Blocks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal class BlockParser
     {
