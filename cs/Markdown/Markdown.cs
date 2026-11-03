@@ -18,7 +18,7 @@
     {
         private readonly InlineParser inlineParser;
 
-        public string Parse(string markdownText)
+        public string Parse(string line)
         {
             throw new NotImplementedException();
         }
