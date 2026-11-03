@@ -5,7 +5,7 @@ namespace Markdown
     public class BlockParser
     {
         // Разбивает входной текст на блоки
-        public List<IBlock> ParseToBlocks(string markdown)
+        public List<Block> ParseToBlocks(string markdown)
         {
             // Прочитать первую строку. Если начинается с "# ", 
             // создать HeadingBlock, иначе ParagraphBlock

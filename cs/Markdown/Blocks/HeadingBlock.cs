@@ -1,18 +1,12 @@
 ﻿namespace Markdown.Blocks
 {
-    public class HeadingBlock : IBlock
+    public class HeadingBlock : Block
     {
-        private readonly string text;
+        public string Text { get; }
 
         public HeadingBlock(string text)
         {
-            this.text = text;
-        }
-
-        public string ToHtml()
-        {
-            // Внутри должен вызываться InlineParser для text
-            throw new NotImplementedException();
+            Text = text;
         }
     }
 }

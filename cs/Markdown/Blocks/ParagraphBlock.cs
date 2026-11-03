@@ -1,18 +1,12 @@
 ﻿namespace Markdown.Blocks
 {
-    public class ParagraphBlock : IBlock
+    public class ParagraphBlock : Block
     {
-        private readonly string text;
+        public string Text { get; }
 
         public ParagraphBlock(string text)
         {
-            this.text = text;
-        }
-
-        public string ToHtml()
-        {
-            // Внутри должен вызываться InlineParser для text
-            throw new NotImplementedException();
+            Text = text;
         }
     }
 }
