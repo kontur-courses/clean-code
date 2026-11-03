@@ -7,7 +7,7 @@ namespace Markdown
     /// </summary>
     public static class Md
     {
-        public static string FromMarkdownToHtml(string  markdownText)
+        public static string Render(string  markdownText)
         {
              throw new NotImplementedException();
         }
