@@ -1,4 +1,9 @@
 namespace Markdown;
+ 
+/// <summary>
+/// Проставляет Token.Role разделителям за один линейный проход
+/// читает и меняет Token, для LinkToken рекурсивно разбирает Content
+/// </summary>
 
 internal sealed class EmphasisResolver
 {

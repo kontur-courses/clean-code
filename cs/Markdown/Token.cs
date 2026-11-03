@@ -15,6 +15,11 @@ public enum TokenRole
     Closing
 }
 
+/// <summary>
+/// Элемент текста
+/// Создаётся в Tokenizer, роль проставляется в EmphasisResolver,
+/// читается в HtmlWriter
+/// </summary>
 public class Token
 {
     public Token(TokenKind kind, string value, int start)
