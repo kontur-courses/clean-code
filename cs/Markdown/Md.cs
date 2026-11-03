@@ -7,7 +7,10 @@
     {
         public static string Render(string  markdownText)
         {
-             throw new NotImplementedException();
+            var inlineParser = new InlineParser();
+            var parser = new MarkdownParser(inlineParser);
+
+            var result = parser.Parse(markdownText);
         }
     }
 }
