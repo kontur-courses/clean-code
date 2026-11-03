@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Inline;
+
+namespace Markdown
 {
     public class LinkHandler : IInlineHandler
     {

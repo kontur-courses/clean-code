@@ -1,6 +1,8 @@
-﻿namespace Markdown
+﻿using Markdown.Blocks;
+
+namespace Markdown
 {
-    internal class BlockParser
+    public class BlockParser
     {
         // Разбивает входной текст на блоки
         public List<IBlock> ParseToBlocks(string markdown)

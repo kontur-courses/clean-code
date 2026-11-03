@@ -1,23 +1,23 @@
-﻿namespace Markdown
+﻿namespace Markdown.Inline
 {
     public class InlineParser
     {
-        private readonly IInlineHandler firstHandler;
+        private readonly List<IInlineHandler> handlers;
 
         public InlineParser()
         {
-            // Собрать цепочку: EscapeHandler -> StrongHandler -> ItalicHandler
-            firstHandler = null;
+            // Инициализируем список
+
         }
 
         // Обрабатывает текст без блочных тегов
         public string ConvertToHtml(string text)
         {
             // Идем циклом по тексту. 
-            // Для каждого символа пытаемся применить цепочку обработчиков.
+            // Для каждого символа пытаемся применить обработчики из списка.
             // Если никто не обработал — просто добавляем символ в результат.
             throw new NotImplementedException();
         }
-        
+
     }
 }

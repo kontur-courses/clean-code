@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Blocks
 {
     public interface IBlock
     {
