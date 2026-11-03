@@ -1,12 +1,16 @@
 namespace Markdown;
 
+// Нужен для хранения одного выделения
 public class DelimiterPair
 {
-    public int OpeningStartIndex { get; }
+// Индекс начала открывающего маркера в тексте
+    public int OpeningStartIndex { get; } 
+// Индекс начала закрывающего маркера в тексте
     public int ClosingStartIndex { get; }
+// Тип маркера (щас есть Emphasis и Strong)
     public DelimiterType Type { get; }
 
-// Начала открывающего и закрывающего маркера, тип нужен для определения его длины (Пока Emphasis и Strong, "_" и "__" соответственно)
+
     public DelimiterPair(
         int openingStartIndex,
         int closingStartIndex,

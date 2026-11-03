@@ -4,6 +4,8 @@ public class Md
 {
     private readonly BlockParser blockParser;
 
+    // BlockParser разбирает блоки, InlineParser — разметку внутри них;
+    // DelimiterParser и EscapeParser распознают маркеры, HtmlRenderer формирует HTML.
     public Md()
     {
         var htmlRenderer = new HtmlRenderer();
