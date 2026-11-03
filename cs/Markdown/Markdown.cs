@@ -13,6 +13,9 @@ namespace Markdown
         }
     }
 
+    /// <summary>
+    /// Класс разделяет текст на строки и делегирует парсинг строк InlineParser
+    /// </summary>
     internal class MarkdownParser
     {
         private readonly InlineParser inlineParser;
@@ -40,10 +43,9 @@ namespace Markdown
         /// <summary>
         /// Определяет, является ли символ экранированным
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <param name="text">текст для парсинга(строка)</param>
+        /// <param name="currentIndex">индекс символа</param>
+        /// <returns>bool, является ли "\" экранированием</returns>
         private bool IsEscapeSequence(string text, int currentIndex)
         {
             throw new System.NotImplementedException();
@@ -52,10 +54,9 @@ namespace Markdown
         /// <summary>
         /// Определяет, можно ли считать символ "_" началом курсива (em)
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <param name="text">текст для парсинга(строка)</param>
+        /// <param name="currentIndex">индекс символа</param>
+        /// <returns>bool, "_" начало курсива?</returns>
         private bool IsValidEmphasisStart(string text, int currentIndex)
         {
             throw new System.NotImplementedException();
@@ -64,10 +65,9 @@ namespace Markdown
         /// <summary>
         /// Определяет, можно ли считать символ "_" концом курсива (em)
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <param name="text">текст для парсинга(строка)</param>
+        /// <param name="currentIndex">индекс символа</param>
+        /// <returns>bool, "_" конец курсива?</returns>
         private bool IsValidEmphasisEnd(string text, int currentIndex)
         {
             throw new System.NotImplementedException();
@@ -76,10 +76,9 @@ namespace Markdown
         /// <summary>
         /// Определяет, можно ли считать комбинацию символов "__" началом выделения (strong)
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <param name="text">текст для парсинга(строка)</param>
+        /// <param name="currentIndex">индекс символа</param>
+        /// <returns>bool, "__" начало выделения?</returns>
         private bool IsValidStrongStart(string text, int currentIndex)
         {
             throw new System.NotImplementedException();
@@ -88,10 +87,9 @@ namespace Markdown
         /// <summary>
         /// Определяет, можно ли считать комбинацию символов "__" концом выделения (strong)
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <param name="text">текст для парсинга(строка)</param>
+        /// <param name="currentIndex">индекс символа</param>
+        /// <returns>bool, "__" конец выделения?</returns>
         private bool IsValidStrongEnd(string text, int currentIndex)
         {
             throw new System.NotImplementedException();
