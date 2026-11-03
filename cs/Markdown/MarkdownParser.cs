@@ -18,11 +18,16 @@ namespace Markdown
             this.inlineParser = inlineParser;
         }
 
-        public string Parse(string line)
+        public string Parse(string markdownText)
         {
             throw new NotImplementedException();
+            //проверки на валидность
+            //var lines = markdownText.Split(...);
+            //var result = new StringBuilder()
 
-            //
+            //foreach line in lines { ...inlineParser.Paese(line)...}
+            
+            //return result.ToString();
         }
     }
 }
