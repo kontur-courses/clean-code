@@ -2,7 +2,7 @@
 {
     public class EscapeFinder
     {
-        private const char EscapeSymbol = '\\';
+        public const char EscapeSymbol = '\\';
 
         private static readonly HashSet<char> MarkupSymbols = [EscapeSymbol, UnderscoreFinder.UnderscoreSymbol];
 

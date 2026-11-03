@@ -2,10 +2,7 @@
 {
     public class ParagraphRenderer
     {
-        private const string HeaderPrefix = "# ";
-        private const string ListItemPrefix = "- ";
-        private const string HeaderTagName = "h1";
-        private const string ListItemTagName = "li";
+        private static readonly BlockTag[] BlockTags = { BlockTag.Header, BlockTag.ListItem };
 
         private readonly InlineRenderer inlineRenderer = new ();
 
@@ -19,22 +16,12 @@
             throw new NotImplementedException();
         }
 
-        private static bool IsHeader(string paragraph)
+        private static bool TryFindBlockTag(string paragraph, out BlockTag blockTag)
         {
             throw new NotImplementedException();
         }
 
-        private string RenderHeader(string paragraph)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string RenderListItem(string paragraph)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static string RemovePrefix(string paragraph, string prefix)
+        private static bool IsBlockTagEscaped(string paragraph)
         {
             throw new NotImplementedException();
         }
