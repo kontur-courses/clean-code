@@ -1,0 +1,12 @@
+.idea/
+.gradle/
+
+target/
+out/
+build/
+*private.resources
+*private.properties
+*local.properties
+*.iml
+*.log
+*.xlsx#

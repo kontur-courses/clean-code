@@ -1,0 +1,6 @@
+SRP: чтение board - лишняя ответственность
+DataFlow: поля с board и chess_status следует убрать в экземпляр класса
+Naming: calculate_chess_status - после рефакторинга можно дать более хорошее имя
+ReusableCode: PerformTemporaryMove - можно использовать готовый код
+Composability: сделать методы универсальными, а не только для White
+Decomposition: выделение has_moves_for или get_all_moves_of(color)
