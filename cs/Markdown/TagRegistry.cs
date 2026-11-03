@@ -20,6 +20,5 @@ namespace Markdown
         }
 
         public IEnumerable<TagInfo> GetAllTags() => new List<TagInfo>(tags.Values);
-        
     }
 }

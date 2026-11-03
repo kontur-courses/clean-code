@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class MarkdownTests
+    public interface IInlineParser
     {
+        public List<Token> ParseToTokens(string line);
     }
 }

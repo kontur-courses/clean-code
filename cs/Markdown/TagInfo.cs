@@ -9,7 +9,7 @@ namespace Markdown
     /// <summary>
     /// Класс, содержащий информацию о связке Markdown-HTML 
     /// </summary>
-    internal class TagInfo
+    public class TagInfo
     {
         public string MarkdownSymbol { get; }
         public string OpeningTag {  get; }

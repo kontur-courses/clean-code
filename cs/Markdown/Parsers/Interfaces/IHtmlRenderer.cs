@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    internal interface IInlineParser
+    public interface IHtmlRenderer
     {
-        public string Parse(string line);
+        public string Render(List<Token> tokens);
     }
 }

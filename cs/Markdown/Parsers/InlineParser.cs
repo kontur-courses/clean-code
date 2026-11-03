@@ -5,28 +5,19 @@
     /// </summary>
     internal class InlineParser : IInlineParser
     {
-        private readonly Dictionary<string, TagInfo> tags;
+        private readonly TagRegistry registry;
 
-        public InlineParser()
+        public InlineParser(TagRegistry registry)
         {
-            tags = new Dictionary<string, TagInfo>() // появится новый тег - можно написать его сюда
-            {
-                ["__"] = new TagInfo("__", "strong"),
-                ["_"] = new TagInfo("_", "em")
-            };
+            this.registry = registry;
         }
 
-        //внутри будет цикл, в котором будут вызываться вспомогательные методы
-        public string Parse(string markdownText)
+        public List<Token> ParseToTokens(string line)
         {
             throw new NotImplementedException();
-            //var result = new string builder
-            // foreach ...
-            //для вложенных конструкций рекурсивно вызывать Parse(SubString)
         }
 
 
-        //Вспомогательные методы
         private bool IsEscaping(string line, int index)
         {
             throw new NotImplementedException();

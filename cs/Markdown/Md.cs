@@ -5,14 +5,23 @@
     /// </summary>
     public class Md
     {
+        private readonly IInlineParser parser;
+        private readonly IHtmlRenderer renderer;
+
+        public Md (IInlineParser inlineParser, IHtmlRenderer HtmlRenderer)
+        {
+            parser = inlineParser;
+            renderer = HtmlRenderer;
+        }
+
         public string Render(string  markdownText)
         {
-            var inlineParser = new InlineParser();
-            var parser = new MarkdownParser(inlineParser);
 
-            var result = parser.Parse(markdownText);
-
-            return result;
+            //разбиваем на строки
+            //отдаем строки в parser -> токены
+            //токены отдаем в renderer -> строки
+            //строки собираем в html текст
+            return htmlText;
         }
     }
 }
