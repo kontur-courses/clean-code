@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.Enums
+namespace Markdown.Parser.Inline.Token
 {
-    public enum TagType
+    public enum TokenType
     {
+        Text,
         Em,
-        Strong,
-        Escaped
+        Strong
     }
 }

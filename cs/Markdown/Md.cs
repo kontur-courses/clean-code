@@ -1,4 +1,4 @@
-﻿using Markdown.Parser;
+﻿using Markdown.Parser.Block;
 using Markdown.Render;
 using System;
 using System.Collections.Generic;

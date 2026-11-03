@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.Parser
+namespace Markdown.Parser.Block
 {
     public static class FileParser
     {
