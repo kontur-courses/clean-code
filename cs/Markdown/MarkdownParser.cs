@@ -11,11 +11,18 @@ namespace Markdown
     /// </summary>
     internal class MarkdownParser
     {
-        private readonly InlineParser inlineParser;
+        private readonly IInlineParser inlineParser;
+
+        public MarkdownParser(IInlineParser inlineParser)
+        {
+            this.inlineParser = inlineParser;
+        }
 
         public string Parse(string line)
         {
             throw new NotImplementedException();
+
+            //
         }
     }
 }
