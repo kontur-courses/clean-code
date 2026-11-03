@@ -1,30 +1,6 @@
 ﻿namespace Markdown
 {
     /// <summary>
-    /// Публичный класс, который будет работать с другими приватными классами, скрывая реализацию и предоставляя интерфейс
-    /// </summary>
-    public static class Md
-    {
-        public static string Render(string  markdownText)
-        {
-             throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// Класс разделяет текст на строки и делегирует парсинг строк InlineParser
-    /// </summary>
-    internal class MarkdownParser
-    {
-        private readonly InlineParser inlineParser;
-
-        public string Parse(string line)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
     /// Класс проходит посимвольно по строке и определяет текст или особые конструкции (курсив, выделение)
     /// </summary>
     internal class InlineParser
