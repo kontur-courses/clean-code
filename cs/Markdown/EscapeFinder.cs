@@ -4,14 +4,14 @@
     {
         private const char EscapeSymbol = '\\';
 
-        private static readonly HashSet<char> EscapableSymbols = [EscapeSymbol, UnderscoreFinder.UnderscoreSymbol];
+        private static readonly HashSet<char> MarkupSymbols = [EscapeSymbol, UnderscoreFinder.UnderscoreSymbol];
 
-        public ISet<int> Find(string text)
+        public ISet<int> FindEscapePositions(string text)
         {
             throw new NotImplementedException();
         }
 
-        private static bool EscapesNextSymbol(string text, int position)
+        private static bool IsEscapingNextSymbol(string text, int position)
         {
             throw new NotImplementedException();
         }

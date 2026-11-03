@@ -1,4 +1,17 @@
 ﻿namespace Markdown
 {
-    public record Underscore(int Position, int Length, bool CanOpen, bool CanClose, bool IsInsideWord, int WordIndex);
+    public record Underscore(
+        int Position,
+        int Length,
+        bool CanOpen,
+        bool CanClose,
+        bool IsInsideWord,
+        int WordIndex)
+    {
+        private const int SingleUnderscoreLength = 1;
+        private const string SingleUnderscoreTagName = "em";
+        private const string DoubleUnderscoreTagName = "strong";
+
+        public string TagName => Length == SingleUnderscoreLength ? SingleUnderscoreTagName : DoubleUnderscoreTagName;
+    }
 }
