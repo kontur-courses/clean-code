@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace Markdown.MDElements
 {
-    internal class StrongElement
+    public class StrongNode : PairedNode
     {
+        public StrongNode(string opening, string closing) 
+            : base(opening, closing){}
+
     }
 }

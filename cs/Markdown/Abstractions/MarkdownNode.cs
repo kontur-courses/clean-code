@@ -4,10 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown
+namespace Markdown.Abstractions
 {
-    public abstract class MarkdownElement
+    /// <summary>
+    /// Базовый класс для всех нод
+    /// </summary>
+    /// 
+    public abstract class MarkdownNode
     {
-        public abstract ParseResult Parse();
+        public List<MarkdownNode> Children { get; set; }
+
+        public abstract string Render();
     }
 }

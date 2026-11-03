@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Markdown.Abstractions
 {
     /// <summary>
-    /// Парные элементы, хранят значения начала и конца
+    /// Базовый класс для парных элементов
     /// </summary>
+    /// 
     public abstract class PairedNode : MarkdownNode
     {
         // сохраняют начало и конце данного элемента 
@@ -19,6 +20,12 @@ namespace Markdown.Abstractions
         {
             OpeningTag = opening;
             ClosingTag = closing;
+        }
+
+        //Отдает работа детям, если нет детей должен возращаеть пустую строку
+        public override string Render()
+        {
+            return null;
         }
 
     }
