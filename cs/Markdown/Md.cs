@@ -11,6 +11,8 @@
             var parser = new MarkdownParser(inlineParser);
 
             var result = parser.Parse(markdownText);
+
+            return result;
         }
     }
 }
