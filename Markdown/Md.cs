@@ -1,18 +1,19 @@
+using Markdown.Parsing;
+
 namespace Markdown;
 
+/// <summary>
+/// Тут оставил только BlockParser, остальное перенёс в соответствующие классы
+/// Хотя не уверен, что это правильно
+/// До этого все зависимости были в Md, и можно было увидеть их связь
+/// </summary>
 public class Md
 {
     private readonly BlockParser blockParser;
 
-    // BlockParser разбирает блоки, InlineParser — разметку внутри них;
-    // DelimiterParser и EscapeParser распознают маркеры, HtmlRenderer формирует HTML.
     public Md()
     {
-        var htmlRenderer = new HtmlRenderer();
-        var escapeParser = new EscapeParser();
-        var delimiterParser = new DelimiterParser(escapeParser);
-        var inlineParser = new InlineParser(delimiterParser, escapeParser, htmlRenderer);
-        blockParser = new BlockParser(inlineParser, htmlRenderer);
+        blockParser = new BlockParser();
     }
 
     public string Render(string markdownText)
