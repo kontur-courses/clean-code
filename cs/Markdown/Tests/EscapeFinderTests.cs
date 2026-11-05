@@ -15,7 +15,9 @@ namespace Markdown.Tests
         {
             var positions = escapeFinder.FindEscapePositions(text);
 
-            positions.Should().BeEmpty();
+            positions
+                .Should()
+                .BeEmpty();
         }
 
         [TestCase(@"\_a", new[] { 0 })]
@@ -27,7 +29,9 @@ namespace Markdown.Tests
         {
             var positions = escapeFinder.FindEscapePositions(text);
 
-            positions.Should().BeEquivalentTo(expectedPositions);
+            positions
+                .Should()
+                .BeEquivalentTo(expectedPositions);
         }
 
         [TestCase(@"\\_", new[] { 0 })]
@@ -36,7 +40,9 @@ namespace Markdown.Tests
         {
             var positions = escapeFinder.FindEscapePositions(text);
 
-            positions.Should().BeEquivalentTo(expectedPositions);
+            positions
+                .Should()
+                .BeEquivalentTo(expectedPositions);
         }
 
         [TestCase(@"\a")]
@@ -47,7 +53,9 @@ namespace Markdown.Tests
         {
             var positions = escapeFinder.FindEscapePositions(text);
 
-            positions.Should().BeEmpty();
+            positions
+                .Should()
+                .BeEmpty();
         }
     }
 }
