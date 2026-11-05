@@ -2,7 +2,7 @@
 {
     public class Md
     {
-        private static readonly string[] ParagraphSeparators = { "\r\n", "\n" };
+        private static readonly string[] ParagraphSeparators = ["\r\n", "\n"];
 
         private readonly ParagraphRenderer paragraphRenderer = new ();
 

@@ -2,7 +2,7 @@
 {
     public class ParagraphRenderer
     {
-        private static readonly BlockTag[] BlockTags = { BlockTag.Header, BlockTag.ListItem };
+        private static readonly BlockTag[] BlockTags = [BlockTag.Header, BlockTag.ListItem];
 
         private readonly InlineRenderer inlineRenderer = new ();
 

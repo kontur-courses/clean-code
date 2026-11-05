@@ -2,9 +2,9 @@
 {
     public class InlineRenderer
     {
-        private readonly EscapeFinder escapeFinder = new EscapeFinder();
-        private readonly UnderscoreFinder underscoreFinder = new UnderscoreFinder();
-        private readonly PairFinder pairFinder = new PairFinder();
+        private readonly EscapeFinder escapeFinder = new ();
+        private readonly UnderscoreFinder underscoreFinder = new ();
+        private readonly PairFinder pairFinder = new ();
 
         public string Render(string text)
         {
