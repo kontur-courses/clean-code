@@ -5,40 +5,113 @@
         public const char UnderscoreSymbol = '_';
 
         private const int MaxUnderscoreLength = 2;
+        private const char TextBoundarySymbol = ' ';
 
         public IReadOnlyList<Underscore> Find(string text, ISet<int> escapePositions)
         {
-            throw new NotImplementedException();
+            var underscores = new List<Underscore>();
+            var wordIndex = 0;
+            var position = 0;
+            while (position < text.Length)
+            {
+                if (IsWhitespaceAfterWord(text, position))
+                    wordIndex++;
+
+                if (IsUnescapedUnderscore(text, position, escapePositions))
+                {
+                    var length = CountUnderscores(text, position);
+                    if (TryCreateUnderscore(text, position, length, wordIndex, out var underscore))
+                        underscores.Add(underscore);
+
+                    position += length;
+                }
+                else
+                {
+                    position++;
+                }
+            }
+
+            return underscores;
         }
 
-        private static bool IsEscaped(int position, ISet<int> escapePositions)
+        private static bool IsWhitespaceAfterWord(string text, int position)
         {
-            throw new NotImplementedException();
+            var previousSymbol = GetSymbol(text, position - 1);
+            return char.IsWhiteSpace(text[position]) && !char.IsWhiteSpace(previousSymbol);
+        }
+
+        private static bool IsUnescapedUnderscore(string text, int position, ISet<int> escapePositions)
+        {
+            var isEscaped = escapePositions.Contains(position - 1);
+            return text[position] == UnderscoreSymbol && !isEscaped;
         }
 
         private static int CountUnderscores(string text, int start)
         {
-            throw new NotImplementedException();
+            var end = start;
+            while (end < text.Length && text[end] == UnderscoreSymbol)
+            {
+                end++;
+            }
+
+            return end - start;
+        }
+
+        private static bool TryCreateUnderscore(
+            string text,
+            int position,
+            int length,
+            int wordIndex,
+            out Underscore underscore)
+        {
+            underscore = null;
+            var isInsideWord = IsInsideWord(text, position, length);
+            var isInsideNumber = isInsideWord && IsNextToDigit(text, position, length);
+            var isTooLong = length > MaxUnderscoreLength;
+            if (isTooLong || isInsideNumber)
+                return false;
+
+            underscore = new Underscore(
+                position,
+                length,
+                CanOpen(text, position, length),
+                CanClose(text, position),
+                isInsideWord,
+                wordIndex);
+
+            return true;
         }
 
         private static bool CanOpen(string text, int position, int length)
         {
-            throw new NotImplementedException();
+            var nextSymbol = GetSymbol(text, position + length);
+            return !char.IsWhiteSpace(nextSymbol);
         }
 
         private static bool CanClose(string text, int position)
         {
-            throw new NotImplementedException();
+            var previousSymbol = GetSymbol(text, position - 1);
+            return !char.IsWhiteSpace(previousSymbol);
         }
 
         private static bool IsInsideWord(string text, int position, int length)
         {
-            throw new NotImplementedException();
+            var previousSymbol = GetSymbol(text, position - 1);
+            var nextSymbol = GetSymbol(text, position + length);
+            return char.IsLetterOrDigit(previousSymbol) && char.IsLetterOrDigit(nextSymbol);
         }
 
         private static bool IsNextToDigit(string text, int position, int length)
         {
-            throw new NotImplementedException();
+            var previousSymbol = GetSymbol(text, position - 1);
+            var nextSymbol = GetSymbol(text, position + length);
+            return char.IsDigit(previousSymbol) || char.IsDigit(nextSymbol);
+        }
+
+        private static char GetSymbol(string text, int position)
+        {
+            var isInsideText = position >= 0 && position < text.Length;
+            return isInsideText ? text[position] : TextBoundarySymbol;
         }
     }
 }
