@@ -1,0 +1,94 @@
+﻿using FluentAssertions;
+using NUnit.Framework;
+
+namespace Markdown.Tests
+{
+    [TestFixture]
+    public class PairFinderTests
+    {
+        private readonly UnderscoreFinder underscoreFinder = new ();
+        private readonly PairFinder pairFinder = new ();
+
+        [TestCase("_a_", new[] { 0, 2 })]
+        [TestCase("__a__", new[] { 0, 3 })]
+        [TestCase("_a_ _b_", new[] { 0, 2, 4, 6 })]
+        [TestCase("__a _b_ c__", new[] { 0, 9, 4, 6 })]
+        public void Find_ShouldPairUnderscores_WhenTheyHaveSameLength_Test(string text, int[] expectedPositions)
+        {
+            var pairs = FindPairs(text);
+
+            ToPositions(pairs)
+                .Should()
+                .Equal(expectedPositions);
+        }
+
+        [TestCase("_a")]
+        [TestCase("_a__")]
+        [TestCase("__a_")]
+        [TestCase("a_ b_")]
+        public void Find_ShouldReturnEmpty_WhenUnderscoresHaveNoPair_Test(string text)
+        {
+            var pairs = FindPairs(text);
+
+            pairs
+                .Should()
+                .BeEmpty();
+        }
+
+        [TestCase("_ a_")]
+        [TestCase("_a _b")]
+        public void Find_ShouldReturnEmpty_WhenWhitespaceIsInsideUnderscores_Test(string text)
+        {
+            var pairs = FindPairs(text);
+
+            pairs
+                .Should()
+                .BeEmpty();
+        }
+
+        [TestCase("_нач_але", new[] { 0, 4 })]
+        [TestCase("сер_еди_не", new[] { 3, 7 })]
+        public void Find_ShouldPairUnderscores_WhenTheyAreInSameWord_Test(string text, int[] expectedPositions)
+        {
+            var pairs = FindPairs(text);
+
+            ToPositions(pairs)
+                .Should()
+                .Equal(expectedPositions);
+        }
+
+        [TestCase("ра_зных сл_овах")]
+        [TestCase("a_b c_d")]
+        public void Find_ShouldReturnEmpty_WhenUnderscoresInsideWordsAreInDifferentWords_Test(string text)
+        {
+            var pairs = FindPairs(text);
+
+            pairs
+                .Should()
+                .BeEmpty();
+        }
+
+        [Test]
+        public void Find_ShouldPairNearestUnderscores_WhenSameLengthUnderscoresAreNested_Test()
+        {
+            var pairs = FindPairs("_a _b_ c_");
+
+            ToPositions(pairs)
+                .Should()
+                .Equal(0, 8, 3, 5);
+        }
+
+        private IReadOnlyList<UnderscorePair> FindPairs(string text)
+        {
+            var underscores = underscoreFinder.Find(text, new HashSet<int>());
+            return pairFinder.Find(underscores);
+        }
+
+        private static IEnumerable<int> ToPositions(IEnumerable<UnderscorePair> pairs)
+        {
+            return pairs
+                .OrderBy(pair => pair.Opening.Position)
+                .SelectMany(pair => new[] { pair.Opening.Position, pair.Closing.Position });
+        }
+    }
+}

@@ -17,18 +17,11 @@
                 if (IsWhitespaceAfterWord(text, position))
                     wordIndex++;
 
-                if (IsUnescapedUnderscore(text, position, escapePositions))
-                {
-                    var length = CountUnderscores(text, position);
-                    if (TryCreateUnderscore(text, position, length, wordIndex, out var underscore))
-                        underscores.Add(underscore);
+                var length = CountUnescapedUnderscores(text, position, escapePositions);
+                if (TryCreateUnderscore(text, position, length, wordIndex, out var underscore))
+                    underscores.Add(underscore);
 
-                    position += length;
-                }
-                else
-                {
-                    position++;
-                }
+                position += GetStepLength(length);
             }
 
             return underscores;
@@ -40,10 +33,15 @@
             return char.IsWhiteSpace(text[position]) && !char.IsWhiteSpace(previousSymbol);
         }
 
-        private static bool IsUnescapedUnderscore(string text, int position, ISet<int> escapePositions)
+        private static int CountUnescapedUnderscores(string text, int start, ISet<int> escapePositions)
         {
-            var isEscaped = escapePositions.Contains(position - 1);
-            return text[position] == UnderscoreSymbol && !isEscaped;
+            var isEscaped = escapePositions.Contains(start - 1);
+            return isEscaped ? 0 : CountUnderscores(text, start);
+        }
+
+        private static int GetStepLength(int underscoresLength)
+        {
+            return Math.Max(underscoresLength, 1);
         }
 
         private static int CountUnderscores(string text, int start)
@@ -67,8 +65,9 @@
             underscore = null;
             var isInsideWord = IsInsideWord(text, position, length);
             var isInsideNumber = isInsideWord && IsNextToDigit(text, position, length);
+            var isMissing = length == 0;
             var isTooLong = length > MaxUnderscoreLength;
-            if (isTooLong || isInsideNumber)
+            if (isMissing || isTooLong || isInsideNumber)
                 return false;
 
             underscore = new Underscore(

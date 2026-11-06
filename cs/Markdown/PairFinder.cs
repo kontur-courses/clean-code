@@ -4,17 +4,40 @@
     {
         public IReadOnlyList<UnderscorePair> Find(IReadOnlyList<Underscore> underscores)
         {
-            throw new NotImplementedException();
+            return MatchPairs(underscores);
         }
 
         private static List<UnderscorePair> MatchPairs(IReadOnlyList<Underscore> underscores)
         {
-            throw new NotImplementedException();
+            var pairs = new List<UnderscorePair>();
+            var underscoresByLength = underscores.GroupBy(underscore => underscore.Length);
+            foreach (var sameLengthUnderscores in underscoresByLength)
+            {
+                pairs.AddRange(MatchSameLength(sameLengthUnderscores));
+            }
+
+            return pairs;
+        }
+
+        private static List<UnderscorePair> MatchSameLength(IEnumerable<Underscore> underscores)
+        {
+            var pairs = new List<UnderscorePair>();
+            var openings = new Stack<Underscore>();
+            foreach (var underscore in underscores)
+            {
+                if (openings.Count > 0 && CanBePaired(openings.Peek(), underscore))
+                    pairs.Add(new UnderscorePair(openings.Pop(), underscore));
+                else if (underscore.CanOpen)
+                    openings.Push(underscore);
+            }
+
+            return pairs;
         }
 
         private static bool CanBePaired(Underscore opening, Underscore closing)
         {
-            throw new NotImplementedException();
+            var isInSameWord = opening.WordIndex == closing.WordIndex;
+            return closing.CanClose && (isInSameWord || !opening.IsInsideWord);
         }
 
         private static List<UnderscorePair> RemoveIntersecting(List<UnderscorePair> pairs)
