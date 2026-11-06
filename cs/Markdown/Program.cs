@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using Markdown.Extensions;
+
+namespace Markdown;
 
 class Program
 {
@@ -13,5 +15,12 @@ class Program
        var htmlText = Md.Render(markdownText);
        
        Console.WriteLine(htmlText);
+
+
+       var htmlTextByExtensions = markdownText
+           .ParseMarkdown()
+           .RenderHtml();
+       
+       Console.WriteLine(htmlTextByExtensions);
     }
 }
