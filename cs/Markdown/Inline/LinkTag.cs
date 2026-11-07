@@ -1,12 +1,14 @@
-﻿namespace Markdown.Inline
+﻿using System.Collections.Generic;
+
+namespace Markdown.Inline
 {
-    public class LinkTag : InlineTag
+    public class LinkTag : IInlineTag
     {
-        public string Text { get; }
+        public List<IInlineTag> Content { get; }
         public string Url { get; }
-        public LinkTag(string text, string url)
+        public LinkTag(List<IInlineTag> content, string url)
         {
-            Text = text;
+            Content = content;
             Url = url;
         }
     }

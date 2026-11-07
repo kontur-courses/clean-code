@@ -1,8 +1,14 @@
-﻿namespace Markdown.Inline
+﻿using System.Collections.Generic;
+
+namespace Markdown.Inline
 {
-    public class StrongTag : InlineTag
+    public class StrongTag : IInlineTag
     {
-        public string Text { get; }
-        public StrongTag(string text) => Text = text;
+        public List<IInlineTag> Content { get; }
+
+        public StrongTag(List<IInlineTag> content)
+        {
+            Content = content;
+        }
     }
 }

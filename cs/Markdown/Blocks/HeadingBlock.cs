@@ -1,12 +1,15 @@
-﻿namespace Markdown.Blocks
-{
-    public class HeadingBlock : Block
-    {
-        public string Text { get; }
+﻿using Markdown.Inline;
+using System.Collections.Generic;
 
-        public HeadingBlock(string text)
+namespace Markdown.Blocks
+{
+    public class HeadingBlock : IBlock
+    {
+        public List<IInlineTag> InlineTags { get; }
+
+        public HeadingBlock(List<IInlineTag> inlineTags)
         {
-            Text = text;
+            InlineTags = inlineTags;
         }
     }
 }

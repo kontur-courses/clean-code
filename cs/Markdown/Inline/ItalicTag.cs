@@ -1,8 +1,15 @@
-﻿namespace Markdown.Inline
+﻿using System.Collections.Generic;
+
+namespace Markdown.Inline
+
 {
-    public class ItalicTag : InlineTag
+    public class ItalicTag : IInlineTag
     {
-        public string Text { get; }
-        public ItalicTag(string text) => Text = text;
+        public List<IInlineTag> Content { get; }
+
+        public ItalicTag(List<IInlineTag> content)
+        {
+            Content = content;
+        }
     }
 }

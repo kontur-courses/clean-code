@@ -1,12 +1,15 @@
-﻿namespace Markdown.Blocks
-{
-    public class ParagraphBlock : Block
-    {
-        public string Text { get; }
+﻿using Markdown.Inline;
+using System.Collections.Generic;
 
-        public ParagraphBlock(string text)
+namespace Markdown.Blocks
+{
+    public class ParagraphBlock : IBlock
+    {
+        public List<IInlineTag> InlineTags { get; }
+
+        public ParagraphBlock(List<IInlineTag> inlineTags)
         {
-            Text = text;
+            InlineTags = inlineTags;
         }
     }
 }
