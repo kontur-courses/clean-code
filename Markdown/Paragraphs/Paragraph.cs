@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Paragraphs;
 
 public record Paragraph(
     string Source,

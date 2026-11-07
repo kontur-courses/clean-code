@@ -1,6 +1,6 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Paragraphs;
 
-public static class StringExtensions
+public static class ParagraphSplitter
 {
     public static IEnumerable<Paragraph> GetParagraphs(this string source)
     {
