@@ -5,7 +5,7 @@ namespace Markdown.Transformers;
 
 public static class TokenParser
 {
-    public static IReadOnlyList<TextNode> Parse(IReadOnlyList<Token> tokens)
+    public static IReadOnlyList<Node> Parse(IReadOnlyList<Token> tokens)
     {
         throw new NotImplementedException();
     }

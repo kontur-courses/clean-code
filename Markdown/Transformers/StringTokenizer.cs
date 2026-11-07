@@ -11,9 +11,7 @@ public static class StringTokenizer
     {
         private int _cursor = 0;
         private readonly List<Token> _tokens = [];
-        
+
         public IReadOnlyList<Token> Run() => throw new NotImplementedException();
     }
-    
-    
 }

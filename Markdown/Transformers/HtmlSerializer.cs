@@ -1,10 +1,11 @@
+using System.Xml.Linq;
 using Markdown.Nodes;
 
 namespace Markdown.Transformers;
 
-public class HtmlRenderer
+public static class HtmlSerializer
 {
-    public static string Render(Root root)
+    public static string ToHtmlString(XDocument html)
     {
         throw new NotImplementedException();
     }

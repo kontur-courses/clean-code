@@ -1,23 +1,19 @@
-using Markdown.Nodes;
+using Markdown.Model;
 using Markdown.Transformers;
 
 namespace Markdown;
 
 public static class Md
 {
-    public static string Render(string markdown)
+    public static string Convert(string markdown)
     {
-        var blocks = new List<BlockNode>();
+        var tokens = StringTokenizer.Tokenize(markdown);
 
-        foreach (var raw in ParagraphSplitter.Split(markdown))
-        {
-            var tokens = StringTokenizer.Tokenize(raw.Content);
-            var inlines = TokenParser.Parse(tokens);
-            blocks.Add(new TextBlock(raw.Kind,  inlines));
-        }
-        
-        
-        
-        return HtmlRenderer.Render(new Root(blocks));
+        var nodes = TokenParser.Parse(tokens);
+
+        var document = HtmlDocument.CreateHtmlDocument();
+        document.GetBodyElement().Add(HtmlBuilder.ToElements(nodes));
+
+        return HtmlSerializer.ToHtmlString(document);
     }
 }
