@@ -152,4 +152,35 @@ public class ParagraphSplittingTests
         paragraphs.Should().Equal(
             new Paragraph(source, 0, source.Length, false));
     }
+
+    [Test]
+    public void GetParagraphs_WithLeadingEmptyLines_ShouldSkipThem()
+    {
+        var source = 
+            """
+
+
+            Обычный текст
+            """;
+        var start = 4; // \r\n\r\n - 4 символа пропускаются
+
+        var paragraphs = source.GetParagraphs().ToArray();
+
+        paragraphs.Should().Equal(
+            new Paragraph(source, start, source.Length, false));
+    }
+
+    [TestCase("""
+
+        """)]
+    [TestCase("""
+
+
+        """)]
+    public void GetParagraphs_WithOnlyLineBreaks_ShouldBeEmpty(string source)
+    {
+        var paragraphs = source.GetParagraphs().ToArray();
+
+        paragraphs.Should().BeEmpty();
+    }
 }
