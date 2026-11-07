@@ -1,19 +1,17 @@
 ﻿namespace Markdown;
 
-public enum TokenType
-{
-    EmphasisDelimiter,
-    StrongDelimiter,
-    Escape
-}
+public abstract record Token(int Index, int Length);
 
-public record Token(
-    TokenType Type,
-    int StartIndex,
+public record DelimiterRunToken(
+    int Index,
     int Length,
     bool CanOpen,
     bool CanClose
-);
+) : Token(Index: Index, Length: Length);
+
+public record EscapeToken(
+    int Index
+) : Token(Index: Index, Length: 2);
 
 public readonly record struct TokenPair(
     Token Opening,
