@@ -2,9 +2,8 @@
 
 namespace Markdown;
 
-public class MarkdownParser(InlineTokenizer tokenizer)
+public class MarkdownParser()
 {
-    private readonly InlineTokenizer _tokenizer = tokenizer;
 
     public IReadOnlyList<BlockNode> Parse(string markdown)
     {

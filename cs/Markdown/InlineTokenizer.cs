@@ -1,25 +1,57 @@
 ﻿namespace Markdown;
 
-public class InlineTokenizer
+public static class InlineTokenizer
 {
-    public IReadOnlyList<Token> Tokenize(
+    public static IReadOnlyList<Token> Tokenize(
         string text,
         int startIndex = 0)
     {
-        // Проходим по строке от startIndex до text.Length.
+        var tokens = new List<Token>();
+        var index = startIndex;
 
-        // Если встретили экранирование
-        // создаём Escape
-        // пропускаем символ
+        while(index < text.Length)
+        {
+            if (IsEscape(text, index))
+            {
+                tokens.Add(new EscapeToken(index));
+                index += 2;
+                continue;
+            }
 
-        // Если встретили подчёрки
-        // определяем вид маркера;
-        // проверяем локальную возможность открытия/закрытия; (предыдущий символ не пробел, следующий символ не пробел)
-        // создаём токен с позицией и длиной.
+            if (text[index] != '_')
+            {
+                index++;
+                continue;
+            }
 
-        // Остальной текст пропускаем.
-        // Возвращаем токены в порядке появления.
+            var start = index;
 
-        throw new NotImplementedException();
+            while(index < text.Length && text[index] == '_')
+            {
+                index++;
+            }
+
+            var canClose = start > startIndex && !char.IsWhiteSpace(text[start - 1]);
+            var canOpen = index < text.Length && !char.IsWhiteSpace(text[index]);
+
+            if (canOpen || canClose)
+            {
+                tokens.Add(new DelimiterRunToken(
+                    start,
+                    index - start,
+                    canOpen,
+                    canClose));
+            }
+        }
+
+        return tokens;
+    }
+
+
+    private static bool IsEscape(string text, int index)
+    {
+        return text[index] == '\\'
+               && index + 1 < text.Length
+               && (text[index + 1] is '\\' or '_');
     }
 }
