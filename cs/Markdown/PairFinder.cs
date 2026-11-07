@@ -4,7 +4,9 @@
     {
         public IReadOnlyList<UnderscorePair> Find(IReadOnlyList<Underscore> underscores)
         {
-            return MatchPairs(underscores);
+            var pairs = MatchPairs(underscores);
+            var pairsWithoutIntersections = RemoveIntersecting(pairs);
+            return RemoveDoubleInsideSingle(pairsWithoutIntersections);
         }
 
         private static List<UnderscorePair> MatchPairs(IReadOnlyList<Underscore> underscores)
@@ -42,22 +44,74 @@
 
         private static List<UnderscorePair> RemoveIntersecting(List<UnderscorePair> pairs)
         {
-            throw new NotImplementedException();
+            var sortedPairs = SortByOpening(pairs);
+            var intersectingPairs = new HashSet<UnderscorePair>();
+            var openPairs = new Stack<UnderscorePair>();
+            foreach (var pair in sortedPairs)
+            {
+                while (openPairs.Count > 0 && openPairs.Peek().Closing.Position < pair.Opening.Position)
+                {
+                    openPairs.Pop();
+                }
+
+                if (openPairs.Count > 0 && AreIntersecting(openPairs.Peek(), pair))
+                {
+                    intersectingPairs.Add(openPairs.Peek());
+                    intersectingPairs.Add(pair);
+                }
+
+                openPairs.Push(pair);
+            }
+
+            return sortedPairs
+                .Where(pair => !intersectingPairs.Contains(pair))
+                .ToList();
         }
 
         private static bool AreIntersecting(UnderscorePair first, UnderscorePair second)
         {
-            throw new NotImplementedException();
+            var startsInsideFirst = first.Opening.Position < second.Opening.Position
+                                    && second.Opening.Position < first.Closing.Position;
+            var endsAfterFirst = first.Closing.Position < second.Closing.Position;
+            return startsInsideFirst && endsAfterFirst;
         }
 
         private static List<UnderscorePair> RemoveDoubleInsideSingle(List<UnderscorePair> pairs)
         {
-            throw new NotImplementedException();
+            var allowedPairs = new List<UnderscorePair>();
+            var openSinglePairs = new Stack<UnderscorePair>();
+            foreach (var pair in SortByOpening(pairs))
+            {
+                while (openSinglePairs.Count > 0 && openSinglePairs.Peek().Closing.Position < pair.Opening.Position)
+                {
+                    openSinglePairs.Pop();
+                }
+
+                var isInsideSingle = openSinglePairs.Count > 0 && IsInside(pair, openSinglePairs.Peek());
+                var isDoubleInsideSingle = isInsideSingle && !pair.Opening.IsSingle;
+                if (isDoubleInsideSingle)
+                    continue;
+
+                if (pair.Opening.IsSingle)
+                    openSinglePairs.Push(pair);
+
+                allowedPairs.Add(pair);
+            }
+
+            return allowedPairs;
         }
 
         private static bool IsInside(UnderscorePair inner, UnderscorePair outer)
         {
-            throw new NotImplementedException();
+            return outer.Opening.Position < inner.Opening.Position
+                   && inner.Closing.Position < outer.Closing.Position;
+        }
+
+        private static List<UnderscorePair> SortByOpening(IEnumerable<UnderscorePair> pairs)
+        {
+            return pairs
+                .OrderBy(pair => pair.Opening.Position)
+                .ToList();
         }
     }
 }

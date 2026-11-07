@@ -12,6 +12,8 @@
         private const string SingleUnderscoreTagName = "em";
         private const string DoubleUnderscoreTagName = "strong";
 
-        public string TagName => Length == SingleUnderscoreLength ? SingleUnderscoreTagName : DoubleUnderscoreTagName;
+        public bool IsSingle => Length == SingleUnderscoreLength;
+
+        public string TagName => IsSingle ? SingleUnderscoreTagName : DoubleUnderscoreTagName;
     }
 }

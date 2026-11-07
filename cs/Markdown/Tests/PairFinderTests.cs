@@ -78,6 +78,29 @@ namespace Markdown.Tests
                 .Equal(0, 8, 3, 5);
         }
 
+        [TestCase("__a _b__ c_")]
+        [TestCase("_a __b_ c__")]
+        [TestCase("__пересечения _двойных__ и одинарных_")]
+        public void Find_ShouldReturnEmpty_WhenSingleAndDoublePairsIntersect_Test(string text)
+        {
+            var pairs = FindPairs(text);
+
+            pairs
+                .Should()
+                .BeEmpty();
+        }
+
+        [TestCase("_a __b__ c_", new[] { 0, 10 })]
+        [TestCase("_одинарного __двойное__ не_", new[] { 0, 26 })]
+        public void Find_ShouldSkipDoublePair_WhenItIsInsideSinglePair_Test(string text, int[] expectedPositions)
+        {
+            var pairs = FindPairs(text);
+
+            ToPositions(pairs)
+                .Should()
+                .Equal(expectedPositions);
+        }
+
         private IReadOnlyList<UnderscorePair> FindPairs(string text)
         {
             var underscores = underscoreFinder.Find(text, new HashSet<int>());
