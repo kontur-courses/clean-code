@@ -4,7 +4,8 @@ public static class StringExtensions
 {
     public static IEnumerable<Paragraph> GetParagraphs(this string source)
     {
-        var (start, current) = (0, 0);
+        var start = SkipEmptyLines(source, 0);
+        var current = start;
 
         while (current + 3 < source.Length)
         {
@@ -31,10 +32,17 @@ public static class StringExtensions
                 source, start, source.Length, IsHeading(source, start));
     }
 
-    private static bool IsHeading(string source, int start)
+    private static int SkipEmptyLines(string source, int current)
     {
-        return start + 1 < source.Length &&
-               source[start] == '#' &&
-               source[start + 1] == ' ';
+        while (current + 1 < source.Length &&
+           source[current] == '\r' && source[current + 1] == '\n')
+            current += 2;
+
+        return current;
     }
+
+    private static bool IsHeading(string source, int start)
+        => start + 1 < source.Length &&
+            source[start] == '#' &&
+            source[start + 1] == ' ';
 }
