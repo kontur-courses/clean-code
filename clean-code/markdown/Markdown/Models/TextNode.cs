@@ -7,8 +7,7 @@
 
 		public TextNode(string value)
 		{
-			// TODO
-			throw new NotImplementedException();
+			Value = value;
 		}
 	}
 }

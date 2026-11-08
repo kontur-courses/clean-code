@@ -6,8 +6,7 @@
 		
 		public HeadingNode(IReadOnlyList<INode> children)
 		{
-			// TODO
-			throw new NotImplementedException();
+			Children = children;
 		}
 	}
 }

@@ -6,8 +6,7 @@
 
 		public StrongNode(IReadOnlyList<INode> children)
 		{
-			// TODO
-			throw new NotImplementedException();
+			Children = children;
 		}
 	}
 }
