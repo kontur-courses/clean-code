@@ -2,11 +2,14 @@
 
 namespace Markdown.Tokenization.Tokens.Implementations;
 
-public record LinkToken(
+public sealed record LinkToken(
     string Source,
     int Start,
     int Length,
     int UrlStart,
-    int UrlLength,
-    IReadOnlyList<Token> InnerTokens)
-    : SourceToken(Source, Start, Length);
+    int UrlLength)
+    : SourceToken(Source, Start, Length)
+{
+    public int TextStart => Start + 1;
+    public int TextLength => UrlStart - TextStart - 2;
+}

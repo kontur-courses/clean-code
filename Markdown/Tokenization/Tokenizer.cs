@@ -6,11 +6,6 @@ namespace Markdown.Tokenization;
 
 public static class Tokenizer
 {
-    public static List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
-    {
-        throw new NotImplementedException();
-    }
-
     public static IEnumerable<Token> Tokenize(Paragraph paragraph)
     {
         var (source, start) = (paragraph.Source, paragraph.Start);
@@ -28,13 +23,18 @@ public static class Tokenizer
             yield return new HeadingToken(true);
     }
 
+    public static List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
+    {
+        throw new NotImplementedException();
+    }
+
     private static IEnumerable<Token> TokenizeRange(string source, int start, int end)
     {
         var (current, textStart) = (start, start);
 
         while (current < end)
         {
-            Token? token = null;
+            SourceToken? token = null;
 
             if (source[current] == '\\' &&
                 current + 1 < end &&
@@ -67,14 +67,12 @@ public static class Tokenizer
 
             // записываем накопленный обычный текст
             if (textStart < current)
-                yield return new TextToken(source, textStart, current - textStart);
+                yield return new TextToken(
+                    source, textStart, current - textStart);
 
             yield return token;
 
-            current += token is SourceToken sourceToken
-                ? sourceToken.Length
-                : 0;
-
+            current += token.Length;
             textStart = current;
         }
 
@@ -85,8 +83,43 @@ public static class Tokenizer
 
     private static LinkToken? TryParseLink(string source, int start, int end)
     {
+        var textStart = start + 1;
+        var current = textStart;
+
+        while (current < end && source[current] != ']')
+        {
+            if (source[current] is '[' or '\r' or '\n')
+                return null;
+
+            current++;
+        }
+
+        if (current == textStart ||
+            current + 1 >= end ||
+            source[current] != ']' ||
+            source[current + 1] != '(')
+            return null;
+
+        var urlStart = current + 2;
+        current = urlStart;
+
+        while (current < end)
+        {
+            if (source[current] == ')')
+                return new LinkToken(
+                    source, start, current - start + 1,
+                    urlStart, current - urlStart);
+
+            if (char.IsWhiteSpace(source[current]) ||
+                source[current] is '(' or '"')
+                return null;
+
+            current++;
+        }
+
+        return null;
     }
 
     private static bool IsEscapable(char symbol)
-        => symbol is '\\' or '_' or '[' or ']';
+        => symbol is '\\' or '_' or '[';
 }
