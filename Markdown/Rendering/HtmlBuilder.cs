@@ -1,4 +1,4 @@
-﻿using Markdown.Tokenization;
+﻿using Markdown.Tokenization.Tokens.Abstractions;
 using System.Text;
 
 namespace Markdown.Rendering;

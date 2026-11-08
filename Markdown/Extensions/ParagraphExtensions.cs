@@ -1,5 +1,6 @@
 ﻿using Markdown.Paragraphs;
 using Markdown.Tokenization;
+using Markdown.Tokenization.Tokens.Abstractions;
 
 namespace Markdown.Extensions;
 

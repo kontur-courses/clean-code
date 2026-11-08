@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Markdown.Tokenization.Tokens.Abstractions;
 
-namespace Markdown.Tokenization.Tokens
-{
-    internal class HeadingToken
-    {
-    }
-}
+namespace Markdown.Tokenization.Tokens.Implementations;
+
+public record HeadingToken(bool IsClosing) : Token;
