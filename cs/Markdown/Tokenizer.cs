@@ -1,53 +1,62 @@
+using Markdown.TagReaders;
 using Markdown.Tokens;
 
 namespace Markdown;
 
-/// <summary>
-/// Разбивает текст на Token, создаёт Token и LinkToken,
-/// использует LinkParser для распознавания ссылок,
-/// рекурсивно вызывает себя для текста внутри ссылки
-/// </summary>
-internal static class Tokenizer
+public class Tokenizer(TagReadersProvider tagReadersProvider)
 {
-    public static List<Token> Tokenize(string text)
+    public List<TextToken> Tokenize(string text)
     {
-        var tokens = new List<Token>();
+        var tokens = new List<TextToken>();
         var position = 0;
         while (position < text.Length)
         {
-            position = text[position] switch
+            if (text[position] == '\\')
             {
-                '\\' => ReadBackslash(text, position, tokens),
-                '_' => ReadUnderscores(text, position, tokens),
-                '[' => ReadLink(text, position, tokens),
-                _ => ReadText(text, position, tokens)
-            };
+                position = ReadBackslash(text, position, tokens);
+                continue;
+            }
+
+            if (text[position] == '\n')
+            {
+                tokens.Add(new LineFeedToken("\n", position));
+                position++;
+                continue;
+            }
+
+            var reader = tagReadersProvider.GetReader(text[position]);
+            
+            if (reader is ITagReaderWithNestedTokens readerWithNestedTokens)
+                position = ReadNested(readerWithNestedTokens, text, position, tokens);
+
+            else
+                position = reader.Read(text, position, tokens);
         }
         return tokens;
     }
 
-    private static int ReadBackslash(string text, int start, List<Token> tokens)
+    private int ReadBackslash(string text, int start, List<TextToken> tokens)
     {
-        throw  new NotImplementedException();
-    }
-    
-
-    private static int ReadUnderscores(string text, int start, List<Token> tokens)
-    {
-        throw  new NotImplementedException();
-    }
-
-    private static int ReadLink(string text, int start, List<Token> tokens)
-    {
-        if (LinkParser.TryParse(text, start, out var token))
+        if (start + 1 < text.Length && (tagReadersProvider.IsTagSymbol(text[start + 1]) || text[start + 1] == '\\'))
         {
-            //...
+            tokens.Add(new TextToken(text[start + 1].ToString(), start));
+            return start + 2;
         }
-        throw  new NotImplementedException();
+
+        tokens.Add(new TextToken("\\", start));
+        return start + 1;
     }
 
-    private static int ReadText(string text, int start, List<Token> tokens)
+    private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<TextToken> tokens)
     {
-        throw new NotImplementedException();
+        var nestedTokensToAdd = new List<TextToken>();
+        position = readerWithNestedTokens.Read(text, position, tokens, out var nestedTextToRead, nestedTokensToAdd);
+
+        foreach (var nestedToken in Tokenize(nestedTextToRead))
+        {
+            nestedTokensToAdd.Add(nestedToken);
+        }
+
+        return position;
     }
 }

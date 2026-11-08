@@ -1,18 +1,28 @@
+﻿using System.Text;
+
 namespace Markdown.Tokens;
 
-public class LinkToken : Token
+internal sealed class LinkToken(string raw, int start, string text, string url, List<TextToken> content)
+    : TextToken(raw, start)
 {
-    public LinkToken(string raw, int start, string text, string url, List<Token> content)
-        : base(TokenKind.Link, raw, start)
-    {
-        Text = text;
-        Url = url;
-        Content = content;
-    }
-    
-    public string Text { get; }
+    public string Text { get; } = text;
 
-    public string Url { get; }
-    
-    public List<Token> Content { get; }
+    public string Url { get; } = url;
+
+    public List<TextToken> Content { get; } = content;
+
+    public override StringBuilder WriteHtml()
+    {
+        var result = new StringBuilder();
+        result.Append("<a href=\"").Append(Url).Append("\">");
+
+        foreach (var token in Content)
+        {
+            result.Append(token.WriteHtml());
+        }
+
+        result.Append("</a>");
+
+        return result;
+    }
 }

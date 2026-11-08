@@ -1,40 +1,27 @@
-﻿using System.Text;
+using Markdown.Tokens;
+using System.Text;
 
 namespace Markdown;
 
-public class Md
+internal class Md(Tokenizer tokenizer)
 {
-
-    
-    private const string HeaderPrefix = "# ";
-    
-    /// <summary>
-    /// Точка входа, использует ParagraphSplitter (деление на абзацы),
-    /// Tokenizer, EmphasisResolver, HtmlWriter (разметка абзаца).
-    /// </summary>
     public string Render(string markdown)
     {
+        if (markdown == null)
+            throw new ArgumentNullException(nameof(markdown));
+
+        var tokens = tokenizer.Tokenize(markdown);
+        EmphasisResolver.Resolve(markdown, tokens);
+        return WriteHtml(tokens);
+    }
+
+    private static string WriteHtml(IEnumerable<TextToken> tokens)
+    {
         var result = new StringBuilder();
-        foreach (var segment in ParagraphSplitter.Split(markdown))
+        foreach (var token in tokens)
         {
-            result.Append(segment.Gap);
-            result.Append(RenderParagraph(segment.Text));
+            result.Append(token.WriteHtml());
         }
         return result.ToString();
-    }
-    
-    private static string RenderParagraph(string paragraph)
-    {
-        if (paragraph.StartsWith(HeaderPrefix, StringComparison.Ordinal))
-            return "<h1>" + RenderInline(paragraph.Substring(HeaderPrefix.Length)) + "</h1>";
-
-        return RenderInline(paragraph);
-    }
-    
-    private static string RenderInline(string text)
-    {
-        var tokens = Tokenizer.Tokenize(text);
-        EmphasisResolver.Resolve(text, tokens);
-        return HtmlWriter.Write(tokens);
     }
 }
