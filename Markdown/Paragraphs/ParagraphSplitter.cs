@@ -2,7 +2,7 @@
 
 public static class ParagraphSplitter
 {
-    public static IEnumerable<Paragraph> GetParagraphs(this string source)
+    public static IEnumerable<Paragraph> GetParagraphs(string source)
     {
         var start = SkipEmptyLines(source, 0);
         var current = start;

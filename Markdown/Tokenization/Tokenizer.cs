@@ -23,41 +23,13 @@ public static class Tokenizer
             yield return new HeadingToken(true);
     }
 
-    public static List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
-    {
-        throw new NotImplementedException();
-    }
-
     private static IEnumerable<Token> TokenizeRange(string source, int start, int end)
     {
         var (current, textStart) = (start, start);
 
         while (current < end)
         {
-            SourceToken? token = null;
-
-            if (source[current] == '\\' &&
-                current + 1 < end &&
-                IsEscapable(source[current + 1]))
-            {
-                token = new EscapedToken(source, current);
-            }
-            else if (source[current] == '\r' &&
-                     current + 1 < end &&
-                     source[current + 1] == '\n')
-            {
-                token = new LineBreakToken(source, current);
-            }
-            else if (source[current] == '_')
-            {
-                token = current + 1 < end && source[current + 1] == '_'
-                    ? new StrongToken(source, current)
-                    : new EmToken(source, current);
-            }
-            else if (source[current] == '[')
-            {
-                token = TryParseLink(source, current, end);
-            }
+            var token = TryReadSpecialToken(source, current, end);
 
             if (token is null)
             {
@@ -81,6 +53,29 @@ public static class Tokenizer
                 source, textStart, end - textStart);
     }
 
+    private static SourceToken? TryReadSpecialToken(string source, int current, int end)
+    {
+        if (source[current] == '\\' &&
+            current + 1 < end &&
+            IsEscapable(source[current + 1]))
+            return new EscapedToken(source, current);
+
+        if (source[current] == '\r' &&
+            current + 1 < end &&
+            source[current + 1] == '\n')
+            return new LineBreakToken(source, current);
+
+        if (source[current] == '_')
+            return current + 1 < end && source[current + 1] == '_'
+                ? new StrongToken(source, current)
+                : new EmToken(source, current);
+
+        if (source[current] == '[')
+            return TryParseLink(source, current, end);
+
+        return null;
+    }
+
     private static LinkToken? TryParseLink(string source, int start, int end)
     {
         var textStart = start + 1;
@@ -94,10 +89,8 @@ public static class Tokenizer
             current++;
         }
 
-        if (current == textStart ||
-            current + 1 >= end ||
-            source[current] != ']' ||
-            source[current + 1] != '(')
+        if (current == textStart || current + 1 >= end ||
+            source[current] != ']' || source[current + 1] != '(')
             return null;
 
         var urlStart = current + 2;
@@ -107,7 +100,7 @@ public static class Tokenizer
         {
             if (source[current] == ')')
                 return new LinkToken(
-                    source, start, current - start + 1,
+                    source, start, current - start + 1, 
                     urlStart, current - urlStart);
 
             if (char.IsWhiteSpace(source[current]) ||
