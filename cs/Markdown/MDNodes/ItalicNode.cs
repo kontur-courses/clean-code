@@ -1,15 +1,11 @@
-﻿using Markdown.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Markdown.MDNodes;
 
 namespace Markdown.MDElements
 {
-    public class ItalicNode : PairedNode
+    public class ItalicNode : PairedInlineNode
     {
-        public ItalicNode(string opening, string closing)
-            : base(opening, closing) {}
+        protected override string OpeningTag => "<em>";
+
+        protected override string ClosingTag => "</em>";
     }
 }

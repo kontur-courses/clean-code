@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.12.12324.72 oobinsiders
+VisualStudioVersion = 18.12.12324.72
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{DBFBE40E-EE0C-48F4-8763-EBD11C960081}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{FA8A9A8E-4E58-4AD9-BB2D-2F9A352295C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MdTests", "MdTests\MdTests.csproj", "{B0688EA2-FA07-4FC1-927E-8A7B33852F72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FA8A9A8E-4E58-4AD9-BB2D-2F9A352295C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA8A9A8E-4E58-4AD9-BB2D-2F9A352295C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA8A9A8E-4E58-4AD9-BB2D-2F9A352295C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0688EA2-FA07-4FC1-927E-8A7B33852F72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0688EA2-FA07-4FC1-927E-8A7B33852F72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0688EA2-FA07-4FC1-927E-8A7B33852F72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0688EA2-FA07-4FC1-927E-8A7B33852F72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

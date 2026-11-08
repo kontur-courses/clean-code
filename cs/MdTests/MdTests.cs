@@ -1,3 +1,5 @@
+using NUnit;
+
 namespace MdTests
 {
     public class Tests
