@@ -4,5 +4,5 @@ namespace Markdown.Abstractions;
 
 public interface IMarkedTextRenderer
 {
-    public string Render(MarkedText tokens);
+    public string Render(MarkedText markedText);
 }
