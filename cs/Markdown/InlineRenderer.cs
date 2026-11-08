@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using System.Text;
+
+namespace Markdown
 {
     public class InlineRenderer
     {
@@ -8,17 +10,43 @@
 
         public string Render(string text)
         {
-            throw new NotImplementedException();
+            var escapePositions = escapeFinder.FindEscapePositions(text);
+            var underscores = underscoreFinder.Find(text, escapePositions);
+            var pairs = pairFinder.Find(underscores);
+
+            return CreateHtml(text, pairs, escapePositions);
         }
 
-        private static string BuildHtml(string text, IReadOnlyList<UnderscorePair> pairs, ISet<int> escapePositions)
+        private static string CreateHtml(string text, IReadOnlyList<UnderscorePair> pairs, ISet<int> escapePositions)
         {
-            throw new NotImplementedException();
-        }
+            var openings = pairs
+                .ToDictionary(pair => pair.Opening.Position, pair => pair.Opening);
+            var closings = pairs.ToDictionary(pair => pair.Closing.Position, pair => pair.Closing);
+            var html = new StringBuilder();
+            var position = 0;
+            while (position < text.Length)
+            {
+                if (openings.TryGetValue(position, out var opening))
+                {
+                    html.Append(HtmlTag.Open(opening.TagName));
+                    position += opening.Length;
+                    continue;
+                }
 
-        private static Dictionary<int, UnderscorePair> GetPairsByPosition(IReadOnlyList<UnderscorePair> pairs)
-        {
-            throw new NotImplementedException();
+                if (closings.TryGetValue(position, out var closing))
+                {
+                    html.Append(HtmlTag.Close(closing.TagName));
+                    position += closing.Length;
+                    continue;
+                }
+
+                if (!escapePositions.Contains(position))
+                    html.Append(text[position]);
+
+                position++;
+            }
+
+            return html.ToString();
         }
     }
 }

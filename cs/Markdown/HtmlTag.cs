@@ -4,17 +4,19 @@
     {
         public static string Open(string name)
         {
-            throw new NotImplementedException();
+            return $"<{name}>";
         }
 
         public static string Close(string name)
         {
-            throw new NotImplementedException();
+            return $"</{name}>";
         }
 
         public static string Wrap(string name, string content)
         {
-            throw new NotImplementedException();
+            return Open(name) +
+                   content +
+                   Close(name);
         }
     }
 }
