@@ -1,13 +1,10 @@
-﻿using FluentAssertions;
-using Markdown.Extensions;
+﻿using Markdown.Extensions;
 using Markdown.Paragraphs;
-using Markdown.Tokenization.Tokens;
 using Markdown.Tokenization.Tokens.Abstractions;
-using Markdown.Tokenization.Tokens.Implementations;
 
 namespace MarkdownTests.TokenizationTests;
 
-public class TokenizationTests
+public partial class TokenizationTests
 {
     private static Token[] Tokenize(string source, bool isHeading = false)
     {
