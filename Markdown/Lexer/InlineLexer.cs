@@ -10,10 +10,65 @@ namespace Markdown.Lexer;
 public sealed class InlineLexer
 {
     /// <summary>
-    /// Здесь IReadOnlyList для защиты от изменения токенов после их создания
+    /// Разбивает текст на токены inline-разметки
     /// </summary>
+    /// <param name="text">Текст для токенизации</param>
+    /// <returns>Список токенов</returns>
     public IReadOnlyList<InlineToken> Tokenize(string text)
     {
-        throw new NotImplementedException();
+        var tokens = new List<InlineToken>();
+        var textBuffer = new StringBuilder();
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            var currentChar = text[i];
+
+            if (currentChar == '\\' && i + 1 < text.Length)
+            {
+                textBuffer.Append(text[i + 1]);
+                i++;
+                continue;
+            }
+
+            if (currentChar == '\\')
+            {
+                textBuffer.Append(currentChar);
+                continue;
+            }
+
+            if (currentChar == '_')
+            {
+                if (i + 1 < text.Length && text[i + 1] == '_')
+                {
+                    if (textBuffer.Length > 0)
+                    {
+                        tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+                        textBuffer.Clear();
+                    }
+                    tokens.Add(new InlineToken(InlineTokenKind.StrongMarker, "__"));
+                    i++;
+                }
+                else
+                {
+                    if (textBuffer.Length > 0)
+                    {
+                        tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+                        textBuffer.Clear();
+                    }
+                    tokens.Add(new InlineToken(InlineTokenKind.EmphasisMarker, "_"));
+                }
+
+                continue;
+            }
+
+            textBuffer.Append(currentChar);
+        }
+
+        if (textBuffer.Length > 0)
+        {
+            tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+        }
+
+        return tokens;
     }
 }
