@@ -15,12 +15,29 @@ public static class StringTokenizer
         public IReadOnlyList<Token> Run()
         {
             var paragraphs = text.Split("\n");
-
+            
             foreach (var line in paragraphs)
             {
-                _tokens.Add(Token.Text(line));
-            }
+                var start = 0;
 
+                if (line.StartsWith("# "))
+                {
+                    _tokens.Add(Token.HeaderMarker());
+                    start = 2; 
+                }
+
+                for (var i = start; i < line.Length; i++)
+                {
+                    switch (line[i])
+                    {
+                        
+                    }
+                }
+                
+                
+                _tokens.Add(Token.Text(line[start..]));
+            }
+            
 
             return _tokens;
         }

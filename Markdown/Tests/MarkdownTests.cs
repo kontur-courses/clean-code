@@ -14,6 +14,10 @@ public class MarkdownTests
         get
         {
             yield return new TestCaseData<string, IReadOnlyList<Token>>("Hello World!", [Token.Text("Hello World!")]);
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("# Hello World!",
+                [Token.HeaderMarker(), Token.Text("Hello World!")]);
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("_Hello World!_",
+                [Token.Underscore(true, false), Token.Text("Hello World!"), Token.Underscore(false, true)]);
         }
     }
 
