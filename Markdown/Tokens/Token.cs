@@ -1,10 +1,13 @@
 namespace Markdown.Tokens;
 
-public record Token(TokenKind Kind, string Value, bool IsClosable, bool IsOpenable);
-
-public enum TokenKind
+public sealed record TokenType(string Name)
 {
-    Text,
-    Em,
-    Strong
+    public static readonly TokenType Text = new("text");
+    public static readonly TokenType Underscore = new("underscore");
+    public static readonly TokenType DoubleUnderscore = new("double_underscore");
+    public static readonly TokenType HeaderMarker = new("header_marker");
+    public static readonly TokenType ParagraphBreak = new("paragraph_break");
+    
 }
+
+public sealed record Token(TokenType Type, string Value);
