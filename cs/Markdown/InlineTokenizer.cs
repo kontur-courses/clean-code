@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
@@ -106,63 +107,5 @@ namespace Markdown
 
         private static bool IsEscapable(char c)
             => c == '_' || c == '\\' || c == '[' || c == ']' || c == '(' || c == ')';
-    }
-
-    public abstract record Token { }
-
-    public sealed record TextToken : Token
-    {
-        public string Text { get; }
-        public TextToken(string text) { Text = text; }
-    }
-
-    public sealed record EscapedToken : Token
-    {
-        public char EscapedChar { get; }
-        public EscapedToken(char escapedChar) { EscapedChar = escapedChar; }
-    }
-
-    public sealed record UnderscoreToken : Token
-    {
-        public int Length { get; }
-        public char? Left { get; }
-        public char? Right { get; }
-        public bool LeftEscaped { get; }
-        public bool RightEscaped { get; }
-
-        public UnderscoreToken(int length, char? left, char? right, bool leftEscaped, bool rightEscaped)
-        {
-            Length = length;
-            Left = left;
-            Right = right;
-            LeftEscaped = leftEscaped;
-            RightEscaped = rightEscaped;
-        }
-
-        public UnderscoreToken(int length, char? left, char? right)
-        {
-            Length = length;
-            Left = left;
-            Right = right;
-            LeftEscaped = false;
-            RightEscaped = false;
-        }
-    }
-
-    
-    public sealed record BracketOpenToken : Token
-    {
-    }
-    
-
-    public sealed record LinkTailToken : Token
-    {
-        public string Url { get; }
-        public bool Closed { get; }
-        public LinkTailToken(string url, bool closed)
-        {
-            Url = url;
-            Closed = closed;
-        }
     }
 }
