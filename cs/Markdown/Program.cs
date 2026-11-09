@@ -6,9 +6,9 @@ namespace Markdown
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
-            Md.Render("123");
+            Console.WriteLine(Md.Render("_ab__cd_"));
         }
     }
 }
