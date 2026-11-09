@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Domain;
 
 public abstract record Token(int Index, int Length);
 

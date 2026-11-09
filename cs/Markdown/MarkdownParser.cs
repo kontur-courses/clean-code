@@ -1,35 +1,109 @@
-﻿using Markdown.Nodes;
+﻿using System.Text;
+using Markdown.Domain;
 
 namespace Markdown;
 
 public static class MarkdownParser
 {
+    private const string HeaderPrefix = "# ";
+    private const int EmphasisDelimiterLenght = 1;
+    private const int StrongDelimiterLenght = 2;
 
-    public static IReadOnlyList<BlockNode> Parse(string markdown)
+    public static IReadOnlyList<Node> Parse(string markdown)
     {
-        //сплитуем markdown на строки
-        //для каждой вызывает ParseBlock
-        //Получаем распарсенный BlockNode
-        //Добавляем его в список
+        var nodes = new List<Node>();
 
-        throw new NotImplementedException();
+        using var reader = new StringReader(markdown);
+
+        while(reader.ReadLine() is {} line)
+        {
+            nodes.Add(ParseLine(line));
+        }
+
+        return nodes;
     }
 
-    private static BlockNode ParseBlock(string line)
+    private static Node ParseLine(string line)
     {
-        //Определяем тип блока (заголовок или параграф)
-        //Передаем строку (с учетом сдвига "# ") в ParseInline
-        //Получаем список InlineNode и создаем соответствующий BlockNode
+        var isHeader = line.StartsWith(HeaderPrefix);
+        var startIndex = isHeader ? HeaderPrefix.Length : 0;
 
-        throw new NotImplementedException();
+        var tokens = InlineTokenizer.Tokenize(line, startIndex);
+        var pairs = FindDelimiterTokenPairs(tokens, line);
+        var children = BuildNodes(
+            line, startIndex, [.. tokens.OfType<EscapeToken>()], pairs);
+
+        return isHeader
+            ? new HeaderNode { Children = children }
+            : new ParagraphNode { Children = children };
     }
 
-    private static IReadOnlyList<InlineNode> ParseInline(string text, int startIndex = 0)
+    private static IReadOnlyList<Node> BuildNodes(
+        string text,
+        int startIndex,
+        IReadOnlyList<EscapeToken> escapeTokens,
+        IReadOnlyList<DelimiterPair> pairs)
     {
-        //разбиваем текст на токены c помощью InlineTokenizer
-        //вызываем FindDelimiterTokenPairs для поиска пар токенов
-        //вызываем BuildNodes для построения InlineNode по найденным парам
-        throw new NotImplementedException();
+        var openingIndexes = pairs.ToDictionary(p => p.Opening.Index);
+        var escapeIndexes = escapeTokens.Select(x => x.Index).ToHashSet();
+
+        var nodes = new List<Node>();
+        var parents = new Stack<(DelimiterPair Pair, List<Node> Nodes)>();
+        var sb = new StringBuilder();
+
+        for (var index = startIndex; index < text.Length; index++)
+        {
+            if (escapeIndexes.Contains(index))
+            {
+                sb.Append(text[index + 1]);
+                index++;
+                continue;
+            }
+
+            if (parents.TryPeek(out var frame)
+                && index == frame.Pair.Closing.Index)
+            {
+                FlushText();
+
+                ContainerNode wrapper = frame.Pair.Opening.Length == EmphasisDelimiterLenght
+                    ? new EmphasisNode { Children = nodes }
+                    : new StrongNode { Children = nodes };
+
+                parents.Pop();
+                nodes = frame.Nodes;
+                nodes.Add(wrapper);
+
+                index += frame.Pair.Closing.Length - 1;
+                continue;
+            }
+
+            if (openingIndexes.TryGetValue(index, out var pair))
+            {
+                FlushText();
+
+                parents.Push((pair, nodes));
+                nodes = [];
+
+                index += pair.Opening.Length - 1;
+                continue;
+            }
+
+            sb.Append(text[index]);
+        }
+
+        FlushText();
+        return nodes;
+
+        void FlushText()
+        {
+            if (sb.Length == 0)
+            {
+                return;
+            }
+
+            nodes.Add(new TextNode(sb.ToString()));
+            sb.Clear();
+        }
     }
 
     internal static IReadOnlyList<DelimiterPair> FindDelimiterTokenPairs(
@@ -43,24 +117,16 @@ public static class MarkdownParser
 
         foreach (var token in tokens.OfType<DelimiterRunToken>())
         {
-            var openStrong = stackOpenStrong.Count > 0
-                ? stackOpenStrong.Peek()
-                : null;
-
-            var openEmphasis = stackOpenEmphasis.Count > 0
-                ? stackOpenEmphasis.Peek()
-                : null;
-
-            var preferredEmphasis = openEmphasis is not null
-                                    && (openStrong is null || openEmphasis.Index > openStrong.Index);
+            var preferredEmphasis = stackOpenEmphasis.TryPeek(out var openEmphasis)
+                                    && (!stackOpenStrong.TryPeek(out var openStrong) || openEmphasis.Index > openStrong.Index);
 
             foreach (var delimiter in SplitDelimiter(token, preferredEmphasis))
             {
-                var stack = delimiter.Length == 2 ? stackOpenStrong : stackOpenEmphasis;
+                var stack = delimiter.Length == StrongDelimiterLenght ? stackOpenStrong : stackOpenEmphasis;
 
-                if (delimiter.CanClose && stack.Count > 0)
+                if (delimiter.CanClose
+                    && stack.TryPop(out var opening))
                 {
-                    var opening = stack.Pop();
                     pairs.Add(new DelimiterPair(opening, delimiter));
                 }
                 else if (delimiter.CanOpen)
@@ -68,7 +134,6 @@ public static class MarkdownParser
                     stack.Push(delimiter);
                 }
             }
-
         }
 
         return FilterValidPairs(pairs, text);
@@ -101,8 +166,8 @@ public static class MarkdownParser
             (otherStart < start && start < otherEnd && otherEnd < end);
 
         var strongInsideEmphasis =
-            pair.Opening.Length == 2 &&
-            other.Opening.Length == 1 &&
+            pair.Opening.Length == StrongDelimiterLenght &&
+            other.Opening.Length == EmphasisDelimiterLenght &&
             otherStart < start &&
             end < otherEnd;
 
@@ -166,17 +231,5 @@ public static class MarkdownParser
         }
 
         return result;
-    }
-
-    private static IReadOnlyList<InlineNode> BuildNodes(
-        string text,
-        int startIndex,
-        IReadOnlyList<Token> tokens,
-        IReadOnlyList<DelimiterPair> pairs)
-    {
-        // Строим дерево по подтверждённым парам.
-        // Обычный текст сохраняем в TextNode.
-        // По Escape убираем экранирующие слеши из текста узлов.
-        throw new NotImplementedException();
     }
 }

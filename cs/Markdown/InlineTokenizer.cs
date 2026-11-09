@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using Markdown.Domain;
+
+namespace Markdown;
 
 public static class InlineTokenizer
 {
