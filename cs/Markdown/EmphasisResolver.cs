@@ -41,31 +41,17 @@ internal sealed class EmphasisResolver
                     NewRun(position + 1);
                 break;
             }
-            else if (token is LinkToken link)
+            else if (token is LinkToken || token is HeaderToken)
             {
-                if (link.Role == TokenRole.Opening)
+                if (token.Role == TokenRole.Opening)
                 {
                     position = NewRun(position + 1);
                 }
-                if (link.Role == TokenRole.Closing)
+                if (token.Role == TokenRole.Closing)
                 {
                     return position;
                 }
             }
-            else if (token is HeaderToken header)
-            {
-                if (header.Role == TokenRole.Opening)
-                {
-                    position = NewRun(position + 1);
-                }
-                if (header.Role == TokenRole.Closing)
-                {
-                    return position;
-                }
-
-
-            }
-
             position++;
         }
 
@@ -108,17 +94,15 @@ internal sealed class EmphasisResolver
 
     private void MarkPair(int openIndex, int closeIndex)
     {
+        tokens[openIndex].Role = TokenRole.Opening;
+        tokens[closeIndex].Role = TokenRole.Closing;
+        
         if (tokens[openIndex] is DoubleUnderscoreToken)
         {
-            ((DoubleUnderscoreToken)tokens[openIndex]).Role = TokenRole.Opening;
-            ((DoubleUnderscoreToken)tokens[closeIndex]).Role = TokenRole.Closing;
             strongPairs.Add((openIndex, closeIndex));
         }
-
         else
         {
-            ((UnderscoreToken)tokens[openIndex]).Role = TokenRole.Opening;
-            ((UnderscoreToken)tokens[closeIndex]).Role = TokenRole.Closing;
             DemoteStrongInside(openIndex);
         }
             
@@ -129,28 +113,28 @@ internal sealed class EmphasisResolver
         while (strongPairs.Count > 0 && strongPairs[^1].Open > emOpenIndex)
         {
             var (open, close) = strongPairs[^1];
-            ((DoubleUnderscoreToken)tokens[open]).Role = TokenRole.Literal;
-            ((DoubleUnderscoreToken)tokens[close]).Role = TokenRole.Literal;
+            tokens[open].Role = TokenRole.Literal;
+            tokens[close].Role = TokenRole.Literal;
             strongPairs.RemoveAt(strongPairs.Count - 1);
         }
     }
 
-    private Stack<int> OpenedOf(TextToken token)
-        => token is UnderscoreToken ? openedEm : openedStrong;
+    private Stack<int> OpenedOf(TextToken textToken)
+        => textToken is UnderscoreToken ? openedEm : openedStrong;
 
-    private Stack<int> OtherOf(TextToken token)
-        => token is UnderscoreToken ? openedStrong : openedEm;
+    private Stack<int> OtherOf(TextToken textToken)
+        => textToken is UnderscoreToken ? openedStrong : openedEm;
 
-    private bool CanOpen(TextToken token)
-        => token.End < text.Length && !char.IsWhiteSpace(text[token.End]);
+    private bool CanOpen(TextToken textToken)
+        => textToken.End < text.Length && !char.IsWhiteSpace(text[textToken.End]);
 
-    private bool CanClose(TextToken token)
-        => token.Start > 0 && !char.IsWhiteSpace(text[token.Start - 1]);
+    private bool CanClose(TextToken textToken)
+        => textToken.Start > 0 && !char.IsWhiteSpace(text[textToken.Start - 1]);
 
-    private bool IsInsideTextWithDigits(TextToken token)
+    private bool IsInsideTextWithDigits(TextToken textToken)
     {
-        var before = token.Start > 0 ? text[token.Start - 1] : '\0';
-        var after = token.End < text.Length ? text[token.End] : '\0';
+        var before = textToken.Start > 0 ? text[textToken.Start - 1] : '\0';
+        var after = textToken.End < text.Length ? text[textToken.End] : '\0';
         return (char.IsDigit(before) && char.IsLetterOrDigit(after))
                || (char.IsDigit(after) && char.IsLetterOrDigit(before));
     }

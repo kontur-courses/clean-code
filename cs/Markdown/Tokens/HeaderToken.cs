@@ -4,11 +4,8 @@ namespace Markdown.Tokens;
 
 internal class HeaderToken(string value, int start) : TextToken(value, start)
 {
-    public TokenRole Role { get; set; } = TokenRole.Literal;
-
     public override StringBuilder WriteHtml()
     {
-        
         var result = new StringBuilder();
         if (Role == TokenRole.Opening)
             result.Append("<h1>");

@@ -6,8 +6,6 @@ internal sealed class LinkToken(string raw, int start, string url)
     : TextToken(raw, start)
 {
     public string Url { get; } = url;
-    
-    public TokenRole Role { get; set; } = TokenRole.Literal;
 
     public override StringBuilder WriteHtml()
     {

@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Markdown.TagReaders;
 using Markdown.Tokens;
 
@@ -5,6 +6,9 @@ namespace Markdown;
 
 public class Tokenizer(TagReadersProvider tagReadersProvider)
 {
+    public List<TextToken> Tokenize(string text)
+        => Tokenize(text, 0, text.Length);
+    
     public List<TextToken> Tokenize(string text, int start, int end)
     {
         var tokens = new List<TextToken>();
@@ -33,7 +37,7 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
                     position = reader.Read(text, position, tokens);
             }
             else 
-                position  = ReadText(text, position, end, tokens);
+                position = ReadText(text, position, end, tokens);
             
         }
         return tokens;
@@ -53,18 +57,17 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
 
     private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<TextToken> tokens)
     {
-        var newPosition = readerWithNestedTokens.Read(text, position, tokens, out var nestedStart, out var nestedEnd, out var endToken);
+        var newPosition = readerWithNestedTokens.Read(text, position, tokens, out var nestedStart, out var endToken);
 
         if (endToken != null)
         {
-            foreach (var nestedToken in Tokenize(text, nestedStart, nestedEnd))
+            foreach (var nestedToken in Tokenize(text, nestedStart, endToken.Start))
             {
                 tokens.Add(nestedToken);
             }
             tokens.Add(endToken);
         }
-
-
+        
         return newPosition;
     }
     

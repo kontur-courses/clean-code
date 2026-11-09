@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Markdown.Tokens;
 
-namespace Markdown.Tokens;
-
-internal enum TokenRole
+public enum TokenRole
 {
     Literal,
     Opening,

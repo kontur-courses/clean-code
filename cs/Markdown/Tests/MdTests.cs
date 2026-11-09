@@ -10,7 +10,7 @@ namespace Markdown.Tests;
 public class MdTests
 {
     private Md md = null!;
-    
+
     private static Md CreateMd() => new(
         new Tokenizer(
             new TagReadersProvider(
@@ -19,17 +19,10 @@ public class MdTests
                 new UnderscoresTagsReader(),
                 new HeaderTagReader()
             ])));
-    
+
     [SetUp]
     public void SetUp() => md = CreateMd();
-    
-    [Test]
-    public void X()
-    {
-        var result = md.Render("[# a](b)");
-        result.Should().Be("<a href=\"b\"># a</a>");
-    }
-    
+
     [TestCase("текст", "текст")]
     [TestCase("", "")]
     [TestCase("_a_", "<em>a</em>")]
@@ -68,6 +61,7 @@ public class MdTests
         "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
     [TestCase("#Не заголовок", "#Не заголовок")]
     [TestCase("текст # не заголовок", "текст # не заголовок")]
+    [TestCase("[# a](b)", "<a href=\"b\"># a</a>")]
     public void Render_Headers(string input, string expected)
         => Assert.That(md.Render(input), Is.EqualTo(expected));
 
@@ -84,19 +78,19 @@ public class MdTests
     public void Render_NullText_Throws()
         => Assert.Throws<ArgumentNullException>(() => md.Render(null!));
 
-    [TestCase("_a ")]          
-    [TestCase("_a __b ")]      
-    [TestCase("_a__b_ __c__ ") 
+    [TestCase("_a ")]
+    [TestCase("_a __b ")]
+    [TestCase("_a__b_ __c__ ")
     ]
     public void Render_WorksInLinearTime(string unit)
     {
         const int small = 50_000;
         const int large = 500_000;
-        md.Render(string.Concat(Enumerable.Repeat(unit, 1000))); 
+        md.Render(string.Concat(Enumerable.Repeat(unit, 1000)));
 
         var smallTime = Measure(unit, small);
         var largeTime = Measure(unit, large);
-        
+
         Assert.That(largeTime, Is.LessThan(Math.Max(smallTime * 30, 200)),
             $"small={smallTime}ms, large={largeTime}ms");
     }

@@ -8,27 +8,33 @@ internal class HeaderTagReader : ITagReaderWithNestedTokens, ITagReader
 
     public char[] TagSymbols => ['#'];
 
-    public int Read(string text, int start, List<TextToken> addTo, out int nestedStart, out int nestedEnd, out TextToken endToken)
+    public int Read(string text, int start, List<TextToken> addTo, out int nestedStart, out TextToken endTextToken)
     {
-        nestedEnd = text.Length - 1;
-        endToken = null;
+        var startToken = new HeaderToken("", start)
+        {
+            Role = TokenRole.Literal
+        };
+
+        endTextToken = null;
         nestedStart = start + 2;
 
         if (!TryParse(text, start, out var contentEnd))
         {
-            addTo.Add(new TextToken("#", start));
+            addTo.Add(startToken);
             return start + 1;
         }
 
         var raw = text.Substring(start, contentEnd - start);
-        
-        nestedEnd = contentEnd;
 
-        var startToken = new HeaderToken(raw, start);
-        startToken.Role = TokenRole.Opening;
+        startToken = new HeaderToken(raw, start)
+        {
+            Role = TokenRole.Opening
+        };
 
-        endToken = new HeaderToken(raw, start);
-        ((HeaderToken)endToken).Role = TokenRole.Closing;
+        endTextToken = new HeaderToken(raw, contentEnd)
+        {
+            Role = TokenRole.Closing
+        };
         
         addTo.Add(startToken);
         return contentEnd;

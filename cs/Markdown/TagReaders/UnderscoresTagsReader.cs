@@ -15,14 +15,14 @@ internal class UnderscoresTagsReader : ITagReader
             end++;
 
         var value = text.Substring(start, end - start);
-        TextToken token;
-        token = value.Length switch
+        TextToken textToken;
+        textToken = value.Length switch
         {
             1 => new UnderscoreToken(value, start),
             2 => new DoubleUnderscoreToken(value, start),
             _ => new TextToken(value, start) // "____" и длиннее — просто символы
         };
-        tokens.Add(token);
+        tokens.Add(textToken);
         return end;
     }
 }

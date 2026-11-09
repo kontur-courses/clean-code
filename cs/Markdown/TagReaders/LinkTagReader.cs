@@ -7,35 +7,39 @@ internal class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
     public char Opener => '[';
 
     public char[] TagSymbols => ['[', ']', '(', ')'];
-
-
-    //Пока не придумал, как скрыть этот метод Read для токенов с вложенными токенами
+    
     public int Read(string text, int start, List<TextToken> tokens)
     {
         return start;
     }
 
-    public int Read(string text, int start, List<TextToken> tokens, out int nestedStart, out int nestedEnd, out TextToken endToken)
+    public int Read(string text, int start, List<TextToken> tokens, out int nestedStart, out TextToken endTextToken)
     {
-        nestedEnd = start;
-        endToken = null;
+        var startToken = new LinkToken("", start, "")
+        {
+            Role = TokenRole.Literal
+        };
+        
+        endTextToken = null;
         nestedStart = start + 1;
 
         if (!TryParse(text, start, out var link))
         {
-            tokens.Add(new TextToken("[", start));
+            tokens.Add(startToken);
             return start + 1;
         }
 
         var raw = text.Substring(start, link.End - start);
+        
+        startToken = new LinkToken(raw, start, link.Url)
+        {
+            Role = TokenRole.Opening
+        };
 
-        nestedEnd = start +  link.Text.Length + 1;
-        
-        var startToken = new LinkToken(raw, start, link.Url);
-        startToken.Role = TokenRole.Opening;
-        
-        endToken = new LinkToken(raw, start,  link.Url);
-        ((LinkToken)endToken).Role = TokenRole.Closing;
+        endTextToken = new LinkToken(raw, start + link.Text.Length + 1, link.Url)
+        {
+            Role = TokenRole.Closing
+        };
         
         tokens.Add(startToken);
         return link.End;
