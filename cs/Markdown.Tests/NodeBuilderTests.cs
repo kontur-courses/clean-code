@@ -6,6 +6,32 @@ namespace Markdown.Tests;
 
 public class NodeBuilderTests
 {
+    [Test]
+    public void Build_EmptyLines_SkipsEmptyLines()
+    {
+        const string text = """
+                            # header
+                            
+                            
+                            Above is empty line
+                            """;
+
+        var expectedNodes = new Node[]
+        {
+            new HeaderNode
+            {
+                Children = [new TextNode("header")]
+            },
+            new ParagraphNode
+            {
+                Children = [new TextNode("Above is empty line")]
+            }
+        };
+
+
+        AssertParsed(text, expectedNodes);
+    }
+
     [TestCaseSource(nameof(BlockCases))]
     public void Build_ReturnsExpectedBlocks(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);

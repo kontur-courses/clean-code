@@ -15,6 +15,11 @@ internal static class NodeBuilder
 
         while (reader.ReadLine() is { } line)
         {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
             nodes.Add(BuildLine(line));
         }
 
