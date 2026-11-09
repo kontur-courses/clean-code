@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown;
 
-internal class Md(Tokenizer tokenizer)
+public class Md(Tokenizer tokenizer)
 {
     public string Render(string markdown)
     {

@@ -2,7 +2,7 @@
 
 namespace Markdown.TagReaders;
 
-internal class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
+public class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
 {
     public char Opener => '[';
 

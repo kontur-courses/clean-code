@@ -2,7 +2,7 @@
 
 namespace Markdown.TagReaders;
 
-internal class UnderscoresTagsReader : ITagReader
+public class UnderscoresTagsReader : ITagReader
 {
     public char Opener => '_';
 

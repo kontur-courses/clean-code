@@ -2,7 +2,7 @@
 
 namespace Markdown.TagReaders;
 
-internal class HeaderTagReader : ITagReaderWithNestedTokens, ITagReader
+public class HeaderTagReader : ITagReaderWithNestedTokens, ITagReader
 {
     public char Opener => '#';
 
