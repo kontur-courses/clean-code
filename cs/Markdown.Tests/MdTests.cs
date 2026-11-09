@@ -11,22 +11,27 @@ namespace Markdown.Tests
         [SetUp]
         public void Setup() => md = new Md();
 
-        [TestCase("", TestName = "Empty string")]
-        [TestCase(null, TestName = "Null string")]
-        public void Render_EmptyOrNullString_ReturnsEmptyString(string input)
+        [Test]
+        public void Render_EmptyString_ReturnsEmptyString()
         {
-            Assert.That(md.Render(input), Is.EqualTo(""));
+            Assert.That(md.Render(""), Is.EqualTo(""));
+        }
+
+        [Test]
+        public void Render_NullString_ReturnsEmptyString()
+        {
+            Assert.That(md.Render(null), Is.EqualTo(""));
         }
 
         [Test]
         public void Render_SimpleText_ReturnsParagraph()
         {
-            Assert.That(md.Render("Просто текст"), Is.EqualTo("<p>Просто текст</p>"));
+            Assert.That(md.Render("РџСЂРѕСЃС‚Рѕ С‚РµРєСЃС‚"), Is.EqualTo("<p>РџСЂРѕСЃС‚Рѕ С‚РµРєСЃС‚</p>"));
         }
 
-        [TestCase("_Курсив_", "<p><em>Курсив</em></p>", TestName = "Valid Italic")]
-        [TestCase("__Жирный__", "<p><strong>Жирный</strong></p>", TestName = "Valid Strong")]
-        [TestCase("[Ссылка](http://test.com)", "<p><a href=\"http://test.com\">Ссылка</a></p>", TestName = "Valid Link")]
+        [TestCase("_РљСѓСЂСЃРёРІ_", "<p><em>РљСѓСЂСЃРёРІ</em></p>", TestName = "Valid Italic")]
+        [TestCase("__Р–РёСЂРЅС‹Р№__", "<p><strong>Р–РёСЂРЅС‹Р№</strong></p>", TestName = "Valid Strong")]
+        [TestCase("[РЎСЃС‹Р»РєР°](http://test.com)", "<p><a href=\"http://test.com\">РЎСЃС‹Р»РєР°</a></p>", TestName = "Valid Link")]
         public void Render_BasicTags_ReturnsHtml(string input, string expected)
         {
             Assert.That(md.Render(input), Is.EqualTo(expected));
@@ -35,17 +40,22 @@ namespace Markdown.Tests
         [Test]
         public void Render_Heading_ReturnsH1Tag()
         {
-            Assert.That(md.Render("# Заголовок"), Is.EqualTo("<h1>Заголовок</h1>"));
+            Assert.That(md.Render("# Р—Р°РіРѕР»РѕРІРѕРє"), Is.EqualTo("<h1>Р—Р°РіРѕР»РѕРІРѕРє</h1>"));
         }
 
-        [Test]
-        public void Render_HeadingWithInlineTags_RendersCorrectly()
+        [TestCase("# Р—Р°РіРѕР»РѕРІРѕРє", "<h1>Р—Р°РіРѕР»РѕРІРѕРє</h1>", TestName = "Simple heading")]
+        [TestCase("# Р—Р°РіРѕР»РѕРІРѕРє СЃ _РєСѓСЂСЃРёРІРѕРј_", "<h1>Р—Р°РіРѕР»РѕРІРѕРє СЃ <em>РєСѓСЂСЃРёРІРѕРј</em></h1>", TestName = "Heading with italic")]
+        [TestCase("# Р—Р°РіРѕР»РѕРІРѕРє СЃ __Р¶РёСЂРЅС‹Рј__", "<h1>Р—Р°РіРѕР»РѕРІРѕРє СЃ <strong>Р¶РёСЂРЅС‹Рј</strong></h1>", TestName = "Heading with strong")]
+        [TestCase("# Р—Р°РіРѕР»РѕРІРѕРє СЃ [СЃСЃС‹Р»РєРѕР№](http://test.com)", "<h1>Р—Р°РіРѕР»РѕРІРѕРє СЃ <a href=\"http://test.com\">СЃСЃС‹Р»РєРѕР№</a></h1>", TestName = "Heading with link")]
+
+        [TestCase("# __Р–РёСЂРЅС‹Р№ _Рё РєСѓСЂСЃРёРІ_ РІ Р·Р°РіРѕР»РѕРІРєРµ__", "<h1><strong>Р–РёСЂРЅС‹Р№ <em>Рё РєСѓСЂСЃРёРІ</em> РІ Р·Р°РіРѕР»РѕРІРєРµ</strong></h1>", TestName = "Heading with mixed inline tags")]
+        public void Render_Heading_ReturnsH1TagWithInlineTags(string input, string expected)
         {
-            Assert.That(md.Render("# Заголовок с _курсивом_"), Is.EqualTo("<h1>Заголовок с <em>курсивом</em></h1>"));
+            Assert.That(md.Render(input), Is.EqualTo(expected));
         }
 
-        [TestCase(@"\_Курсив\_", "<p>_Курсив_</p>", TestName = "Escaped Italic")]
-        [TestCase(@"\# Заголовок", "<p># Заголовок</p>", TestName = "Escaped Heading")]
+        [TestCase(@"\_РљСѓСЂСЃРёРІ\_", "<p>_РљСѓСЂСЃРёРІ_</p>", TestName = "Escaped Italic")]
+        [TestCase(@"\# Р—Р°РіРѕР»РѕРІРѕРє", "<p># Р—Р°РіРѕР»РѕРІРѕРє</p>", TestName = "Escaped Heading")]
         public void Render_EscapedSymbols_IgnoresMarkup(string input, string expected)
         {
             Assert.That(md.Render(input), Is.EqualTo(expected));
@@ -54,22 +64,34 @@ namespace Markdown.Tests
         [Test]
         public void Render_StrongWithNestedItalic_RendersCorrectly()
         {
-            Assert.That(md.Render("__Жирный _и курсив___"), Is.EqualTo("<p><strong>Жирный <em>и курсив</em></strong></p>"));
+            Assert.That(md.Render("__Р–РёСЂРЅС‹Р№ _Рё РєСѓСЂСЃРёРІ___"), Is.EqualTo("<p><strong>Р–РёСЂРЅС‹Р№ <em>Рё РєСѓСЂСЃРёРІ</em></strong></p>"));
         }
 
         [Test]
         public void Render_ItalicWithNestedStrong_DoesNotFormatStrong()
         {
-            Assert.That(md.Render("_текст __жирный__ текст_"), Is.EqualTo("<p><em>текст __жирный__ текст</em></p>"));
+            Assert.That(md.Render("_С‚РµРєСЃС‚ __Р¶РёСЂРЅС‹Р№__ С‚РµРєСЃС‚_"), Is.EqualTo("<p><em>С‚РµРєСЃС‚ __Р¶РёСЂРЅС‹Р№__ С‚РµРєСЃС‚</em></p>"));
         }
 
-        [TestCase("_текст", "<p>_текст</p>", TestName = "Unpaired opening underscore")]
-        [TestCase("текст_", "<p>текст_</p>", TestName = "Unpaired closing underscore")]
-        [TestCase("ч_12_3", "<p>ч_12_3</p>", TestName = "Underscores inside digits are ignored")]
+        [TestCase("_С‚РµРєСЃС‚", "<p>_С‚РµРєСЃС‚</p>", TestName = "Unpaired opening underscore")]
+        [TestCase("С‚РµРєСЃС‚_", "<p>С‚РµРєСЃС‚_</p>", TestName = "Unpaired closing underscore")]
+        public void Render_UnpairedUnderscores_NotFormatted(string input, string expected)
+        {
+            Assert.That(md.Render(input), Is.EqualTo(expected));
+        }
+
+
+        [TestCase("С‡_12_3", "<p>С‡_12_3</p>", TestName = "Underscores inside digits are ignored")]
         [TestCase("____", "<p>____</p>", TestName = "Empty underscores are ignored")]
-        [TestCase("_ текст_", "<p>_ текст_</p>", TestName = "Space after opening underscore is ignored")]
-        [TestCase("_текст _", "<p>_текст _</p>", TestName = "Space before closing underscore is ignored")]
-        public void Render_InvalidFormats_NotFormatted(string input, string expected)
+        public void Render_InvalidContextUnderscores_NotFormatted(string input, string expected)
+        {
+            Assert.That(md.Render(input), Is.EqualTo(expected));
+        }
+
+
+        [TestCase("_ С‚РµРєСЃС‚_", "<p>_ С‚РµРєСЃС‚_</p>", TestName = "Space after opening underscore is ignored")]
+        [TestCase("_С‚РµРєСЃС‚ _", "<p>_С‚РµРєСЃС‚ _</p>", TestName = "Space before closing underscore is ignored")]
+        public void Render_UnderscoresWithSpaces_NotFormatted(string input, string expected)
         {
             Assert.That(md.Render(input), Is.EqualTo(expected));
         }
@@ -77,8 +99,8 @@ namespace Markdown.Tests
         [Test]
         public void Render_MultipleParagraphs_RendersCorrectly()
         {
-            var input = "Первый абзац\nВторой абзац";
-            var expected = "<p>Первый абзац</p><p>Второй абзац</p>";
+            var input = "РџРµСЂРІС‹Р№ Р°Р±Р·Р°С†\nР’С‚РѕСЂРѕР№ Р°Р±Р·Р°С†";
+            var expected = "<p>РџРµСЂРІС‹Р№ Р°Р±Р·Р°С†</p><p>Р’С‚РѕСЂРѕР№ Р°Р±Р·Р°С†</p>";
 
             Assert.That(md.Render(input), Is.EqualTo(expected));
         }
