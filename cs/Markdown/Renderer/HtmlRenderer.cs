@@ -1,11 +1,11 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Node;
 using Markdown.Renderer.Interfaces;
 
 namespace Markdown.Renderer;
 
-public class HtmlRenderer : IHtmlRenderer
+public class HtmlRenderer : IRenderer
 {
-    public string Render(IEnumerable<Token> tokens)
+    public string Render(IReadOnlyList<BlockNode> blocks)
     {
         throw new NotImplementedException();
     }

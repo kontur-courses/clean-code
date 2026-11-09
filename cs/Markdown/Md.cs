@@ -1,17 +1,28 @@
-﻿using Markdown.Parser.Interfaces;
+using Markdown.Parser;
+using Markdown.Parser.Interfaces;
+using Markdown.Renderer;
 using Markdown.Renderer.Interfaces;
+using Markdown.Tokenizer;
 
 namespace Markdown;
 
 public class Md
 {
-    private readonly IMarkdownParser _markdownParser;
-    private readonly IHtmlRenderer _htmlRenderer;
+    private readonly IBlockParser _blockParser;
+    private readonly IRenderer _renderer;
 
-    public Md(IMarkdownParser markdownParser, IHtmlRenderer htmlRenderer)
+    public Md() : this(
+        new BlockParser(
+            new MarkdownTokenizer(),
+            new InlineParser(new UnderscoreTagMatcher(), new LinkMatcher())),
+        new HtmlRenderer())
     {
-        _markdownParser = markdownParser;
-        _htmlRenderer = htmlRenderer;
+    }
+
+    public Md(IBlockParser blockParser, IRenderer renderer)
+    {
+        _blockParser = blockParser;
+        _renderer = renderer;
     }
 
     public string Render(string markdown)
