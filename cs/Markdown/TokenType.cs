@@ -6,7 +6,6 @@ public enum TokenType
     ItalicSymbol,
     Word,
     Space,
-    Slash,
     NewLine,
     Header
 }
