@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using FluentAssertions;
 using NUnit.Framework;
 using Markdown.TagReaders;
 
@@ -14,7 +15,6 @@ public class MdTests
         new Tokenizer(
             new TagReadersProvider(
             [
-                new TagReaders.TextReader(),
                 new LinkTagReader(),
                 new UnderscoresTagsReader(),
                 new HeaderTagReader()
@@ -22,6 +22,13 @@ public class MdTests
     
     [SetUp]
     public void SetUp() => md = CreateMd();
+    
+    [Test]
+    public void X()
+    {
+        var result = md.Render("[# a](b)");
+        result.Should().Be("<a href=\"b\"># a</a>");
+    }
     
     [TestCase("текст", "текст")]
     [TestCase("", "")]

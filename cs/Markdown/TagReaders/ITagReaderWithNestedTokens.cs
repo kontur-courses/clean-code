@@ -2,7 +2,7 @@
 
 namespace Markdown.TagReaders;
 
-internal interface ITagReaderWithNestedTokens : ITagReader
+internal interface ITagReaderWithNestedTokens
 {
-    public int Read(string text, int start, List<TextToken> addTo, out string nestedTextToRead, List<TextToken> nestedTokensToAdd);
+    public int Read(string text, int start, List<TextToken> addTo, out int nestedStart, out int nestedEnd, out TextToken endToken);
 }

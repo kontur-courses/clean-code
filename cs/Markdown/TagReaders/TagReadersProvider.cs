@@ -4,37 +4,33 @@ public class TagReadersProvider
 {
     private readonly Dictionary<char, ITagReader> readers = new();
 
-    private readonly TextReader textReader;
-
     private HashSet<char> tagsSymbols = new();
 
     public TagReadersProvider(IEnumerable<ITagReader> readers)
     {
         foreach (var reader in readers)
         {
-            if (reader is TextReader textReader)
+            this.readers[reader.Opener] = reader;
+            foreach (var tagSymbol in reader.TagSymbols)
             {
-                this.textReader = textReader;
-            }
-            else
-            {
-                this.readers[reader.Opener] = reader;
-                foreach (var tagSymbol in reader.TagSymbols)
-                {
-                    tagsSymbols.Add(tagSymbol);
-                }
+                tagsSymbols.Add(tagSymbol);
             }
         }
     }
 
-    public ITagReader GetReader(char c)
+    public bool TryGetReader(char c, out ITagReader tagReader)
     {
         if (!readers.TryGetValue(c, out var reader))
         {
-            return textReader;
+            tagReader = null;
+            return false;
         }
-        return reader;
+        
+        tagReader = reader;
+        return true;
     }
 
     public bool IsTagSymbol(char c) => tagsSymbols.Contains(c);
+    
+    public bool IsTagOpener(char c) => readers.ContainsKey(c);
 }

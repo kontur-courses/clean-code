@@ -10,7 +10,7 @@ internal class Md(Tokenizer tokenizer)
         if (markdown == null)
             throw new ArgumentNullException(nameof(markdown));
 
-        var tokens = tokenizer.Tokenize(markdown);
+        var tokens = tokenizer.Tokenize(markdown, 0, markdown.Length);
         EmphasisResolver.Resolve(markdown, tokens);
         return WriteHtml(tokens);
     }

@@ -12,7 +12,6 @@ public class LinkTests
         new Tokenizer(
             new TagReaders.TagReadersProvider(
             [
-                new TagReaders.TextReader(),
                 new TagReaders.LinkTagReader(),
                 new TagReaders.UnderscoresTagsReader(),
                 new TagReaders.HeaderTagReader()

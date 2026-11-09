@@ -2,7 +2,7 @@
 
 namespace Markdown.TagReaders;
 
-internal class LinkTagReader : ITagReaderWithNestedTokens
+internal class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
 {
     public char Opener => '[';
 
@@ -15,9 +15,11 @@ internal class LinkTagReader : ITagReaderWithNestedTokens
         return start;
     }
 
-    public int Read(string text, int start, List<TextToken> tokens, out string nestedTextToRead, List<TextToken> nestedTokensToAdd)
+    public int Read(string text, int start, List<TextToken> tokens, out int nestedStart, out int nestedEnd, out TextToken endToken)
     {
-        nestedTextToRead = "";
+        nestedEnd = start;
+        endToken = null;
+        nestedStart = start + 1;
 
         if (!TryParse(text, start, out var link))
         {
@@ -27,9 +29,15 @@ internal class LinkTagReader : ITagReaderWithNestedTokens
 
         var raw = text.Substring(start, link.End - start);
 
-        nestedTextToRead = link.Text;
-
-        tokens.Add(new LinkToken(raw, start, link.Text, link.Url, nestedTokensToAdd));
+        nestedEnd = start +  link.Text.Length + 1;
+        
+        var startToken = new LinkToken(raw, start, link.Url);
+        startToken.Role = TokenRole.Opening;
+        
+        endToken = new LinkToken(raw, start,  link.Url);
+        ((LinkToken)endToken).Role = TokenRole.Closing;
+        
+        tokens.Add(startToken);
         return link.End;
     }
 

@@ -11,7 +11,7 @@ internal class TextReader : ITagReader
     public int Read(string text, int start, List<TextToken> tokens)
     {
         var end = start;
-        while (end < text.Length && text[end] != '\\' && text[end] != '\n' && text[end] != '_' && text[end] != '[')
+        while (end < text.Length && text[end] != '\\' && text[end] != '\n' && text[end] != '_' && text[end] != '['&& text[end] != ']')
             end++;
 
         tokens.Add(new TextToken(text.Substring(start, end - start), start));

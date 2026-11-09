@@ -12,34 +12,64 @@ internal sealed class EmphasisResolver
     private readonly Stack<int> openedStrong = new();
     private readonly List<(int Open, int Close)> strongPairs = new();
 
-    private EmphasisResolver(string text, List<TextToken> tokens)
+    private EmphasisResolver(string text, List<TextToken> tokens, int[] whitespacesBefore)
     {
         this.text = text;
         this.tokens = tokens;
-        whitespacesBefore = CountWhitespaces(text);
+        this.whitespacesBefore = whitespacesBefore;
     }
 
     public static void Resolve(string text, List<TextToken> tokens)
-        => new EmphasisResolver(text, tokens).Run();
+        => new EmphasisResolver(text, tokens, CountWhitespaces(text)).Run(0);
+    
+    private int NewRun(int start)
+        => new EmphasisResolver(text, tokens, whitespacesBefore).Run(start);
+        
 
-    private void Run()
+    private int Run(int start)
     {
-        for (var i = 0; i < tokens.Count; i++)
+        var position = start;
+
+        while (position < tokens.Count)
         {
-            var token = tokens[i];
+            var token = tokens[position];
             if (token is UnderscoreToken || token is DoubleUnderscoreToken)
-                Process(i);
+                Process(position);
             else if (token is LineFeedToken)
             {
                 if (token.Start + 1 <= text.Length)
-                    Resolve(text.Substring(token.Start + 1), tokens.Skip(i + 1).ToList());
+                    NewRun(position + 1);
                 break;
             }
             else if (token is LinkToken link)
-                Resolve(link.Text, link.Content); 
+            {
+                if (link.Role == TokenRole.Opening)
+                {
+                    position = NewRun(position + 1);
+                }
+                if (link.Role == TokenRole.Closing)
+                {
+                    return position;
+                }
+            }
             else if (token is HeaderToken header)
-                Resolve(header.Text, header.Content);
+            {
+                if (header.Role == TokenRole.Opening)
+                {
+                    position = NewRun(position + 1);
+                }
+                if (header.Role == TokenRole.Closing)
+                {
+                    return position;
+                }
+
+
+            }
+
+            position++;
         }
+
+        return position;
     }
 
     private void Process(int index)

@@ -2,23 +2,20 @@
 
 namespace Markdown.Tokens;
 
-internal class HeaderToken(string value, int start, string text, List<TextToken> content) : TextToken(value, start)
+internal class HeaderToken(string value, int start) : TextToken(value, start)
 {
-    public List<TextToken> Content { get; } = content;
-
-    public string Text { get; } = text;
+    public TokenRole Role { get; set; } = TokenRole.Literal;
 
     public override StringBuilder WriteHtml()
     {
+        
         var result = new StringBuilder();
-        result.Append("<h1>");
-
-        foreach (var token in Content)
-        {
-            result.Append(token.WriteHtml());
-        }
-
-        result.Append("</h1>");
+        if (Role == TokenRole.Opening)
+            result.Append("<h1>");
+        else if (Role == TokenRole.Closing)
+            result.Append("</h1>");
+        else
+            result.Append("#");
 
         return result;
     }
