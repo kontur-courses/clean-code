@@ -54,6 +54,28 @@ namespace Markdown.Tests
                 .Be(expectedHtml);
         }
 
+        [TestCase("- a\n- b", "<ul><li>a</li>\n<li>b</li></ul>")]
+        [TestCase("a\n- _b_", "a\n<ul><li><em>b</em></li></ul>")]
+        public void Render_ShouldCreateList_WhenParagraphsStartWithDash_Test(string markdown, string expectedHtml)
+        {
+            var html = md.Render(markdown);
+
+            html
+                .Should()
+                .Be(expectedHtml);
+        }
+
+        [TestCase(@"\- a", "- a")]
+        [TestCase("-a", "-a")]
+        public void Render_ShouldNotCreateList_WhenDashIsNotListPrefix_Test(string markdown, string expectedHtml)
+        {
+            var html = md.Render(markdown);
+
+            html
+                .Should()
+                .Be(expectedHtml);
+        }
+
         [Test]
         public void Render_ShouldNotPairUnderscores_WhenTheyAreInDifferentParagraphs_Test()
         {
