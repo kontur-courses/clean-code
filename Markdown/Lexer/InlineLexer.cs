@@ -40,13 +40,26 @@ public sealed class InlineLexer
             {
                 if (i + 1 < text.Length && text[i + 1] == '_')
                 {
-                    if (textBuffer.Length > 0)
+                    if (i + 2 < text.Length && text[i + 2] == '_')
                     {
-                        tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
-                        textBuffer.Clear();
+                        if (textBuffer.Length > 0)
+                        {
+                            tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+                            textBuffer.Clear();
+                        }
+                        tokens.Add(new InlineToken(InlineTokenKind.StrongEmphasisMarker, "___"));
+                        i += 2;
                     }
-                    tokens.Add(new InlineToken(InlineTokenKind.StrongMarker, "__"));
-                    i++;
+                    else
+                    {
+                        if (textBuffer.Length > 0)
+                        {
+                            tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+                            textBuffer.Clear();
+                        }
+                        tokens.Add(new InlineToken(InlineTokenKind.StrongMarker, "__"));
+                        i++;
+                    }
                 }
                 else
                 {

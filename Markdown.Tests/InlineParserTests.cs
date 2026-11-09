@@ -41,6 +41,13 @@ public class InlineParserTests
     }
 
     [Test]
+    public void Parse_StrongEmphasisMarkers_ReturnsNestedNodes()
+    {
+        AssertNodes(
+            parser.Parse("___текст___"), Strong(Emphasis(Text("текст"))));
+    }
+
+    [Test]
     public void Parse_EmphasisInsideStrong_IsSupported()
     {
         AssertNodes(
@@ -82,10 +89,16 @@ public class InlineParserTests
     [TestCase("_текст _", TestName = "Parse_ClosingMarkerPrecededByWhitespace_RemainsLiteral")]
     [TestCase("число_12_3", TestName = "Parse_UnderscoresInsideNumber_RemainLiteral")]
     [TestCase("до_части между словами после_границы", TestName = "Parse_EmphasisCannotSpanWords")]
-    [TestCase("__без пары", TestName = "Parse_UnmatchedStrongMarker_RemainsLiteral")]
     [TestCase("_без пары", TestName = "Parse_UnmatchedOpeningEmphasisMarker_RemainsLiteral")]
     [TestCase("без пары_", TestName = "Parse_UnmatchedClosingEmphasisMarker_RemainsLiteral")]
-    [TestCase("____", TestName = "Parse_EmptyStrongMarkers_RemainLiteral")]
+    [TestCase("__без пары", TestName = "Parse_UnmatchedOpeningStrongMarker_RemainsLiteral")]
+    [TestCase("без пары__", TestName = "Parse_UnmatchedClosingStrongMarker_RemainsLiteral")]
+    [TestCase("___без пары", TestName = "Parse_UnmatchedOpeningStrongEmphasisMarker_RemainsLiteral")]
+    [TestCase("без пары___", TestName = "Parse_UnmatchedClosingStrongEmphasisMarker_RemainsLiteral")]
+    [TestCase("__текст_", TestName = "Parse_UnmatchedStrongMarkerWithEmphasis_RemainsLiteral")]
+    [TestCase("___текст__", TestName = "Parse_UnmatchedStrongEmphasisMarkerWithStrong_RemainsLiteral")]
+    [TestCase("___текст_", TestName = "Parse_UnmatchedStrongEmphasisMarkerWithEmphasis_RemainsLiteral")]
+    [TestCase("____", TestName = "Parse_OnlyUnderscores_RemainsLiteral")]
     [TestCase("__жир_кур__сив_", TestName = "Parse_CrossedEmphasisAndStrongMarkers_RemainLiteral")]
     public void Parse_InvalidMarkup_RemainsLiteral(string input)
     {
