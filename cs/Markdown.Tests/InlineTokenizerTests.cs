@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using Markdown.Domain;
-using static Markdown.InlineTokenizer;
-
+using static Markdown.Parsing.InlineTokenizer;
 
 namespace Markdown.Tests;
 
@@ -30,7 +29,6 @@ public class InlineTokenizerTests
     {
         Tokenize(text).Should().BeEmpty();
     }
-
 
     [Test]
     public void Tokenize_EscapedUnderscore_IsNotDelimiter()
@@ -85,9 +83,9 @@ public class InlineTokenizerTests
     public void Tokenize_SingleUnderscore_SetsFlagsByNeighbors(
         string text, bool canOpen, bool canClose)
     {
-        var tokens = Tokenize(text);
-
-        tokens.Should().ContainSingle()
+        Tokenize(text)
+            .Should()
+            .ContainSingle()
             .Which.Should().BeOfType<DelimiterRunToken>()
             .Which.Should().Match<DelimiterRunToken>(
                 t => t.CanOpen == canOpen && t.CanClose == canClose);
@@ -107,5 +105,22 @@ public class InlineTokenizerTests
             new DelimiterRunToken(0, 1, true, false),
             new EscapeToken(2),
             new DelimiterRunToken(5, 1, false, true));
+    }
+
+    [TestCase("1_2_3")]
+    [TestCase("1__2")]
+    public void Tokenize_DelimiterBetweenDigits_ReturnEmpty(string text)
+    {
+        var tokens = Tokenize(text);
+
+        tokens.Should().BeEmpty();
+    }
+
+    [Test]
+    public void Tokenize_DigitsBetweenDelimiter_ReturnDelimiters()
+    {
+        Tokenize("_11_").Should().Equal(
+            new DelimiterRunToken(0, 1, true, false),
+            new DelimiterRunToken(3, 1, false, true));
     }
 }

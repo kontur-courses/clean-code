@@ -1,34 +1,34 @@
 ﻿using FluentAssertions;
 using Markdown.Domain;
-using static Markdown.MarkdownParser;
+using static Markdown.Parsing.NodeBuilder;
 
 namespace Markdown.Tests;
 
-public class ParseTests
+public class NodeBuilderTests
 {
     [TestCaseSource(nameof(BlockCases))]
-    public void Parse_ReturnsExpectedBlocks(string text, IReadOnlyList<Node> expectedNodes)
+    public void Build_ReturnsExpectedBlocks(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
     [TestCaseSource(nameof(EmphasisCases))]
-    public void Parse_ReturnsEmphasis(string text, IReadOnlyList<Node> expectedNodes)
+    public void Build_ReturnsEmphasis(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
     [TestCaseSource(nameof(StrongCases))]
-    public void Parse_ReturnsStrong(string text, IReadOnlyList<Node> expectedNodes)
+    public void Build_ReturnsStrong(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
     [TestCaseSource(nameof(NestedAndMixedCases))]
-    public void Parse_ReturnsNestedAndMixedTags(string text, IReadOnlyList<Node> expectedNodes)
+    public void Build_ReturnsNestedAndMixedTags(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
     [TestCaseSource(nameof(EscapingCases))]
-    public void Parse_HandlesEscaping(string text, IReadOnlyList<Node> expectedNodes)
+    public void Build_HandlesEscaping(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
-    private static void AssertParsed(string text, IReadOnlyList<Node> expectedNodes)
+    private static void AssertParsed(string text, Node[] expectedNodes)
     {
-        Parse(text)
+        Build(text)
             .Should()
             .BeEquivalentTo(expectedNodes, option =>
                 option.PreferringRuntimeMemberTypes()

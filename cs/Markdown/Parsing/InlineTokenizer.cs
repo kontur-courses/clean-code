@@ -1,6 +1,6 @@
 ﻿using Markdown.Domain;
 
-namespace Markdown;
+namespace Markdown.Parsing;
 
 public static class InlineTokenizer
 {
@@ -36,7 +36,8 @@ public static class InlineTokenizer
             var canClose = start > startIndex && !char.IsWhiteSpace(text[start - 1]);
             var canOpen = index < text.Length && !char.IsWhiteSpace(text[index]);
 
-            if (canOpen || canClose)
+            if ((canOpen || canClose)
+                && !IsDelimiterBetweenDigits(text, start, index - 1))
             {
                 tokens.Add(new DelimiterRunToken(
                     start,
@@ -49,11 +50,17 @@ public static class InlineTokenizer
         return tokens;
     }
 
-
     private static bool IsEscape(string text, int index)
     {
         return text[index] == '\\'
                && index + 1 < text.Length
                && (text[index + 1] is '\\' or '_');
+    }
+
+    private static bool IsDelimiterBetweenDigits(string text, int startIndex, int endIndex)
+    {
+        return startIndex > 0 && endIndex < text.Length - 1
+               && char.IsDigit(text[startIndex - 1])
+               && char.IsDigit(text[endIndex + 1]);
     }
 }
