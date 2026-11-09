@@ -13,7 +13,6 @@ public record EscapeToken(
     int Index
 ) : Token(Index: Index, Length: 2);
 
-public readonly record struct TokenPair(
-    Token Opening,
-    Token Closing
-);
+public sealed record DelimiterPair(
+    DelimiterRunToken Opening,
+    DelimiterRunToken Closing);
