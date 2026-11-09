@@ -118,4 +118,10 @@ public class MdTests
         MakeRenderTest("# Заголовок __с _разными_ символами__", 
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>");
     }
+    
+    [Test]
+    public void Render_DoesNotReuseClosingMarkerOfIntersectedItalic()
+    {
+        MakeRenderTest("__a _b__ c_ d_e", "__a _b__ c_ d_e");
+    }
 }

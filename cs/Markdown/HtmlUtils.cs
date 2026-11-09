@@ -5,11 +5,11 @@ public static class HtmlUtils
     // возможно, лучше делать не статический класс, чтобы например можно было 
     // задавать словарь во время работы программы,
     // но на данном этапе мне кажется, что это нормально
-    public static readonly Dictionary<string, string> MdToHtmlMap;
+    private static readonly Dictionary<string, string> mdToHtmlMap;
 
     static HtmlUtils()
     {
-        MdToHtmlMap = new Dictionary<string, string>
+        mdToHtmlMap = new Dictionary<string, string>
         {
             { "_", "em" },
             { "__", "strong" },
@@ -18,9 +18,11 @@ public static class HtmlUtils
         };
     }
 
-    public static string ReplaceWithHtmlTag(string markdown, int startIndex, bool closing)
+    public static string ConvertMdTagToHtml(string markdownTag, bool isOpening)
     {
-        // меняет в строке тег, первый символ которого находится на startIndex
-        throw new NotImplementedException();
+        if (!mdToHtmlMap.ContainsKey(markdownTag))
+            throw new ArgumentException("Неизвестный Markdown-тег.",
+                nameof(markdownTag));
+        return isOpening ? $"<{mdToHtmlMap[markdownTag]}>" : $"</{mdToHtmlMap[markdownTag]}>";
     }
 }
