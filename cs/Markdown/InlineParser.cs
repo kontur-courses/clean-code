@@ -26,36 +26,38 @@ namespace Markdown
         }
     }
 
-    public abstract class InlinePiece { }
+    public abstract record InlinePiece { }
 
-    public sealed class TextInlinePiece : InlinePiece
+    public sealed record TextInlinePiece : InlinePiece
     {
         public string Text { get; }
 
         public TextInlinePiece(string text) {  Text = text; }
     }
 
-    public sealed class EmInlinePiece : InlinePiece
+    public sealed record EmInlinePiece : InlinePiece
     {
         public InlinePiece[] Children { get; }
 
         public EmInlinePiece(InlinePiece[] children) { Children = children; }
     }
 
-    public sealed class StrongInlinePiece : InlinePiece
+    public sealed record StrongInlinePiece : InlinePiece
     {
         public InlinePiece[] Children { get; }
 
         public StrongInlinePiece(InlinePiece[] children) { Children = children; }
     }
 
-    public sealed class LinkInlinePiece : InlinePiece
+    public sealed record LinkInlinePiece : InlinePiece
     {
         public string Url { get; }
+        public InlinePiece[] Children { get; }
 
-        public LinkInlinePiece(string url)
+        public LinkInlinePiece(string url, InlinePiece[] children)
         {
             Url = url;
+            Children = children;
         }
     }
 }
