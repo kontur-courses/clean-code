@@ -1,25 +1,32 @@
 ﻿namespace Markdown.Paragraphs;
 
-public static class ParagraphSplitter
+public class ParagraphSplitter
 {
-    public static IEnumerable<Paragraph> GetParagraphs(string source)
+    private readonly string _source;
+
+    public ParagraphSplitter(string source)
     {
-        var start = SkipEmptyLines(source, 0);
+        _source = source;
+    }
+
+    public IEnumerable<Paragraph> GetParagraphs()
+    {
+        var start = SkipEmptyLines();
         var current = start;
 
-        while (current + 3 < source.Length)
+        while (current + 3 < _source.Length)
         {
-            if (source[current] == '\r' && source[current + 1] == '\n' &&
-                source[current + 2] == '\r' && source[current + 3] == '\n')
+            if (_source[current] == '\r' && _source[current + 1] == '\n' &&
+                _source[current + 2] == '\r' && _source[current + 3] == '\n')
             {
                 current += 4;
 
-                while (current + 1 < source.Length &&
-                    source[current] == '\r' && source[current + 1] == '\n')
+                while (current + 1 < _source.Length &&
+                    _source[current] == '\r' && _source[current + 1] == '\n')
                     current += 2;
 
                 yield return new Paragraph(
-                    source, start, current, IsHeading(source, start));
+                    _source, start, current, IsHeading(start));
 
                 start = current;
             }
@@ -27,22 +34,22 @@ public static class ParagraphSplitter
         }
 
         //последний параграф, дозаписать
-        if (start < source.Length)
+        if (start < _source.Length)
             yield return new Paragraph(
-                source, start, source.Length, IsHeading(source, start));
+                _source, start, _source.Length, IsHeading(start));
     }
 
-    private static int SkipEmptyLines(string source, int current)
+    private int SkipEmptyLines(int current = 0)
     {
-        while (current + 1 < source.Length &&
-           source[current] == '\r' && source[current + 1] == '\n')
+        while (current + 1 < _source.Length &&
+           _source[current] == '\r' && _source[current + 1] == '\n')
             current += 2;
 
         return current;
     }
 
-    private static bool IsHeading(string source, int start)
-        => start + 1 < source.Length &&
-            source[start] == '#' &&
-            source[start + 1] == ' ';
+    private bool IsHeading(int start)
+        => start + 1 < _source.Length &&
+            _source[start] == '#' &&
+            _source[start + 1] == ' ';
 }

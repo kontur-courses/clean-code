@@ -4,19 +4,19 @@ using Markdown.Tokenization.Tokens.Implementations;
 
 namespace Markdown.Tokenization;
 
-public static class TokenResolver
+public class TokenResolver
 {
-    public static List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
+    public List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
     {
         var tokens = unresolvedTokens.ToList();
-
         InitializeContext(tokens);
-        var pairs = FindPairs(tokens);
-        pairs.Sort((a, b) => a.Opening.Start.CompareTo(b.Opening.Start));
+
+        var pairs = FindPairs(tokens)
+            .OrderBy(pair => pair.Start)
+            .ToList();
 
         InvalidateCrossings(pairs);
         InvalidateStrongInsideEm(pairs);
-
         SetRoles(pairs);
 
         return tokens;

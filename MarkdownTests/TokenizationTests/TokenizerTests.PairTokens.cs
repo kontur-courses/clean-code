@@ -24,7 +24,7 @@ public partial class TokenizationTests
             new StrongToken(source, 7));
 
         tokens.OfType<PairToken>()
-            .Should().OnlyContain(t => t.Role == PairRole.Unresolved);
+            .Should().OnlyContain(t => t.Context == null);
     }
 
     [Test]

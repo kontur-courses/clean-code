@@ -4,9 +4,9 @@ using Markdown.Tokenization.Tokens.Implementations;
 
 namespace Markdown.Tokenization;
 
-public static class Tokenizer
+public class Tokenizer
 {
-    public static IEnumerable<Token> Tokenize(Paragraph paragraph)
+    public IEnumerable<Token> Tokenize(Paragraph paragraph)
     {
         var (source, start) = (paragraph.Source, paragraph.Start);
 

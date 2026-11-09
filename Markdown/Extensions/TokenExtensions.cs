@@ -6,5 +6,5 @@ namespace Markdown.Extensions;
 public static class TokenExtensions
 {
     public static List<Token> Resolve(this IEnumerable<Token> unresolvedTokens)
-        => TokenResolver.Resolve(unresolvedTokens);
+        => new TokenResolver().Resolve(unresolvedTokens);
 }
