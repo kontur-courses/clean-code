@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown.InlinePieces;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

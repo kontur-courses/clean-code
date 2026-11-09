@@ -1,4 +1,5 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.InlinePieces;
+using Markdown.Tokens;
 
 namespace Markdown
 {
