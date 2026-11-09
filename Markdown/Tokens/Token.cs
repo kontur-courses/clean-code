@@ -10,4 +10,16 @@ public sealed record TokenType(string Name)
     
 }
 
-public sealed record Token(TokenType Type, string Value);
+public sealed record Token(TokenType Type, string Value, bool CanOpen = false, bool CanClose = false)
+{
+    public static Token Text(string value) => new(TokenType.Text, value);
+    public static Token Underscore(bool canOpen, bool canClose) => new(TokenType.Underscore, "_", canOpen, canClose);
+
+    public static Token DoubleUnderscore(bool canOpen, bool canClose) =>
+        new(TokenType.DoubleUnderscore, "__", canOpen, canClose);
+
+    public static Token HeaderMarker() => new(TokenType.HeaderMarker, "# ");
+
+    public static Token ParagraphBreak() => new(TokenType.ParagraphBreak, "\n");
+    
+}

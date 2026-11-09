@@ -9,9 +9,20 @@ public static class StringTokenizer
 
     private sealed class Scanner(string text)
     {
-        private int _cursor = 0;
+        
         private readonly List<Token> _tokens = [];
 
-        public IReadOnlyList<Token> Run() => throw new NotImplementedException();
+        public IReadOnlyList<Token> Run()
+        {
+            var paragraphs = text.Split("\n");
+
+            foreach (var line in paragraphs)
+            {
+                _tokens.Add(Token.Text(line));
+            }
+
+
+            return _tokens;
+        }
     }
 }
