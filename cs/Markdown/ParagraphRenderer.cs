@@ -8,22 +8,33 @@
 
         public string Render(string paragraph)
         {
-            throw new NotImplementedException();
+            if (IsBlockTagEscaped(paragraph))
+                return inlineRenderer.Render(paragraph.Substring(1));
+
+            if (TryFindBlockTag(paragraph, out var blockTag))
+            {
+                var content = paragraph.Substring(blockTag.Prefix.Length);
+                return HtmlTag.Wrap(blockTag.TagName, inlineRenderer.Render(content));
+            }
+
+            return inlineRenderer.Render(paragraph);
         }
 
         public bool IsListItem(string paragraph)
         {
-            throw new NotImplementedException();
+            return TryFindBlockTag(paragraph, out var blockTag) && blockTag == BlockTag.ListItem;
         }
 
         private static bool TryFindBlockTag(string paragraph, out BlockTag blockTag)
         {
-            throw new NotImplementedException();
+            blockTag = BlockTags.FirstOrDefault(tag => paragraph.StartsWith(tag.Prefix, StringComparison.Ordinal));
+            return blockTag != null;
         }
 
         private static bool IsBlockTagEscaped(string paragraph)
         {
-            throw new NotImplementedException();
+            var startsWithEscape = paragraph.StartsWith(EscapeFinder.EscapeSymbol);
+            return startsWithEscape && TryFindBlockTag(paragraph.Substring(1), out _);
         }
     }
 }

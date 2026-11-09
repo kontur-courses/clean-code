@@ -8,12 +8,19 @@
 
         public string Render(string markdown)
         {
-            throw new NotImplementedException();
+            var document = new DocumentBuilder();
+            foreach (var paragraph in SplitIntoParagraphs(markdown))
+            {
+                var paragraphHtml = paragraphRenderer.Render(paragraph);
+                document.AddParagraph(paragraphHtml, paragraphRenderer.IsListItem(paragraph));
+            }
+
+            return document.Build();
         }
 
         private static IEnumerable<string> SplitIntoParagraphs(string markdown)
         {
-            throw new NotImplementedException();
+            return markdown.Split(ParagraphSeparators, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

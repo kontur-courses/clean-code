@@ -8,15 +8,20 @@ namespace Markdown
         private const string ListTagName = "ul";
 
         private readonly StringBuilder html = new ();
+        private bool hasParagraphs;
 
         public void AddParagraph(string paragraphHtml, bool isListItem)
         {
-            throw new NotImplementedException();
+            if (hasParagraphs)
+                html.Append(ParagraphSeparator);
+
+            html.Append(paragraphHtml);
+            hasParagraphs = true;
         }
 
         public string Build()
         {
-            throw new NotImplementedException();
+            return html.ToString();
         }
 
         private void OpenListIfStarted(bool isListItem)
