@@ -23,7 +23,7 @@ public sealed class InlineLexer
         {
             var currentChar = text[i];
 
-            if (currentChar == '\\' && i + 1 < text.Length)
+            if (currentChar == '\\' && i + 1 < text.Length && CanEscape(text[i + 1]))
             {
                 textBuffer.Append(text[i + 1]);
                 i++;
@@ -71,4 +71,7 @@ public sealed class InlineLexer
 
         return tokens;
     }
+
+    private static bool CanEscape(char character) =>
+        character == '\\' || char.IsPunctuation(character) || char.IsSymbol(character);
 }

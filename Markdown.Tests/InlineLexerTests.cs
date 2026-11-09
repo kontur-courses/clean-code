@@ -132,6 +132,17 @@ public class InlineLexerTests
             actual);
     }
 
+    [Test]
+    public void Tokenize_EscapeBeforeLetterOrWhitespace_PreservesBackslash()
+    {
+        const string input = @"a\bc\ d";
+        var actual = lexer.Tokenize(input);
+
+        CollectionAssert.AreEqual(
+            new[] { Text(input) },
+            actual);
+    }
+
     private static InlineToken Text(string value) =>
         new(InlineTokenKind.Text, value);
 
