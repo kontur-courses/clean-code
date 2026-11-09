@@ -8,8 +8,7 @@ namespace Markdown.Abstractions
 {
     /// <summary>
     /// Базовый класс для всех нод
-    /// </summary>
-    /// 
+    /// </summary>  
     public abstract class MarkdownNode
     {
         public List<MarkdownNode> Children { get; set; }

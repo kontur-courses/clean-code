@@ -1,7 +1,11 @@
-﻿using System.Text;
+﻿using Markdown.Abstractions;
+using Markdown.Parsing;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
+
     public class Md
     {
         private readonly MarkdownParser _parser;
@@ -13,8 +17,12 @@ namespace Markdown
 
         public string Parse(string input)
         {
-            throw new NotImplementedException("напишите кто то за меня ПЖ ПЖ");
-        }
-    } 
+            if (string.IsNullOrEmpty(input))
+                return input;
 
+            List<MarkdownNode> nodes = _parser.Parse(input);
+
+            return string.Join("", nodes.Select(node => node.Render()));
+        }
+    }
 }

@@ -8,5 +8,10 @@ namespace Markdown.Abstractions
 {
     public abstract class InlineNode : MarkdownNode
     {
+        public string Content { get; set; }
+        public InlineNode(string content)
+        {
+            Content = content;
+        }
     }
 }

@@ -9,10 +9,14 @@ namespace Markdown.MDNodes
 {
     public abstract class PairedInlineNode : InlineNode
     {
+        protected PairedInlineNode(string content) : base(content)
+        {
+        }
+
         protected abstract string OpeningTag { get; }
         protected abstract string ClosingTag { get; }
 
-        public List<InlineNode> Children { get; protected set; } = new();
+        public List<InlineNode> Children { get; set; } = new();
 
         public override string Render()
         {
