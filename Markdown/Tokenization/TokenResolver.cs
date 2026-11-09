@@ -10,7 +10,7 @@ public static class TokenResolver
     {
         var tokens = unresolvedTokens.ToList();
 
-        AssignWordSegments(tokens);
+        InitializeContext(tokens);
         var pairs = FindPairs(tokens);
         pairs.Sort((a, b) => a.Opening.Start.CompareTo(b.Opening.Start));
 
@@ -22,7 +22,7 @@ public static class TokenResolver
         return tokens;
     }
 
-    private static List<Pair> FindPairs(List<Token> tokens)
+    private static List<Pair> FindPairs(IEnumerable<Token> tokens)
     {
         var pairs = new List<Pair>();
         var openedEm = new Stack<PairToken>();
@@ -34,7 +34,7 @@ public static class TokenResolver
 
             while (openedStack.TryPeek(out var candidate) &&
                 candidate.IsInsideWord &&
-                candidate.WordSegmentId != current.WordSegmentId)
+                candidate.Context!.SegmentId != current.Context!.SegmentId)
                 openedStack.Pop();
 
             if (current.CanClose &&
@@ -53,7 +53,7 @@ public static class TokenResolver
         return pairs;
     }
 
-    private static void InvalidateCrossings(List<Pair> pairs)
+    private static void InvalidateCrossings(IEnumerable<Pair> pairs)
     {
         var activeQueue = new PriorityQueue<Pair, int>();
         var notInvalidatedQueue = new PriorityQueue<Pair, int>();
@@ -82,7 +82,7 @@ public static class TokenResolver
             queue.Dequeue();
     }
 
-    private static void InvalidateStrongInsideEm(List<Pair> pairs)
+    private static void InvalidateStrongInsideEm(IEnumerable<Pair> pairs)
     {
         var openedEm = new Stack<Pair>();
 
@@ -102,30 +102,18 @@ public static class TokenResolver
         }
     }
 
-    private static void SetRoles(List<Pair> pairs)
-    {
-        foreach (var pair in pairs)
-        {
-            if (pair.IsInvalid)
-                continue;
-
-            pair.Opening.Role = PairRole.Open;
-            pair.Closing.Role = PairRole.Close;
-        }
-    }
-
     private static bool IsValidPair(PairToken opening, PairToken closing)
     {
         if (opening.Start + opening.Length == closing.Start)
             return false;
 
         if (opening.IsInsideWord || closing.IsInsideWord)
-            return opening.WordSegmentId == closing.WordSegmentId;
+            return opening.Context!.SegmentId == closing.Context!.SegmentId;
 
         return true;
     }
 
-    private static void AssignWordSegments(List<Token> tokens)
+    private static void InitializeContext(IEnumerable<Token> tokens)
     {
         var segment = 0;
 
@@ -135,7 +123,19 @@ public static class TokenResolver
                 segment++;
 
             if (token is PairToken pairToken)
-                pairToken.WordSegmentId = segment;
+                pairToken.Context = new ResolvingContext(PairRole.Text, segment);
+        }
+    }
+
+    private static void SetRoles(IEnumerable<Pair> pairs)
+    {
+        foreach (var pair in pairs)
+        {
+            if (pair.IsInvalid)
+                continue;
+
+            pair.Opening.Context!.Role = PairRole.Open;
+            pair.Closing.Context!.Role = PairRole.Close;
         }
     }
 }

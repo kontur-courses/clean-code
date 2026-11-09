@@ -7,9 +7,7 @@ public abstract record PairToken(
     int Start,
     int Length) : SourceToken(Source, Start, Length)
 {
-    public PairRole Role { get; set; } = PairRole.Text;
-
-    public int WordSegmentId { get; set; }
+    public ResolvingContext? Context { get; set; }
 
     public bool IsBetweenDigits
         => char.IsDigit(PreviousChar ?? '\0') &&
