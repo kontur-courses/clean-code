@@ -2,8 +2,7 @@
 
 public enum PairRole
 {
-    Unresolved,
-    Open,
-    Close,
-    Text
+    Text = 0,
+    Open = 1,
+    Close = 2
 }
