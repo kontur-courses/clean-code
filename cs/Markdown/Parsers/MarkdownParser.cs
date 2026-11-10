@@ -15,6 +15,7 @@ public class MarkdownParser : ITextParser
     {
         private readonly StringBuilder textStorage = new();
         private readonly List<Token> tokens = [];
+
         private bool emphasisContainsWhitespace;
         private int emphasisOpeningTokenIndex = -1;
         private bool emphasisStartsInsideWord;
@@ -119,24 +120,37 @@ public class MarkdownParser : ITextParser
             if (!(current == '_' && next == '_'))
                 return false;
 
-            if (strongOpeningTokenIndex == -1)
+            var isOpened = TryOpenStrong(afterDoubleUnderscore, ref i);
+
+            return isOpened || TryCloseStrong(previous, ref i);
+        }
+
+        private bool TryOpenStrong(char? afterDoubleUnderscore, ref int i)
+        {
+            if (strongOpeningTokenIndex != -1)
+                return false;
+
+            if (char.IsWhiteSpace(afterDoubleUnderscore ?? ' ') || afterDoubleUnderscore == '_' ||
+                emphasisOpeningTokenIndex != -1)
             {
-                if (char.IsWhiteSpace(afterDoubleUnderscore ?? ' ') || afterDoubleUnderscore == '_' ||
-                    emphasisOpeningTokenIndex != -1)
-                {
-                    textStorage.Append("__");
-                    i++;
-                    return true;
-                }
-
-                FlushText();
-
-                strongOpeningTokenIndex = tokens.Count;
-                tokens.Add(new Token(TokenKind.Text, "__"));
-
+                textStorage.Append("__");
                 i++;
                 return true;
             }
+
+            FlushText();
+
+            strongOpeningTokenIndex = tokens.Count;
+            tokens.Add(new Token(TokenKind.Text, "__"));
+
+            i++;
+            return true;
+        }
+
+        private bool TryCloseStrong(char? previous, ref int i)
+        {
+            if (strongOpeningTokenIndex == -1)
+                return false;
 
             if (char.IsWhiteSpace(previous ?? ' '))
             {
@@ -169,23 +183,36 @@ public class MarkdownParser : ITextParser
             if (current != '_')
                 return false;
 
+            var isOpened = TryOpenEmphasis(previous, next);
+
+            return isOpened || TryCloseEmphasis(previous, next);
+        }
+
+        private bool TryOpenEmphasis(char? previous, char? next)
+        {
+            if (emphasisOpeningTokenIndex != -1)
+                return false;
+
+            if (char.IsWhiteSpace(next ?? ' '))
+                return false;
+            if (char.IsDigit(next ?? ' '))
+                return false;
+
+            FlushText();
+
+            emphasisOpeningTokenIndex = tokens.Count;
+            tokens.Add(new Token(TokenKind.Text, "_"));
+
+            emphasisStartsInsideWord = char.IsLetterOrDigit(previous ?? ' ');
+            emphasisContainsWhitespace = false;
+
+            return true;
+        }
+
+        private bool TryCloseEmphasis(char? previous, char? next)
+        {
             if (emphasisOpeningTokenIndex == -1)
-            {
-                if (char.IsWhiteSpace(next ?? ' '))
-                    return false;
-                if (char.IsDigit(next ?? ' '))
-                    return false;
-
-                FlushText();
-
-                emphasisOpeningTokenIndex = tokens.Count;
-                tokens.Add(new Token(TokenKind.Text, "_"));
-
-                emphasisStartsInsideWord = char.IsLetterOrDigit(previous ?? ' ');
-                emphasisContainsWhitespace = false;
-
-                return true;
-            }
+                return false;
 
             if (char.IsWhiteSpace(previous ?? ' '))
                 return false;
