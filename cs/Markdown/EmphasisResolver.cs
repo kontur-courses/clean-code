@@ -22,7 +22,7 @@ internal sealed class EmphasisResolver
     public static void Resolve(string text, List<Token> tokens)
         => new EmphasisResolver(text, tokens, CountWhitespaces(text)).Run(0);
     
-    private int NewRun(int start)
+    private int RunNew(int start)
         => new EmphasisResolver(text, tokens, whitespacesBefore).Run(start);
         
 
@@ -38,14 +38,14 @@ internal sealed class EmphasisResolver
             else if (token is LineFeedToken)
             {
                 if (token.Start + 1 <= text.Length)
-                    NewRun(position + 1);
+                    RunNew(position + 1);
                 break;
             }
             else if (token is LinkToken or HeaderToken)
             {
                 if (token.Role == TokenRole.Opening)
                 {
-                    position = NewRun(position + 1);
+                    position = RunNew(position + 1);
                 }
                 if (token.Role == TokenRole.Closing)
                 {

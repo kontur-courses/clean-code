@@ -2,17 +2,17 @@
 
 namespace Markdown.TagReaders;
 
-public class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
+public class LinkTagReader : ITagReaderWithNestedTokens
 {
     public char Opener => '[';
 
     public char[] TagSymbols => ['[', ']', '(', ')'];
-    public Token Read(string text, int start)
-    {
-        throw new NotImplementedException();
-    }
 
-    public Token Read(string text, int start, out int nestedStart, out Token endToken)
+    Token ITagReader.Read(string text, int start)
+        => Read(text, start, out _);
+    
+
+    public Token Read(string text, int start, out Token endToken)
     {
         var startToken = new LinkToken("[", start, "")
         {
@@ -20,22 +20,20 @@ public class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
         };
         
         endToken = null;
-        nestedStart = start + 1;
 
         if (!TryParse(text, start, out var link))
         {
             return startToken;
         }
-
-        var rawOpening = text.Substring(start, link.End - start);
         
+        var rawClosing = text.Substring(start + link.Text.Length + 1, link.Url.Length + 3);
         
-        startToken = new LinkToken(rawOpening, start, link.Url)
+        startToken = new LinkToken("[", start, link.Url)
         {
             Role = TokenRole.Opening
         };
 
-        endToken = new LinkToken(rawOpening, start + link.Text.Length + 1, link.Url)
+        endToken = new LinkToken(rawClosing, start + link.Text.Length + 1, "")
         {
             Role = TokenRole.Closing
         };

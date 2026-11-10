@@ -2,17 +2,16 @@
 
 namespace Markdown.TagReaders;
 
-public class HeaderTagReader : ITagReaderWithNestedTokens, ITagReader
+public class HeaderTagReader : ITagReaderWithNestedTokens
 {
     public char Opener => '#';
 
     public char[] TagSymbols => ['#'];
-    public Token Read(string text, int start)
-    {
-        throw new NotImplementedException();
-    }
 
-    public Token Read(string text, int start, out int nestedStart, out Token endToken)
+    Token ITagReader.Read(string text, int start)
+        => Read(text, start, out _);
+
+    public Token Read(string text, int start, out Token endToken)
     {
         var startToken = new HeaderToken("#", start)
         {
@@ -20,21 +19,20 @@ public class HeaderTagReader : ITagReaderWithNestedTokens, ITagReader
         };
 
         endToken = null;
-        nestedStart = start + 2;
 
         if (!TryParse(text, start, out var contentEnd))
         {
             return startToken;
         }
 
-        var raw = text.Substring(start, contentEnd - start);
+        var rawOpening = text.Substring(start, 2);
 
-        startToken = new HeaderToken(raw, start)
+        startToken = new HeaderToken(rawOpening, start)
         {
             Role = TokenRole.Opening
         };
 
-        endToken = new HeaderToken(raw, contentEnd)
+        endToken = new HeaderToken("", contentEnd)
         {
             Role = TokenRole.Closing
         };

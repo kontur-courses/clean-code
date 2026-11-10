@@ -18,17 +18,15 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
             if (text[position] == '\\')
             {
                 position = ReadBackslash(text, position, tokens);
-                continue;
             }
 
-            if (text[position] == '\n')
+            else if (text[position] == '\n')
             {
                 tokens.Add(new LineFeedToken("\n", position));
                 position++;
-                continue;
             }
 
-            if (tagReadersProvider.TryGetReader(text[position], out var reader))
+            else if (tagReadersProvider.TryGetReader(text[position], out var reader))
             {
                 if (reader is ITagReaderWithNestedTokens readerWithNestedTokens)
                     position = ReadNested(readerWithNestedTokens, text, position, tokens);
@@ -38,9 +36,7 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
                     var token = reader.Read(text, position);
                     tokens.Add(token);
                     position = token.End;
-
                 }
-                    
             }
             else 
                 position = ReadText(text, position, end, tokens);
@@ -63,23 +59,21 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
 
     private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<Token> tokens)
     {
-        var token = readerWithNestedTokens.Read(text, position,  out var nestedStart, out var endToken);
-        var newPosition = token.End;
-        tokens.Add(token);
-
-        if (endToken != null)
-        {
-            foreach (var nestedToken in Tokenize(text, nestedStart, endToken.Start))
-            {
-                tokens.Add(nestedToken);
-            }
-            tokens.Add(endToken);
-        }
+        var startToken = readerWithNestedTokens.Read(text, position, out var endToken);
+        tokens.Add(startToken);
         
-        return newPosition;
+        if (endToken == null)
+            return startToken.End;
+        
+        foreach (var nestedToken in Tokenize(text, startToken.End, endToken.Start))
+            tokens.Add(nestedToken);
+
+        tokens.Add(endToken);
+        
+        return endToken.End;
     }
     
-    private int ReadText(string text, int start, int stopAt,  List<Token> tokens)
+    private int ReadText(string text, int start, int stopAt, List<Token> tokens)
     {
         var end = start;
         while (stopAt > end && text[end] != '\\' && text[end] != '\n' && !tagReadersProvider.IsTagOpener(text[end]))
