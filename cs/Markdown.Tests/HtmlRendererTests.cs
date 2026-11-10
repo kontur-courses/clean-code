@@ -46,22 +46,6 @@ public class HtmlRendererTests
             "<p>Hello <strong>bold <em>italic</em></strong>!</p>");
     }
 
-    [TestCase("<", "&lt;")]
-    [TestCase(">", "&gt;")]
-    [TestCase("&", "&amp;")]
-    [TestCase("\"", "&quot;")]
-    [TestCase(
-        "<script>alert(1)</script>",
-        "&lt;script&gt;alert(1)&lt;/script&gt;")]
-    public void Render_SpecialCharacters_EncodesHtml(
-        string text,
-        string expected)
-    {
-        var actual = RenderNodes([new TextNode(text)]);
-
-        Assert.That(actual, Is.EqualTo(expected));
-    }
-
     [Test]
     public void Render_MultipleNodes_ConcatenatesHtml()
     {

@@ -23,7 +23,7 @@ public static class HtmlRenderer
         switch (node)
         {
             case TextNode text:
-                sb.Append(WebUtility.HtmlEncode(text.Text));
+                sb.Append(text.Text);
                 break;
 
             case HeaderNode header:
