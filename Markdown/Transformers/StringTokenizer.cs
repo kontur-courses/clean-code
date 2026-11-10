@@ -11,12 +11,14 @@ public static class StringTokenizer
     {
         private readonly List<Token> _tokens = [];
 
+        private static readonly HashSet<char> Escapables =
+            [.. Token.Delimiters.Select(delimiter => delimiter.Pattern[0]), Token.HeaderPrefix[0]];
+
         public IReadOnlyList<Token> Run()
         {
             var lines = text.Split("\n");
-            
-            
-            
+
+
             for (var i = 0; i < lines.Length; i++)
             {
                 if (i > 0)
@@ -44,6 +46,15 @@ public static class StringTokenizer
 
             while (cursor < line.Length)
             {
+                if (line[cursor] == '\\' && cursor + 1 < line.Length && IsEscapable(line[cursor + 1]))
+                {
+                    FlushPendingText(line, pendingTextStart, cursor);
+                    pendingTextStart = cursor + 1;
+                    cursor += 2;
+                    continue;
+                }
+
+
                 if (!TryFindDelimiter(line, cursor, out var pattern, out var createToken))
                 {
                     cursor++;
@@ -70,6 +81,8 @@ public static class StringTokenizer
             FlushPendingText(line, pendingTextStart, cursor);
         }
 
+        private static bool IsEscapable(char character) => character == '\\' || Escapables.Contains(character);
+
         private static (bool CanOpen, bool CanClose) GetFlagsForDelimiter(string line, int cursor, string pattern)
         {
             var indexAfterDelimiter = cursor + pattern.Length;
@@ -85,10 +98,7 @@ public static class StringTokenizer
                 CanClose: !char.IsWhiteSpace(characterBeforeCursor) && !isDelimiterNearDigits);
         }
 
-        
-        
-        
-        
+
         private void FlushPendingText(string line, int from, int to)
         {
             if (from < to)
@@ -102,7 +112,7 @@ public static class StringTokenizer
             out string pattern,
             out Func<bool, bool, Token> createToken)
         {
-            foreach (var delimiter in Token.Delimeters)
+            foreach (var delimiter in Token.Delimiters)
             {
                 if (string.CompareOrdinal(line, cursor, delimiter.Pattern, 0, delimiter.Pattern.Length) != 0) continue;
                 pattern = delimiter.Pattern;

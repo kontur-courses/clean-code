@@ -23,7 +23,7 @@ public sealed record Token(TokenType Type, string Value, bool CanOpen = false, b
 
     public static Token ParagraphBreak() => new(TokenType.ParagraphBreak, "\n");
 
-    public static readonly (string Pattern, Func<bool, bool, Token> Create)[] Delimeters = [
+    public static readonly (string Pattern, Func<bool, bool, Token> Create)[] Delimiters = [
         ("__", DoubleUnderscore),
         ("_", Underscore)
     
