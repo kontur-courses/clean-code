@@ -67,7 +67,7 @@ public class StringTokenizerTests
                 .SetName("Underscore: letter before and space after can only close");
         }
     }
-    
+
 
     public static IEnumerable NotDelimiterStringTokenizerCases
     {
@@ -142,6 +142,44 @@ public class StringTokenizerTests
         }
     }
 
+    public static IEnumerable MixedParagraphsStringTokenizerCases
+    {
+        get
+        {
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("a\nb",
+                    [Token.Text("a"), Token.ParagraphBreak(), Token.Text("b")])
+                .SetName("Paragraphs: two plain lines");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("# a\nb",
+                    [Token.HeaderMarker(), Token.Text("a"), Token.ParagraphBreak(), Token.Text("b")])
+                .SetName("Paragraphs: header then plain line");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("a\n# b",
+                    [Token.Text("a"), Token.ParagraphBreak(), Token.HeaderMarker(), Token.Text("b")])
+                .SetName("Paragraphs: plain line then header");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("# a\n# b",
+                [
+                    Token.HeaderMarker(), Token.Text("a"), Token.ParagraphBreak(),
+                    Token.HeaderMarker(), Token.Text("b")
+                ])
+                .SetName("Paragraphs: two headers");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("# \nb",
+                    [Token.HeaderMarker(), Token.ParagraphBreak(), Token.Text("b")])
+                .SetName("Paragraphs: empty header then plain line");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("a\n\nb",
+                    [Token.Text("a"), Token.ParagraphBreak(), Token.ParagraphBreak(), Token.Text("b")])
+                .SetName("Paragraphs: empty line gives two breaks");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("# a\n\nb",
+                [
+                    Token.HeaderMarker(), Token.Text("a"), Token.ParagraphBreak(),
+                    Token.ParagraphBreak(), Token.Text("b")
+                ])
+                .SetName("Paragraphs: header, empty line, plain line");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\n",
+                    [Token.ParagraphBreak()])
+                .SetName("Paragraphs: only newline");
+        }
+    }
+
+
     [TestCaseSource(nameof(PlainTextStringTokenizerCases))]
     [TestCaseSource(nameof(HeaderStringTokenizerCases))]
     [TestCaseSource(nameof(UnderscoreStringTokenizerCases))]
@@ -152,6 +190,6 @@ public class StringTokenizerTests
     {
         var result = StringTokenizer.Tokenize(markdown);
 
-        result.Should().Equal(expected);
+        result.Should().BeEqualTo(expected);
     }
 }

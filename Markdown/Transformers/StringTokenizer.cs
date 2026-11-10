@@ -13,11 +13,16 @@ public static class StringTokenizer
 
         public IReadOnlyList<Token> Run()
         {
-            var paragraphs = text.Split("\n");
-
-            foreach (var line in paragraphs)
+            var lines = text.Split("\n");
+            
+            
+            
+            for (var i = 0; i < lines.Length; i++)
             {
-                TokenizeLine(line);
+                if (i > 0)
+                    _tokens.Add(Token.ParagraphBreak());
+
+                TokenizeLine(lines[i]);
             }
 
 
@@ -29,7 +34,7 @@ public static class StringTokenizer
         {
             var cursor = 0;
 
-            if (line.StartsWith(Token.HeaderPrefix))
+            if (line.StartsWith(Token.HeaderPrefix, StringComparison.Ordinal))
             {
                 _tokens.Add(Token.HeaderMarker());
                 cursor = Token.HeaderPrefix.Length;
@@ -73,14 +78,17 @@ public static class StringTokenizer
             var characterAfterDelimiter =
                 indexAfterDelimiter < line.Length ? line[indexAfterDelimiter] : ' ';
 
-            var isDelimiterBetweenDigits = char.IsDigit(characterAfterDelimiter) || char.IsDigit(characterBeforeCursor);
+            var isDelimiterNearDigits = char.IsDigit(characterAfterDelimiter) || char.IsDigit(characterBeforeCursor);
 
 
-            return (CanOpen: !char.IsWhiteSpace(characterAfterDelimiter) && !isDelimiterBetweenDigits,
-                CanClose: !char.IsWhiteSpace(characterBeforeCursor) && !isDelimiterBetweenDigits);
+            return (CanOpen: !char.IsWhiteSpace(characterAfterDelimiter) && !isDelimiterNearDigits,
+                CanClose: !char.IsWhiteSpace(characterBeforeCursor) && !isDelimiterNearDigits);
         }
 
-
+        
+        
+        
+        
         private void FlushPendingText(string line, int from, int to)
         {
             if (from < to)
