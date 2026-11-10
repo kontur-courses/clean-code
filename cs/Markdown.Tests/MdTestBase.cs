@@ -19,5 +19,6 @@ public abstract class MdTestBase
                 new LinkTagReader(),
                 new UnderscoresTagsReader(),
                 new HeaderTagReader()
-            ])));
+            ])),
+        new HtmlWriter());
 }
