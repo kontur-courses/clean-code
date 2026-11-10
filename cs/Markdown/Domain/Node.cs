@@ -4,7 +4,7 @@ public abstract record Node;
 
 public abstract record ContainerNode : Node
 {
-    public required IReadOnlyList<Node> Children { get; init; }
+    public IReadOnlyList<Node> Children { get; init; } = [];
 }
 
 public record TextNode(string Text) : Node;

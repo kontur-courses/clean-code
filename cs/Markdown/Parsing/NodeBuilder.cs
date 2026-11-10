@@ -25,7 +25,7 @@ internal static class NodeBuilder
             if(line.StartsWith(HeaderPrefix))
             {
                 FlushParagraph();
-                nodes.Add(BuildLine(line, true));
+                nodes.Add(BuildBlock<HeaderNode>(line, HeaderPrefix.Length));
                 continue;
             }
 
@@ -42,40 +42,31 @@ internal static class NodeBuilder
 
         void FlushParagraph()
         {
-            if (paragraph.Length > 0)
+            if (paragraph.Length <= 0)
             {
-                nodes.Add(BuildLine(paragraph.ToString()));
-                paragraph.Clear();
+                return;
             }
+
+            nodes.Add(BuildBlock<ParagraphNode>(paragraph.ToString()));
+            paragraph.Clear();
         }
     }
 
-    private static Node BuildLine(string line, bool isHeader = false)
+    private static TContainerNode BuildBlock<TContainerNode>(string line, int startIndex = 0)
+        where TContainerNode : ContainerNode, new()
     {
-        var startIndex = isHeader ? HeaderPrefix.Length : 0;
-
         var tokens = InlineTokenizer.Tokenize(line, startIndex);
         var pairs = DelimiterMatcher.FindPairs(tokens, line);
 
-        var children = BuildChildren(line, startIndex, tokens, pairs);
-
-        return isHeader
-            ? new HeaderNode { Children = children }
-            : new ParagraphNode { Children = children };
-    }
-
-    private static List<Node> BuildChildren(
-        string text,
-        int startIndex,
-        IReadOnlyList<Token> tokens,
-        IReadOnlyList<DelimiterPair> pairs)
-    {
         var openings = pairs.ToDictionary(p => p.Opening.Index);
         var escapes = tokens.OfType<EscapeToken>()
             .Select(t => t.Index)
             .ToHashSet();
 
-        return BuildNodes(text, startIndex, text.Length, openings, escapes);
+        return new TContainerNode
+        {
+            Children = BuildNodes(line, startIndex, line.Length, openings, escapes)
+        };
     }
 
     private static List<Node> BuildNodes(
