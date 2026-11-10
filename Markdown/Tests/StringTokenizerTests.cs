@@ -180,12 +180,46 @@ public class StringTokenizerTests
     }
 
 
+    public static IEnumerable EscapeStringTokenizerCases
+    {
+        get
+        {
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\\_a\\_",
+                    [Token.Text("_a"), Token.Text("_")])
+                .SetName("Escape: both underscores escaped stay text, tokens get split");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\\_a_",
+                    [Token.Text("_a"), Token.Underscore(false, true)])
+                .SetName("Escape: escaped opening underscore, closing stays delimiter");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\\\\",
+                    [Token.Text("\\")])
+                .SetName("Escape: escaped backslash");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\\\\_a_",
+                [
+                    Token.Text("\\"), Token.Underscore(true, true), Token.Text("a"),
+                    Token.Underscore(false, true)
+                ])
+                .SetName("Escape: escaped backslash does not escape following underscore");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("сим\\волы",
+                    [Token.Text("сим\\волы")])
+                .SetName("Escape: backslash before ordinary character stays");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("a\\",
+                    [Token.Text("a\\")])
+                .SetName("Escape: backslash at line end stays");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("\\# a",
+                    [Token.Text("# a")])
+                .SetName("Escape: escaped hash is not a header");
+        }
+    }
+
+
     [TestCaseSource(nameof(PlainTextStringTokenizerCases))]
     [TestCaseSource(nameof(HeaderStringTokenizerCases))]
     [TestCaseSource(nameof(UnderscoreStringTokenizerCases))]
     [TestCaseSource(nameof(NotDelimiterStringTokenizerCases))]
     [TestCaseSource(nameof(DoubleUnderscoreStringTokenizerCases))]
     [TestCaseSource(nameof(MixedStringTokenizerCases))]
+    [TestCaseSource(nameof(MixedParagraphsStringTokenizerCases))]
+    [TestCaseSource(nameof(EscapeStringTokenizerCases))]
     public void StringTokenizer_ReturnsExpectedArray(string markdown, IReadOnlyList<Token> expected)
     {
         var result = StringTokenizer.Tokenize(markdown);
