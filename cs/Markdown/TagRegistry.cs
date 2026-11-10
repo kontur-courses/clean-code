@@ -19,6 +19,6 @@ namespace Markdown
             };
         }
 
-        public IEnumerable<TagInfo> GetAllTags() => new List<TagInfo>(tags.Values);
+        public IEnumerable<TagInfo> GetAllTags() => tags.Values.OrderByDescending(tag => tag.Length).ToList();
     }
 }
