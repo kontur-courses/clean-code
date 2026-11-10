@@ -18,8 +18,19 @@ public sealed record Token(TokenType Type, string Value, bool CanOpen = false, b
     public static Token DoubleUnderscore(bool canOpen, bool canClose) =>
         new(TokenType.DoubleUnderscore, "__", canOpen, canClose);
 
-    public static Token HeaderMarker() => new(TokenType.HeaderMarker, "# ");
+    public const string HeaderPrefix = "# ";
+    public static Token HeaderMarker() => new(TokenType.HeaderMarker, HeaderPrefix);
 
     public static Token ParagraphBreak() => new(TokenType.ParagraphBreak, "\n");
+
+    public static readonly (string Pattern, Func<bool, bool, Token> Create)[] Delimeters = [
+        ("__", DoubleUnderscore),
+        ("_", Underscore)
     
+    ];
+
 }
+
+
+
+
