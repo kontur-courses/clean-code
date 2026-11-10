@@ -21,10 +21,10 @@ internal sealed class EmphasisResolver
 
     public static void Resolve(string text, List<Token> tokens)
         => new EmphasisResolver(text, tokens, CountWhitespaces(text)).Run(0);
-    
+
     private int RunNew(int start)
         => new EmphasisResolver(text, tokens, whitespacesBefore).Run(start);
-        
+
 
     private int Run(int start)
     {
@@ -47,11 +47,13 @@ internal sealed class EmphasisResolver
                 {
                     position = RunNew(position + 1);
                 }
+
                 if (token.Role == TokenRole.Closing)
                 {
                     return position;
                 }
             }
+
             position++;
         }
 
@@ -96,7 +98,7 @@ internal sealed class EmphasisResolver
     {
         tokens[openIndex].Role = TokenRole.Opening;
         tokens[closeIndex].Role = TokenRole.Closing;
-        
+
         if (tokens[openIndex] is DoubleUnderscoreToken)
         {
             strongPairs.Add((openIndex, closeIndex));
@@ -105,7 +107,6 @@ internal sealed class EmphasisResolver
         {
             DemoteStrongInside(openIndex);
         }
-            
     }
 
     private void DemoteStrongInside(int emOpenIndex)

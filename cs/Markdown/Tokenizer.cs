@@ -8,7 +8,7 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
 {
     public List<Token> Tokenize(string text)
         => Tokenize(text, 0, text.Length);
-    
+
     public List<Token> Tokenize(string text, int start, int end)
     {
         var tokens = new List<Token>();
@@ -38,10 +38,10 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
                     position = token.End;
                 }
             }
-            else 
+            else
                 position = ReadText(text, position, end, tokens);
-            
         }
+
         return tokens;
     }
 
@@ -57,22 +57,23 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
         return start + 1;
     }
 
-    private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<Token> tokens)
+    private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position,
+        List<Token> tokens)
     {
         var startToken = readerWithNestedTokens.Read(text, position, out var endToken);
         tokens.Add(startToken);
-        
+
         if (endToken == null)
             return startToken.End;
-        
+
         foreach (var nestedToken in Tokenize(text, startToken.End, endToken.Start))
             tokens.Add(nestedToken);
 
         tokens.Add(endToken);
-        
+
         return endToken.End;
     }
-    
+
     private int ReadText(string text, int start, int stopAt, List<Token> tokens)
     {
         var end = start;

@@ -25,12 +25,12 @@ public class TagReadersProvider
             tagReader = null;
             return false;
         }
-        
+
         tagReader = reader;
         return true;
     }
 
     public bool IsTagSymbol(char c) => tagsSymbols.Contains(c);
-    
+
     public bool IsTagOpener(char c) => readers.ContainsKey(c);
 }

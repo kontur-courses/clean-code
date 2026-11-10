@@ -22,6 +22,5 @@ public class UnderscoresTagsReader : ITagReader
             2 => new DoubleUnderscoreToken(value, start),
             _ => new Token(value, start) // "____" и длиннее — просто символы
         };
-
     }
 }

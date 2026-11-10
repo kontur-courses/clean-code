@@ -9,7 +9,7 @@ public class Token(string value, int start, string openingHtml = "", string clos
     public int Start { get; } = start;
 
     public int End => Start + Value.Length;
-    
+
     public TokenRole Role { get; set; } = TokenRole.Literal;
 
     private string OpeningHtml { get; } = openingHtml;

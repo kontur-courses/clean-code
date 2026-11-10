@@ -36,18 +36,18 @@ public class HeaderTagReader : ITagReaderWithNestedTokens
         {
             Role = TokenRole.Closing
         };
-        
+
         return startToken;
     }
-    
+
     private static bool TryParse(string text, int start, out int contentEnd)
     {
         contentEnd = 0;
-        if (!((start == 0 || (start > 0 && text[start - 1] == '\n')) && start < text.Length - 2 && text[start + 1] == ' ' && text[start + 2] != ' '))
-                return false;
+        if (!((start == 0 || (start > 0 && text[start - 1] == '\n')) && start < text.Length - 2 &&
+              text[start + 1] == ' ' && text[start + 2] != ' '))
+            return false;
         contentEnd = FindContentEnd(text, start);
         return true;
-
     }
 
     private static int FindContentEnd(string text, int start)

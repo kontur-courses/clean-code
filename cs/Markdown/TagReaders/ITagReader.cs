@@ -6,7 +6,7 @@ public interface ITagReader
 {
     public char Opener { get; }
 
-    public char[] TagSymbols {  get; }
+    public char[] TagSymbols { get; }
 
     public Token Read(string text, int start);
 }

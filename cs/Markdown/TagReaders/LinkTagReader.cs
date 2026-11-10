@@ -10,7 +10,7 @@ public class LinkTagReader : ITagReaderWithNestedTokens
 
     Token ITagReader.Read(string text, int start)
         => Read(text, start, out _);
-    
+
 
     public Token Read(string text, int start, out Token endToken)
     {
@@ -18,16 +18,16 @@ public class LinkTagReader : ITagReaderWithNestedTokens
         {
             Role = TokenRole.Literal
         };
-        
+
         endToken = null;
 
         if (!TryParse(text, start, out var link))
         {
             return startToken;
         }
-        
+
         var rawClosing = text.Substring(start + link.Text.Length + 1, link.Url.Length + 3);
-        
+
         startToken = new LinkToken("[", start, link.Url)
         {
             Role = TokenRole.Opening
@@ -37,7 +37,7 @@ public class LinkTagReader : ITagReaderWithNestedTokens
         {
             Role = TokenRole.Closing
         };
-        
+
         return startToken;
     }
 
@@ -47,15 +47,15 @@ public class LinkTagReader : ITagReaderWithNestedTokens
 
         var textEnd = FindTextEnd(text, start + 1);
         if (textEnd < 0 || textEnd == start + 1)
-            return false; 
+            return false;
 
         var urlStart = textEnd + 2;
         if (urlStart > text.Length || text[textEnd + 1] != '(')
-            return false; 
+            return false;
 
         var urlEnd = FindUrlEnd(text, urlStart);
         if (urlEnd < 0 || urlEnd == urlStart)
-            return false; 
+            return false;
 
         link = new LinkMatch(
             text.Substring(start + 1, textEnd - start - 1),
@@ -63,6 +63,7 @@ public class LinkTagReader : ITagReaderWithNestedTokens
             urlEnd + 1);
         return true;
     }
+
     private static int FindTextEnd(string text, int from)
     {
         for (var i = from; i < text.Length; i++)
@@ -78,6 +79,7 @@ public class LinkTagReader : ITagReaderWithNestedTokens
                     return i;
             }
         }
+
         return -1;
     }
 
@@ -91,10 +93,9 @@ public class LinkTagReader : ITagReaderWithNestedTokens
             if (char.IsWhiteSpace(c) || c == '(' || c == '"')
                 return -1;
         }
+
         return -1;
     }
-
-
 
 
     readonly record struct LinkMatch(string Text, string Url, int End);

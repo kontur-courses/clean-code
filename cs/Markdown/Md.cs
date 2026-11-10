@@ -22,6 +22,7 @@ public class Md(Tokenizer tokenizer)
         {
             result.Append(token.WriteHtml());
         }
+
         return result.ToString();
     }
 }
