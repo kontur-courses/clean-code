@@ -11,7 +11,6 @@ public class HtmlRenderer : IMarkedTextRenderer
         var resultBuilder = new StringBuilder();
 
         foreach (var token in markedText.Tokens)
-        {
             switch (token.Kind)
             {
                 case TokenKind.Text:
@@ -35,12 +34,11 @@ public class HtmlRenderer : IMarkedTextRenderer
                 case TokenKind.HeadingEnd:
                     resultBuilder.Append("</h1>");
                     break;
-                
+
                 default:
                     throw new ArgumentException($"Unknown token kind: {token.Kind}");
             }
-        }
-        
+
         return resultBuilder.ToString();
     }
 }
