@@ -8,5 +8,5 @@ public interface ITagReader
 
     public char[] TagSymbols {  get; }
 
-    public int Read(string text, int start, List<Token> addTo);
+    public Token Read(string text, int start);
 }

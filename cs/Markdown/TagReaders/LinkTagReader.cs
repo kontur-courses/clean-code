@@ -7,13 +7,12 @@ public class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
     public char Opener => '[';
 
     public char[] TagSymbols => ['[', ']', '(', ')'];
-    
-    public int Read(string text, int start, List<Token> tokens)
+    public Token Read(string text, int start)
     {
-        return start;
+        throw new NotImplementedException();
     }
 
-    public int Read(string text, int start, List<Token> tokens, out int nestedStart, out Token endToken)
+    public Token Read(string text, int start, out int nestedStart, out Token endToken)
     {
         var startToken = new LinkToken("[", start, "")
         {
@@ -25,24 +24,23 @@ public class LinkTagReader : ITagReaderWithNestedTokens, ITagReader
 
         if (!TryParse(text, start, out var link))
         {
-            tokens.Add(startToken);
-            return start + 1;
+            return startToken;
         }
 
-        var raw = text.Substring(start, link.End - start);
+        var rawOpening = text.Substring(start, link.End - start);
         
-        startToken = new LinkToken(raw, start, link.Url)
+        
+        startToken = new LinkToken(rawOpening, start, link.Url)
         {
             Role = TokenRole.Opening
         };
 
-        endToken = new LinkToken(raw, start + link.Text.Length + 1, link.Url)
+        endToken = new LinkToken(rawOpening, start + link.Text.Length + 1, link.Url)
         {
             Role = TokenRole.Closing
         };
         
-        tokens.Add(startToken);
-        return link.End;
+        return startToken;
     }
 
     private static bool TryParse(string text, int start, out LinkMatch link)

@@ -34,7 +34,13 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
                     position = ReadNested(readerWithNestedTokens, text, position, tokens);
 
                 else
-                    position = reader.Read(text, position, tokens);
+                {
+                    var token = reader.Read(text, position);
+                    tokens.Add(token);
+                    position = token.End;
+
+                }
+                    
             }
             else 
                 position = ReadText(text, position, end, tokens);
@@ -57,7 +63,9 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
 
     private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<Token> tokens)
     {
-        var newPosition = readerWithNestedTokens.Read(text, position, tokens, out var nestedStart, out var endToken);
+        var token = readerWithNestedTokens.Read(text, position,  out var nestedStart, out var endToken);
+        var newPosition = token.End;
+        tokens.Add(token);
 
         if (endToken != null)
         {
