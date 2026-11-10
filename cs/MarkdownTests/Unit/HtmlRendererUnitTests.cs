@@ -1,24 +1,52 @@
 ﻿using NUnit.Framework;
 using Markdown;
-using System.Security.AccessControl;
+using FluentAssertions;
 
 namespace MarkdownTests.Unit
 {
     [TestFixture]
     internal class HtmlRendererUnitTests
     {
-        private static HtmlRenderer renderer;
+        private IHtmlRenderer renderer;
 
         [SetUp]
-        public Setup()
+        public void Setup()
         {
-            renderer = new HtmlRenderer();
+            renderer = new HtmlRenderer(); // недоступ изза уровня защиты internal СПРОСИТЬ
         }
 
-        [TestCase]
-        public string Render_ThrowException_WhenInvalidData(List<Token> tokens)
+        [TestCase(null)]
+        public void Render_ThrowsException_WhenInvalidData(List<Token> tokens)
         {
-            
+            var result = renderer.Render(tokens);
+
+            result.Should().Throw();
+        }
+
+        [Test]
+        public void Render_ReturnsEmptyString_WhenEmptyList()
+        {
+            var tokens = new List<Token>();
+
+            var result = renderer.Render(tokens);
+
+            result.Should().BeEmpty();
+        }
+
+        [TestCase("text without tags йоу")]
+        [TestCase("x")]
+        [TestCase("       x       ")]
+        [TestCase("0123456789")]
+        public void Render_ReturnsString_WhenSingleText(string tokenText)
+        {
+            var tokens = new List<Token>
+            {
+                new Token(tokenText)
+            };
+
+            var result = renderer.Render(tokens);
+
+            result.Should().Be(tokenText);
         }
     }
 }
