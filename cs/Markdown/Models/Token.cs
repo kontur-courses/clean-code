@@ -13,10 +13,15 @@ namespace Markdown
 
         public List<Token> Children;
 
-        public Token(TagInfo tag, string content)
+        public Token(TagInfo tag, List<Token> children)
         {
             Tag = tag;
-            Content = content;
+            Children = children;
+        }
+
+        public Token(string content) 
+        { 
+            Content = content; 
         }
     }
 }
