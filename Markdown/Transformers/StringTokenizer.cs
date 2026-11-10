@@ -46,7 +46,7 @@ public static class StringTokenizer
 
             while (cursor < line.Length)
             {
-                if (line[cursor] == '\\' && cursor + 1 < line.Length && IsEscapable(line[cursor + 1]))
+                if (IsEscapingChar(line, cursor))
                 {
                     FlushPendingText(line, pendingTextStart, cursor);
                     pendingTextStart = cursor + 1;
@@ -79,6 +79,11 @@ public static class StringTokenizer
             }
 
             FlushPendingText(line, pendingTextStart, cursor);
+        }
+
+        private static bool IsEscapingChar(string line, int cursor)
+        {
+            return line[cursor] == '\\' && cursor + 1 < line.Length && IsEscapable(line[cursor + 1]);
         }
 
         private static bool IsEscapable(char character) => character == '\\' || Escapables.Contains(character);
