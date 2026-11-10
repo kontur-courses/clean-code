@@ -11,6 +11,8 @@ namespace Markdown
         public TagInfo Tag { get; }
         public string Content { get; }
 
+        public List<Token> Children;
+
         public Token(TagInfo tag, string content)
         {
             Tag = tag;
