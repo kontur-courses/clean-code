@@ -10,6 +10,7 @@ internal static class NodeBuilder
     public static IReadOnlyList<Node> Build(string markdown)
     {
         var nodes = new List<Node>();
+        var paragraph = new StringBuilder();
 
         using var reader = new StringReader(markdown);
 
@@ -17,18 +18,40 @@ internal static class NodeBuilder
         {
             if (string.IsNullOrWhiteSpace(line))
             {
+                FlushParagraph();
                 continue;
             }
 
-            nodes.Add(BuildLine(line));
+            if(line.StartsWith(HeaderPrefix))
+            {
+                FlushParagraph();
+                nodes.Add(BuildLine(line, true));
+                continue;
+            }
+
+            if (paragraph.Length > 0)
+            {
+                paragraph.Append(' ');
+            }
+
+            paragraph.Append(line.Trim());
         }
 
+        FlushParagraph();
         return nodes;
+
+        void FlushParagraph()
+        {
+            if (paragraph.Length > 0)
+            {
+                nodes.Add(BuildLine(paragraph.ToString()));
+                paragraph.Clear();
+            }
+        }
     }
 
-    private static Node BuildLine(string line)
+    private static Node BuildLine(string line, bool isHeader = false)
     {
-        var isHeader = line.StartsWith(HeaderPrefix);
         var startIndex = isHeader ? HeaderPrefix.Length : 0;
 
         var tokens = InlineTokenizer.Tokenize(line, startIndex);
