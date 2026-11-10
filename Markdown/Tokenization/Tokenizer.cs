@@ -17,7 +17,7 @@ public class Tokenizer
         if (paragraph.IsHeading)
         {
             yield return new HeadingToken(false);
-            start += 2; // Пропускаем "# "
+            start += 2;
         }
 
         foreach (var token in TokenizeRange(source, start, paragraph.End))
@@ -41,7 +41,6 @@ public class Tokenizer
                 continue;
             }
 
-            // записываем накопленный обычный текст
             if (textStart < current)
                 yield return new TextToken(
                     source, textStart, current - textStart);
