@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="FluentAssertions" Version="8.11.0" />
+        <PackageReference Include="FluentAssertions" Version="8.11.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0"/>
         <PackageReference Include="NUnit" Version="4.3.2"/>
         <PackageReference Include="NUnit.Analyzers" Version="4.7.0"/>
@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Markdown\Markdown.csproj" />
+        <ProjectReference Include="..\Markdown\Markdown.csproj"/>
     </ItemGroup>
 
 </Project>

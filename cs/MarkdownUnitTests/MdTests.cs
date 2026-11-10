@@ -49,7 +49,7 @@ public class Tests
     {
         Md.Render(input).Should().Be(expected);
     }
-    
+
     [TestCase("_без пары", TestName = "Render_UnmatchedItalicMarker_{a}")]
     [TestCase("__без пары", TestName = "Render_UnmatchedBoldMarker_{a}")]
     [TestCase("__Непарные_", TestName = "Render_MarkersOfDifferentLengths_{a}")]
@@ -67,7 +67,7 @@ public class Tests
     {
         Md.Render(input).Should().Be(input);
     }
-    
+
     [TestCase(@"\_Вот это\_", "_Вот это_",
         TestName = "Render_EscapedUnderscores_{a}")]
     [TestCase(@"\\_курсив_", @"\<em>курсив</em>",
@@ -90,7 +90,7 @@ public class Tests
     {
         Md.Render(input).Should().Be(expected);
     }
-    
+
     [TestCase("# Заголовок", "<h1>Заголовок</h1>",
         TestName = "Render_Heading_{a}")]
     [TestCase("# Заголовок __с _разными_ символами__",
