@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../MarkdownTests/MarkdownTests.csproj" Id="6bfc8c42-5c95-4c51-8039-39ce6ea9f30a" />
+  <Project Path="Markdown.csproj" />
+</Solution>
