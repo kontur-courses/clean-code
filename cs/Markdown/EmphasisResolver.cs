@@ -24,8 +24,7 @@ internal sealed class EmphasisResolver
 
     private int RunNew(int start)
         => new EmphasisResolver(text, tokens, whitespacesBefore).Run(start);
-
-
+    
     private int Run(int start)
     {
         var position = start;
@@ -53,7 +52,7 @@ internal sealed class EmphasisResolver
                     return position;
                 }
             }
-
+            
             position++;
         }
 

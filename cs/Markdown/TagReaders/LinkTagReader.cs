@@ -59,8 +59,7 @@ public class LinkTagReader : ITagReaderWithNestedTokens
 
         link = new LinkMatch(
             text.Substring(start + 1, textEnd - start - 1),
-            text.Substring(urlStart, urlEnd - urlStart),
-            urlEnd + 1);
+            text.Substring(urlStart, urlEnd - urlStart));
         return true;
     }
 
@@ -98,5 +97,5 @@ public class LinkTagReader : ITagReaderWithNestedTokens
     }
 
 
-    readonly record struct LinkMatch(string Text, string Url, int End);
+    readonly record struct LinkMatch(string Text, string Url);
 }

@@ -4,7 +4,7 @@ public class TagReadersProvider
 {
     private readonly Dictionary<char, ITagReader> readers = new();
 
-    private HashSet<char> tagsSymbols = new();
+    private readonly HashSet<char> tagsSymbols = new();
 
     public TagReadersProvider(IEnumerable<ITagReader> readers)
     {
