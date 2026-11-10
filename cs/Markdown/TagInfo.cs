@@ -14,7 +14,7 @@ namespace Markdown
         public string MarkdownSymbol { get; }
         public string OpeningTag {  get; }
         public string ClosingTag { get; }
-        public int Lenght => MarkdownSymbol.Length;
+        public int Length => MarkdownSymbol.Length;
 
         public TagInfo(string symbol, string htmlTag)
         {
