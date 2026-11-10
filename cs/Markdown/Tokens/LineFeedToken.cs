@@ -1,4 +1,5 @@
 ﻿namespace Markdown.Tokens;
 
-internal class LineFeedToken(string value, int start) : TextToken(value, start);
+internal class LineFeedToken(string value, int start)
+    : Token(value, start);
 

@@ -3,20 +3,4 @@
 namespace Markdown.Tokens;
 
 internal sealed class LinkToken(string raw, int start, string url)
-    : TextToken(raw, start)
-{
-    public string Url { get; } = url;
-
-    public override StringBuilder WriteHtml()
-    {
-        var result = new StringBuilder();
-        if (Role == TokenRole.Opening)
-            result.Append("<a href=\"").Append(Url).Append("\">");
-        else if (Role == TokenRole.Closing) 
-            result.Append("</a>");
-        else 
-            result.Append("[");
-
-        return result;
-    }
-}
+    : Token(raw, start, openingHtml: string.Format($"<a href=\"{url}\">"), closingHtml: "</a>");

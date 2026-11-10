@@ -6,12 +6,12 @@ namespace Markdown;
 
 public class Tokenizer(TagReadersProvider tagReadersProvider)
 {
-    public List<TextToken> Tokenize(string text)
+    public List<Token> Tokenize(string text)
         => Tokenize(text, 0, text.Length);
     
-    public List<TextToken> Tokenize(string text, int start, int end)
+    public List<Token> Tokenize(string text, int start, int end)
     {
-        var tokens = new List<TextToken>();
+        var tokens = new List<Token>();
         var position = start;
         while (position < end)
         {
@@ -43,19 +43,19 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
         return tokens;
     }
 
-    private int ReadBackslash(string text, int start, List<TextToken> tokens)
+    private int ReadBackslash(string text, int start, List<Token> tokens)
     {
         if (start + 1 < text.Length && (tagReadersProvider.IsTagSymbol(text[start + 1]) || text[start + 1] == '\\'))
         {
-            tokens.Add(new TextToken(text[start + 1].ToString(), start));
+            tokens.Add(new Token(text[start + 1].ToString(), start));
             return start + 2;
         }
 
-        tokens.Add(new TextToken("\\", start));
+        tokens.Add(new Token("\\", start));
         return start + 1;
     }
 
-    private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<TextToken> tokens)
+    private int ReadNested(ITagReaderWithNestedTokens readerWithNestedTokens, string text, int position, List<Token> tokens)
     {
         var newPosition = readerWithNestedTokens.Read(text, position, tokens, out var nestedStart, out var endToken);
 
@@ -71,13 +71,13 @@ public class Tokenizer(TagReadersProvider tagReadersProvider)
         return newPosition;
     }
     
-    private int ReadText(string text, int start, int stopAt,  List<TextToken> tokens)
+    private int ReadText(string text, int start, int stopAt,  List<Token> tokens)
     {
         var end = start;
         while (stopAt > end && text[end] != '\\' && text[end] != '\n' && !tagReadersProvider.IsTagOpener(text[end]))
             end++;
 
-        tokens.Add(new TextToken(text.Substring(start, end - start), start));
+        tokens.Add(new Token(text.Substring(start, end - start), start));
         return end;
     }
 }

@@ -2,18 +2,5 @@
 
 namespace Markdown.Tokens;
 
-internal class HeaderToken(string value, int start) : TextToken(value, start)
-{
-    public override StringBuilder WriteHtml()
-    {
-        var result = new StringBuilder();
-        if (Role == TokenRole.Opening)
-            result.Append("<h1>");
-        else if (Role == TokenRole.Closing)
-            result.Append("</h1>");
-        else
-            result.Append("#");
-
-        return result;
-    }
-}
+internal class HeaderToken(string value, int start)
+    : Token(value, start, openingHtml: "<h1>", closingHtml: "</h1>");

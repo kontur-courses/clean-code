@@ -15,7 +15,7 @@ public class Md(Tokenizer tokenizer)
         return WriteHtml(tokens);
     }
 
-    private static string WriteHtml(IEnumerable<TextToken> tokens)
+    private static string WriteHtml(IEnumerable<Token> tokens)
     {
         var result = new StringBuilder();
         foreach (var token in tokens)

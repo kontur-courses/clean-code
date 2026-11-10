@@ -5,21 +5,21 @@ namespace Markdown;
 internal sealed class EmphasisResolver
 {
     private readonly string text;
-    private readonly List<TextToken> tokens;
+    private readonly List<Token> tokens;
     private readonly int[] whitespacesBefore;
 
     private readonly Stack<int> openedEm = new();
     private readonly Stack<int> openedStrong = new();
     private readonly List<(int Open, int Close)> strongPairs = new();
 
-    private EmphasisResolver(string text, List<TextToken> tokens, int[] whitespacesBefore)
+    private EmphasisResolver(string text, List<Token> tokens, int[] whitespacesBefore)
     {
         this.text = text;
         this.tokens = tokens;
         this.whitespacesBefore = whitespacesBefore;
     }
 
-    public static void Resolve(string text, List<TextToken> tokens)
+    public static void Resolve(string text, List<Token> tokens)
         => new EmphasisResolver(text, tokens, CountWhitespaces(text)).Run(0);
     
     private int NewRun(int start)
@@ -33,7 +33,7 @@ internal sealed class EmphasisResolver
         while (position < tokens.Count)
         {
             var token = tokens[position];
-            if (token is UnderscoreToken || token is DoubleUnderscoreToken)
+            if (token is UnderscoreToken or DoubleUnderscoreToken)
                 Process(position);
             else if (token is LineFeedToken)
             {
@@ -41,7 +41,7 @@ internal sealed class EmphasisResolver
                     NewRun(position + 1);
                 break;
             }
-            else if (token is LinkToken || token is HeaderToken)
+            else if (token is LinkToken or HeaderToken)
             {
                 if (token.Role == TokenRole.Opening)
                 {
@@ -119,27 +119,27 @@ internal sealed class EmphasisResolver
         }
     }
 
-    private Stack<int> OpenedOf(TextToken textToken)
-        => textToken is UnderscoreToken ? openedEm : openedStrong;
+    private Stack<int> OpenedOf(Token token)
+        => token is UnderscoreToken ? openedEm : openedStrong;
 
-    private Stack<int> OtherOf(TextToken textToken)
-        => textToken is UnderscoreToken ? openedStrong : openedEm;
+    private Stack<int> OtherOf(Token token)
+        => token is UnderscoreToken ? openedStrong : openedEm;
 
-    private bool CanOpen(TextToken textToken)
-        => textToken.End < text.Length && !char.IsWhiteSpace(text[textToken.End]);
+    private bool CanOpen(Token token)
+        => token.End < text.Length && !char.IsWhiteSpace(text[token.End]);
 
-    private bool CanClose(TextToken textToken)
-        => textToken.Start > 0 && !char.IsWhiteSpace(text[textToken.Start - 1]);
+    private bool CanClose(Token token)
+        => token.Start > 0 && !char.IsWhiteSpace(text[token.Start - 1]);
 
-    private bool IsInsideTextWithDigits(TextToken textToken)
+    private bool IsInsideTextWithDigits(Token token)
     {
-        var before = textToken.Start > 0 ? text[textToken.Start - 1] : '\0';
-        var after = textToken.End < text.Length ? text[textToken.End] : '\0';
+        var before = token.Start > 0 ? text[token.Start - 1] : '\0';
+        var after = token.End < text.Length ? text[token.End] : '\0';
         return (char.IsDigit(before) && char.IsLetterOrDigit(after))
                || (char.IsDigit(after) && char.IsLetterOrDigit(before));
     }
 
-    private bool IsValidPair(TextToken open, TextToken close)
+    private bool IsValidPair(Token open, Token close)
     {
         var touchesWord = IsLetterOrDigitAt(open.Start - 1) || IsLetterOrDigitAt(close.End);
         return !touchesWord || whitespacesBefore[close.Start] - whitespacesBefore[open.End] == 0;
