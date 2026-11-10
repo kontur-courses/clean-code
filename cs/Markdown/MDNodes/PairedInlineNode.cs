@@ -1,22 +1,17 @@
 ﻿using Markdown.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Markdown.MDNodes
 {
     public abstract class PairedInlineNode : InlineNode
     {
-        protected PairedInlineNode(string content) : base(content)
-        {
-        }
-
         protected abstract string OpeningTag { get; }
         protected abstract string ClosingTag { get; }
 
-        public List<InlineNode> Children { get; set; } = new();
+        protected PairedInlineNode(List<InlineNode> children)
+        {
+            Children = children ?? new List<InlineNode>();
+        }
 
         public override string Render()
         {

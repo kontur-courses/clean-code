@@ -1,13 +1,14 @@
-﻿using Markdown.MDNodes;
+﻿using Markdown.Abstractions;
+using Markdown.MDNodes;
 
 
 namespace Markdown.MDElements
 {
     public class StrongNode : PairedInlineNode
     {
-        public StrongNode(string content) : base(content)
-        {
-        }
+
+
+        public StrongNode(List<InlineNode> children) : base(children) { }
 
         protected override string OpeningTag => "<strong>";
 

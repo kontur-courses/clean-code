@@ -1,24 +1,13 @@
 ﻿using Markdown.Abstractions;
 using Markdown.MDElements;
-using Markdown.MDNodes;
-
 
 namespace Markdown.Parsing
 {
-
     public class MarkdownParser
     {
-        private readonly PairedDelimiterParser _delimiterParser;
-
-        public MarkdownParser()
-        {
-            _delimiterParser = new PairedDelimiterParser();
-        }
-
         public List<MarkdownNode> Parse(string input)
         {
-            if (string.IsNullOrEmpty(input))
-                return new List<MarkdownNode>();
+            if (string.IsNullOrEmpty(input)) return new List<MarkdownNode>();
 
             var result = new List<MarkdownNode>();
             var lines = input.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
@@ -30,64 +19,24 @@ namespace Markdown.Parsing
 
                 if (trimmedLine.StartsWith("# "))
                 {
-                    var header = new HeaderNode
-                    {
-                        RawContent = trimmedLine.Substring(2)
-                    };
-
-                    ParseInlineContent(header);
+                    var header = new HeaderNode();
+                    header.Children = ParseInline(trimmedLine.Substring(2));
                     result.Add(header);
                 }
                 else
                 {
-                    var inlineNodes = ParseInlineElements(trimmedLine);
-                    result.AddRange(inlineNodes);
+                    result.AddRange(ParseInline(trimmedLine));
                 }
             }
-
             return result;
         }
 
-        private void ParseInlineContent(BlockNode block)
+        private List<InlineNode> ParseInline(string text)
         {
-            block.Children = ParseInlineElements(block.RawContent);
-        }
+            var tokens = MarkdownTokenizer.Tokenize(text);
 
-
-        private List<InlineNode> ParseInlineElements(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return new List<InlineNode>();
-
-            var escapedText = EscapeProcessor.Escape(text);
-
-            var nodesAfterStrong = _delimiterParser.Parse(
-                escapedText,
-                "__",
-                content => new StrongNode(content),
-                isDoubleUnderscore: true,
-                recursiveParser: ParseInlineElements); 
-
-            var finalNodes = new List<InlineNode>();
-            foreach (var node in nodesAfterStrong)
-            {
-                if (node is TextNode textNode)
-                {
-                    var italicNodes = _delimiterParser.Parse(
-                        textNode.Content,
-                        "_",
-                        content => new ItalicNode(content),
-                        isDoubleUnderscore: false,
-                        recursiveParser: content => new List<InlineNode> { new TextNode(content) }); 
-                    finalNodes.AddRange(italicNodes);
-                }
-                else
-                {
-                    finalNodes.Add(node);
-                }
-            }
-
-            return EscapeProcessor.Unescape(finalNodes);
+            var parser = new InlineParser(tokens);
+            return parser.ParseAll();
         }
     }
 }

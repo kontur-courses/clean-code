@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.Abstractions
+﻿namespace Markdown.Abstractions
 {
     public abstract class InlineNode : MarkdownNode
     {
-        public string Content { get; set; }
-        public InlineNode(string content)
-        {
-            Content = content;
-        }
+        public List<InlineNode> Children { get; set; } = new();
     }
 }

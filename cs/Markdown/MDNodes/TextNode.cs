@@ -4,8 +4,11 @@ namespace Markdown.MDNodes
 {
     public sealed class TextNode : InlineNode
     {
-        public TextNode(string content) : base(content)
+        public string Content { get; set; }
+
+        public TextNode(string content)
         {
+            Content = content;
         }
 
         public override string Render() => Content;
