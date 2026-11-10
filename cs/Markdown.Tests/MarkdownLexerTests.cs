@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tests;
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tests;
 
 public class MarkdownLexerTests
 {
@@ -58,6 +60,14 @@ public class MarkdownLexerTests
             new Token(TokenType.Word, "_"),
             new Token(TokenType.ItalicSymbol),
             new Token(TokenType.Word, "123"),
+        }};
+        
+        yield return new object[] {"asd\r\n\r\nasd", new List<Token>
+        {
+            new Token(TokenType.Word, "asd"),
+            new Token(TokenType.NewLine),
+            new Token(TokenType.NewLine),
+            new Token(TokenType.Word, "asd"),
         }};
     }
     

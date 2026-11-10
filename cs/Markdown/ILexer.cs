@@ -1,6 +1,8 @@
-﻿namespace Markdown;
+﻿using System.Collections.Generic;
+
+namespace Markdown;
 
 public interface ILexer
 {
-    IEnumerable<Token> GetTokens(string text);
+    List<Token> GetTokens(string text);
 }

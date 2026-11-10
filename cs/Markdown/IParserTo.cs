@@ -2,5 +2,5 @@
 
 public interface IParserTo
 {
-    string Parse(IEnumerable<MarkupToken> tokens);
+    string Parse(string text);
 }

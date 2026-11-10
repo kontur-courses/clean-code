@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown;
 
@@ -12,7 +14,7 @@ public class MarkdownLexer : ILexer
         [" "] = TokenType.Space
     };
     
-    public IEnumerable<Token> GetTokens(string text)
+    public List<Token> GetTokens(string text)
     {
         var lines = text.Split(Environment.NewLine);
         var result = new List<Token>();

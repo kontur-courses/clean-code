@@ -1,6 +1,8 @@
-﻿namespace Markdown;
+﻿using System.Collections.Generic;
+
+namespace Markdown;
 
 public interface IParserFrom
 {
-    IEnumerable<MarkupToken> Parse(string text);
+    List<MarkupToken> Parse(string text);
 }

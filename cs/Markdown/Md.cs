@@ -1,21 +1,14 @@
-﻿using System.Text;
-
-namespace Markdown;
+﻿namespace Markdown;
 
 public class Md
 {
     public string Render(string textMd)
     {
-        throw new NotImplementedException();
+        var parserFromMarkdown = new MarkdownParser(new MarkdownLexer());
+        
+        var parserToHtml = new HtmlParser(parserFromMarkdown);
+        
+        return parserToHtml.Parse(textMd);
     }
-
-    private Specification CreateSpecification(string text)
-    {
-        throw new NotImplementedException();
-    }
-
-    private bool TryFindEnd(int start, string tag, string[] words, out int end)
-    {
-        throw new NotImplementedException();
-    }
+    
 }
