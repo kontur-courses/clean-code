@@ -70,9 +70,24 @@ public class Tokenizer
             return new LineBreakToken(source, current);
 
         if (source[current] == '_')
+        {
+            var isTriple = current + 2 < end &&
+                           source[current + 1] == '_' &&
+                           source[current + 2] == '_' &&
+                           (current + 3 == end || source[current + 3] != '_');
+
+            var isClosingTriple = isTriple &&
+                                  current > 0 &&
+                                  !char.IsWhiteSpace(source[current - 1]) &&
+                                  source[current - 1] != '_';
+
+            if (isClosingTriple)
+                return new EmToken(source, current);
+
             return current + 1 < end && source[current + 1] == '_'
                 ? new StrongToken(source, current)
                 : new EmToken(source, current);
+        }
 
         if (source[current] == '[')
             return TryParseLink(source, current, end);
