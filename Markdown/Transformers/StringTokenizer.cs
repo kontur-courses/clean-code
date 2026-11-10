@@ -39,8 +39,7 @@ public static class StringTokenizer
 
             while (cursor < line.Length)
             {
-                var delimiter = FindDelimeter(line, cursor);
-                if (delimiter is not var (pattern, createToken))
+                if (!TryFindDelimiter(line, cursor, out var pattern, out var createToken))
                 {
                     cursor++;
                     continue;
@@ -89,17 +88,23 @@ public static class StringTokenizer
         }
 
 
-        private static (string Pattern, Func<bool, bool, Token> Create)? FindDelimeter(string line, int cursor)
+        private static bool TryFindDelimiter(
+            string line,
+            int cursor,
+            out string pattern,
+            out Func<bool, bool, Token> createToken)
         {
             foreach (var delimiter in Token.Delimeters)
             {
-                if (string.CompareOrdinal(line, cursor, delimiter.Pattern, 0, delimiter.Pattern.Length) == 0)
-                {
-                    return delimiter;
-                }
+                if (string.CompareOrdinal(line, cursor, delimiter.Pattern, 0, delimiter.Pattern.Length) != 0) continue;
+                pattern = delimiter.Pattern;
+                createToken = delimiter.Create;
+                return true;
             }
 
-            return null;
+            pattern = null!;
+            createToken = null!;
+            return false;
         }
     }
 }
