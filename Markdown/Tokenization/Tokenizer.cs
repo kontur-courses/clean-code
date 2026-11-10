@@ -1,4 +1,5 @@
 ﻿using Markdown.Paragraphs;
+using Markdown.Tokenization.Tokens;
 using Markdown.Tokenization.Tokens.Abstractions;
 using Markdown.Tokenization.Tokens.Implementations;
 
@@ -6,7 +7,10 @@ namespace Markdown.Tokenization;
 
 public class Tokenizer
 {
-    public IEnumerable<Token> Tokenize(Paragraph paragraph)
+    public UnresolvedTokens Tokenize(Paragraph paragraph)
+        => new UnresolvedTokens(TokenizeInternal(paragraph));
+
+    private static IEnumerable<Token> TokenizeInternal(Paragraph paragraph)
     {
         var (source, start) = (paragraph.Source, paragraph.Start);
 

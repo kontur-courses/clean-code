@@ -9,10 +9,8 @@ public static class Md
     {
         var htmlBuilder = new HtmlBuilder();
 
-        var tokens = text.GetParagraphs()
-            .SelectMany(paragraph => paragraph.Tokenize().Resolve());
-
-        htmlBuilder.Append(tokens);
+        foreach (var paragraph in text.GetParagraphs())
+            htmlBuilder.Append(paragraph.Tokenize().Resolve());
 
         return htmlBuilder.ToString();
     }

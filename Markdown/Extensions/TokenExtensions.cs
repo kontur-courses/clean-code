@@ -1,10 +1,10 @@
 ﻿using Markdown.Tokenization;
-using Markdown.Tokenization.Tokens.Abstractions;
+using Markdown.Tokenization.Tokens;
 
 namespace Markdown.Extensions;
 
 public static class TokenExtensions
 {
-    public static List<Token> Resolve(this IEnumerable<Token> unresolvedTokens)
+    public static ResolvedTokens Resolve(this UnresolvedTokens unresolvedTokens)
         => new TokenResolver().Resolve(unresolvedTokens);
 }

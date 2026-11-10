@@ -6,9 +6,9 @@ namespace Markdown.Tokenization;
 
 public class TokenResolver
 {
-    public List<Token> Resolve(IEnumerable<Token> unresolvedTokens)
+    public ResolvedTokens Resolve(UnresolvedTokens unresolved)
     {
-        var tokens = unresolvedTokens.ToList();
+        var tokens = unresolved.ToList();
         InitializeContext(tokens);
 
         var pairs = FindPairs(tokens)
@@ -19,7 +19,21 @@ public class TokenResolver
         InvalidateStrongInsideEm(pairs);
         SetRoles(pairs);
 
-        return tokens;
+        return new ResolvedTokens(tokens);
+    }
+
+    private static void InitializeContext(List<Token> tokens)
+    {
+        var segment = 0;
+
+        foreach (var token in tokens)
+        {
+            if (token is TextToken { ContainsWordSeparator: true })
+                segment++;
+
+            if (token is PairToken pairToken)
+                pairToken.Context = new ResolvingContext(PairRole.Text, segment);
+        }
     }
 
     private static List<Pair> FindPairs(IEnumerable<Token> tokens)
@@ -102,31 +116,6 @@ public class TokenResolver
         }
     }
 
-    private static bool IsValidPair(PairToken opening, PairToken closing)
-    {
-        if (opening.Start + opening.Length == closing.Start)
-            return false;
-
-        if (opening.IsInsideWord || closing.IsInsideWord)
-            return opening.Context!.SegmentId == closing.Context!.SegmentId;
-
-        return true;
-    }
-
-    private static void InitializeContext(IEnumerable<Token> tokens)
-    {
-        var segment = 0;
-
-        foreach (var token in tokens)
-        {
-            if (token is TextToken { ContainsWordSeparator: true })
-                segment++;
-
-            if (token is PairToken pairToken)
-                pairToken.Context = new ResolvingContext(PairRole.Text, segment);
-        }
-    }
-
     private static void SetRoles(IEnumerable<Pair> pairs)
     {
         foreach (var pair in pairs)
@@ -137,5 +126,16 @@ public class TokenResolver
             pair.Opening.Context!.Role = PairRole.Open;
             pair.Closing.Context!.Role = PairRole.Close;
         }
+    }
+
+    private static bool IsValidPair(PairToken opening, PairToken closing)
+    {
+        if (opening.Start + opening.Length == closing.Start)
+            return false;
+
+        if (opening.IsInsideWord || closing.IsInsideWord)
+            return opening.Context!.SegmentId == closing.Context!.SegmentId;
+
+        return true;
     }
 }
