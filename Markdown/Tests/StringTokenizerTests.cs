@@ -139,6 +139,13 @@ public class StringTokenizerTests
                     Token.Text("ных слова"), Token.Underscore(true, true), Token.Text("х")
                 ])
                 .SetName("Mixed: underscores in different words");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("___Три прочерка___",
+                [
+                    Token.DoubleUnderscore(true, false), Token.Underscore(true, true),
+                    Token.Text("Три прочерка"),
+                    Token.DoubleUnderscore(true, true), Token.Underscore(false, true)
+                ])
+                .SetName("DoubleUnderscore: three underscores on both sides");
         }
     }
 
