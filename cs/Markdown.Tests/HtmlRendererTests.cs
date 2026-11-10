@@ -126,5 +126,16 @@ public class HtmlRendererTests
                 },
                 "<strong>Hello</strong>")
             .SetName("Render_StrongNode");
+
+        yield return new TestCaseData(
+                new UnorderedListNode
+                {
+                    Children = [new ListItemNode
+                    {
+                        Children = [new TextNode("Hello")]
+                    }]
+                },
+                "<ul><li>Hello</li></ul>")
+            .SetName("Render_UnorderedListNode");
     }
 }

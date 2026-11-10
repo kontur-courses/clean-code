@@ -42,6 +42,14 @@ public static class HtmlRenderer
                 RenderContainer(strong, "strong", sb);
                 break;
 
+            case UnorderedListNode unorderedList:
+                RenderContainer(unorderedList, "ul", sb);
+                break;
+
+            case ListItemNode listItem:
+                RenderContainer(listItem, "li", sb);
+                break;
+
             default:
                 throw new NotSupportedException(
                     $"Unsupported node type: {node.GetType().Name}");

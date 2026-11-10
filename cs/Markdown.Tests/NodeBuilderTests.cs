@@ -6,32 +6,6 @@ namespace Markdown.Tests;
 
 public class NodeBuilderTests
 {
-    [Test]
-    public void Build_EmptyLines_SkipsEmptyLines()
-    {
-        const string text = """
-                            # header
-                            
-                            
-                            Above is empty line
-                            """;
-
-        var expectedNodes = new Node[]
-        {
-            new HeaderNode
-            {
-                Children = [new TextNode("header")]
-            },
-            new ParagraphNode
-            {
-                Children = [new TextNode("Above is empty line")]
-            }
-        };
-
-
-        AssertParsed(text, expectedNodes);
-    }
-
     [TestCaseSource(nameof(BlockCases))]
     public void Build_ReturnsExpectedBlocks(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
@@ -50,6 +24,10 @@ public class NodeBuilderTests
 
     [TestCaseSource(nameof(EscapingCases))]
     public void Build_HandlesEscaping(string text, Node[] expectedNodes)
+        => AssertParsed(text, expectedNodes);
+
+    [TestCaseSource(nameof(UnorderedListCases))]
+    public void Build_HandlesUnorderedListCases(string text, Node[] expectedNodes)
         => AssertParsed(text, expectedNodes);
 
     private static void AssertParsed(string text, Node[] expectedNodes)
@@ -97,6 +75,36 @@ public class NodeBuilderTests
                     Children = [new TextNode("Text")]
                 }
             }).SetName("Paragraph only");
+
+        yield return new TestCaseData(
+            "Text\n" +
+            "Also same paragraph",
+            new Node[]
+            {
+                new ParagraphNode
+                {
+                    Children = [new TextNode("Text Also same paragraph")]
+                }
+            }).SetName("Paragraph only, split by lines");
+
+        yield return new TestCaseData(
+            """
+            # header
+
+
+            Above is empty line
+            """,
+            new Node[]
+            {
+                new HeaderNode
+                {
+                    Children = [new TextNode("header")]
+                },
+                new ParagraphNode
+                {
+                    Children = [new TextNode("Above is empty line")]
+                }
+            }).SetName("Skip empty lines");
     }
 
     private static IEnumerable<TestCaseData> EmphasisCases()
@@ -227,5 +235,54 @@ public class NodeBuilderTests
                     Children = [new TextNode("_em_ __strong__")]
                 }
             }).SetName("Escaped underscores are plain text");
+    }
+
+    private static IEnumerable<TestCaseData> UnorderedListCases()
+    {
+        yield return new TestCaseData(
+            """
+            - Item 1
+            - Item 2
+            - Item 3
+            """,
+            new Node[]
+            {
+                new UnorderedListNode
+                {
+                    Children =
+                    [
+                        new ListItemNode { Children = [new TextNode("Item 1")] },
+                        new ListItemNode { Children = [new TextNode("Item 2")] },
+                        new ListItemNode { Children = [new TextNode("Item 3")] }
+                    ]
+                }
+            }).SetName("Unordered list with multiple items");
+
+
+        yield return new TestCaseData(
+            """
+            - Item 1
+            - Item 2
+            
+            - Item 21
+            """,
+            new Node[]
+            {
+                new UnorderedListNode
+                {
+                    Children =
+                    [
+                        new ListItemNode { Children = [new TextNode("Item 1")] },
+                        new ListItemNode { Children = [new TextNode("Item 2")] },
+                    ]
+                },
+                new UnorderedListNode
+                {
+                    Children =
+                    [
+                        new ListItemNode { Children = [new TextNode("Item 21")] }
+                    ]
+                }
+            }).SetName("Multiple unordered lists");
     }
 }

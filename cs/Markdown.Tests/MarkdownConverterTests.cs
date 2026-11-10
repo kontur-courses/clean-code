@@ -87,5 +87,23 @@ public class MarkdownConverterTests
         yield return new TestCaseData(
             "# Заголовок __с _разными_ символами__",
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>");
+
+
+        yield return new TestCaseData(
+            """
+            - Один
+            - Два
+            - Три
+            """,
+            "<ul><li>Один</li><li>Два</li><li>Три</li></ul>");
+
+        yield return new TestCaseData(
+            """
+            - Один
+            - Два
+            
+            - Три
+            """,
+            "<ul><li>Один</li><li>Два</li></ul><ul><li>Три</li></ul>");
     }
 }

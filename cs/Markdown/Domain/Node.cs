@@ -11,5 +11,7 @@ public record TextNode(string Text) : Node;
 
 public record ParagraphNode : ContainerNode;
 public record HeaderNode : ContainerNode;
+public record UnorderedListNode : ContainerNode;
+public record ListItemNode : ContainerNode;
 public record EmphasisNode : ContainerNode;
 public record StrongNode : ContainerNode;

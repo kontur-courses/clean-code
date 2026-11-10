@@ -6,49 +6,55 @@ namespace Markdown.Parsing;
 internal static class NodeBuilder
 {
     private const string HeaderPrefix = "# ";
+    private const string UnorderedListItemPrefix = "- ";
 
     public static IReadOnlyList<Node> Build(string markdown)
     {
         var nodes = new List<Node>();
-        var paragraph = new StringBuilder();
+        var unorderedList = new List<Node>();
 
-        using var reader = new StringReader(markdown);
-
-        while (reader.ReadLine() is { } line)
+        foreach (var line in MergeLines(markdown))
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                FlushParagraph();
+                FlushList();
                 continue;
             }
 
-            if(line.StartsWith(HeaderPrefix))
+            if (line.StartsWith(HeaderPrefix))
             {
-                FlushParagraph();
-                nodes.Add(BuildBlock<HeaderNode>(line, HeaderPrefix.Length));
-                continue;
+                FlushList();
+                nodes.Add(BuildBlock<HeaderNode>(
+                    line, HeaderPrefix.Length));
             }
-
-            if (paragraph.Length > 0)
+            else if (line.StartsWith(UnorderedListItemPrefix))
             {
-                paragraph.Append(' ');
+                unorderedList.Add(BuildBlock<ListItemNode>(
+                    line, UnorderedListItemPrefix.Length));
             }
-
-            paragraph.Append(line.Trim());
+            else
+            {
+                FlushList();
+                nodes.Add(BuildBlock<ParagraphNode>(line));
+            }
         }
 
-        FlushParagraph();
+        FlushList();
         return nodes;
 
-        void FlushParagraph()
+        void FlushList()
         {
-            if (paragraph.Length <= 0)
+            if (unorderedList.Count == 0)
             {
                 return;
             }
 
-            nodes.Add(BuildBlock<ParagraphNode>(paragraph.ToString()));
-            paragraph.Clear();
+            nodes.Add(new UnorderedListNode
+            {
+                Children = [.. unorderedList]
+            });
+
+            unorderedList.Clear();
         }
     }
 
@@ -125,6 +131,59 @@ internal static class NodeBuilder
             }
 
             nodes.Add(new TextNode(sb.ToString()));
+            sb.Clear();
+        }
+    }
+
+    private static List<string> MergeLines(string markdown)
+    {
+        var lines = new List<string>();
+        var sb = new StringBuilder();
+
+        using var reader = new StringReader(markdown);
+
+        while (reader.ReadLine() is { } line )
+        {
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                FlushSb();
+
+                lines.Add(string.Empty);
+                continue;
+            }
+
+            if (line.StartsWith(HeaderPrefix)
+                || line.StartsWith(UnorderedListItemPrefix))
+            {
+                FlushSb();
+            }
+
+            if (line.StartsWith(HeaderPrefix))
+            {
+                lines.Add(line.Trim());
+                continue;
+            }
+
+            if (sb.Length > 0)
+            {
+                sb.Append(' ');
+            }
+
+            sb.Append(line.Trim());
+        }
+
+        FlushSb();
+
+        return lines;
+
+        void FlushSb()
+        {
+            if (sb.Length <= 0)
+            {
+                return;
+            }
+
+            lines.Add(sb.ToString());
             sb.Clear();
         }
     }
