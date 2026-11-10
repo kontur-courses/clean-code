@@ -1,5 +1,6 @@
 ﻿using Markdown.Abstractions;
 using Markdown.MDElements;
+using Markdown.Parsing;
 
 namespace Markdown.Parsing
 {

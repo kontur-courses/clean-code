@@ -48,6 +48,12 @@ namespace MdTests
         }
 
         [Test]
+        public void Parse_CombinedItalicAndBold_ReturnsNestedTags()
+        {
+            _md.Parse("_курсив и __жирный__ и еще текст_").Should().Be("<em>курсив и __жирный__ и еще текст</em>");
+        }
+
+        [Test]
         public void Parse_TripleUnderscore_ReturnsStrongTag()
         {
             _md.Parse("___текст___").Should().Be("<strong><em>текст</em></strong>");
@@ -58,6 +64,55 @@ namespace MdTests
         {
             _md.Parse("# Заголовок").Should().Be("<h1>Заголовок</h1>");
         }
+
+        [Test]
+        public void Parse_HeaderWithBoldText_ReturnsH1WithStrongTag()
+        {
+            _md.Parse("# Заголовок с __жирным__ текстом").Should().Be("<h1>Заголовок с <strong>жирным</strong> текстом</h1>");
+        }
+
+        [Test]
+        public void Parse_HeaderWithItalicText_ReturnsH1WithEmTag()
+        {
+            _md.Parse("# Заголовок с _курсивом_ текстом").Should().Be("<h1>Заголовок с <em>курсивом</em> текстом</h1>");
+        }
+
+        [Test]
+        public void Parse_HeaderWithBoldAndItalicText_ReturnsH1WithNestedTags()
+        {
+            _md.Parse("# Заголовок с __жирным__ и _курсивом_ текстом").Should().Be("<h1>Заголовок с <strong>жирным</strong> и <em>курсивом</em> текстом</h1>");
+        }
+
+
+        [Test]
+        public void Parse_DoubleHeader_ReturnThisString()
+        {
+            _md.Parse("## Подзаголовок").Should().Be("## Подзаголовок");
+        }
+
+        [Test]
+        public void Parse_UnmutchedUnderscores_ReturnsAsIs()
+        {
+            _md.Parse("Текст с __непарными_ подчеркиваниями").Should().Be("Текст с <em>_непарными</em> подчеркиваниями");
+
+        }
+
+        [Test]
+        [TestCase("#")]
+        [TestCase("__")]
+        [TestCase("____")]
+
+        public void Parse_EmptyTags_ReturnsAsIs(string input)
+        {
+            _md.Parse(input).Should().Be(input);
+        }
+
+        [Test]
+        public void Parse_UnderscoreInDigits_ReturnsAsIs()
+        {
+            _md.Parse("Текст с 1__23_45__6").Should().Be("Текст с 1__23_45__6");
+        }
+
 
 
     }

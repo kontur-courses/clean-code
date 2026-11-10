@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.MDParsing;
 
 namespace Markdown.Parsing
 {
-    public class Token
-    {
-        public string Text { get; set; }
-        public int UnderscoreCount { get; set; } 
-    }
-
     public static class MarkdownTokenizer
     {
         public static List<Token> Tokenize(string text)
@@ -23,7 +18,7 @@ namespace Markdown.Parsing
                 {
                     if (currentText.Length > 0)
                     {
-                        tokens.Add(new Token { Text = currentText.ToString() });
+                        tokens.Add(new Token(text: currentText.ToString()));
                         currentText.Clear();
                     }
 
@@ -34,8 +29,7 @@ namespace Markdown.Parsing
                         i++;
                     }
 
-                    // Один токен со всем количеством подчеркиваний
-                    tokens.Add(new Token { UnderscoreCount = count });
+                    tokens.Add(new Token(underscoreCount: count));
                 }
                 else
                 {
@@ -46,7 +40,7 @@ namespace Markdown.Parsing
 
             if (currentText.Length > 0)
             {
-                tokens.Add(new Token { Text = currentText.ToString() });
+                tokens.Add(new Token(text: currentText.ToString()));
             }
 
             return tokens;
