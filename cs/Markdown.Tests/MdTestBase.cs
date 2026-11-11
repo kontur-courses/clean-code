@@ -1,4 +1,6 @@
 using Markdown.TagReaders;
+using Markdown.Writers;
+using Markdown.Writers.TagHtmlInfos;
 using NUnit.Framework;
 
 namespace Markdown.Tests;
@@ -20,5 +22,11 @@ public abstract class MdTestBase
                 new UnderscoresTagsReader(),
                 new HeaderTagReader()
             ])),
-        new HtmlWriter());
+        new HtmlWriter(
+        [
+            new LinkTagHtmlInfo(),
+            new UnderscoreTagHtmlInfo(),
+            new HeaderTagHtmlInfo(),
+            new DoubleUnderscoreTagHtmlInfo()
+        ]));
 }

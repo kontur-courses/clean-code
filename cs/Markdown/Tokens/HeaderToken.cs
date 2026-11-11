@@ -1,6 +1,4 @@
-﻿using System.Text;
+﻿namespace Markdown.Tokens;
 
-namespace Markdown.Tokens;
-
-internal class HeaderToken(string value, int start)
-    : Token(value, start, openingHtml: "<h1>", closingHtml: "</h1>");
+public class HeaderToken(string value, int start)
+    : Token(value, start);

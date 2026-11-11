@@ -1,9 +1,10 @@
 using Markdown.Tokens;
 using System.Text;
+using Markdown.Writers;
 
 namespace Markdown;
 
-public class Md(Tokenizer tokenizer, HtmlWriter htmlWriter)
+public class Md(Tokenizer tokenizer, IWriter writer)
 {
     public string Render(string markdown)
     {
@@ -12,6 +13,6 @@ public class Md(Tokenizer tokenizer, HtmlWriter htmlWriter)
 
         var tokens = tokenizer.Tokenize(markdown);
         EmphasisResolver.Resolve(markdown, tokens);
-        return htmlWriter.Write(tokens);
+        return writer.Write(tokens);
     }
 }

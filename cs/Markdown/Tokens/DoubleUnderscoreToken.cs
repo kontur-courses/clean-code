@@ -1,6 +1,4 @@
-﻿using System.Text;
+﻿namespace Markdown.Tokens;
 
-namespace Markdown.Tokens;
-
-internal class DoubleUnderscoreToken(string value, int start)
-    : Token(value, start, openingHtml: "<strong>", closingHtml: "</strong>");
+public class DoubleUnderscoreToken(string value, int start)
+    : Token(value, start);

@@ -2,7 +2,7 @@
 
 namespace Markdown.Tokens;
 
-public class Token(string value, int start, string openingHtml = "", string closingHtml = "")
+public class Token(string value, int start)
 {
     public string Value { get; } = value;
 
@@ -11,8 +11,5 @@ public class Token(string value, int start, string openingHtml = "", string clos
     public int End => Start + Value.Length;
 
     public TokenRole Role { get; set; } = TokenRole.Literal;
-
-    public string OpeningHtml { get; } = openingHtml;
-
-    public string ClosingHtml { get; } = closingHtml;
+    
 }
