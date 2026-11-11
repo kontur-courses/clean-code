@@ -75,7 +75,7 @@ namespace Markdown.Tests
             Assert.That(md.Render("_текст __жирный__ текст_"),
                 Is.EqualTo("<p><em>текст __жирный__ текст</em></p>"));
         }
-
+        
         [TestCase("_текст", "<p>_текст</p>", TestName = "Unpaired opening underscore")]
         [TestCase("текст_", "<p>текст_</p>", TestName = "Unpaired closing underscore")]
         [TestCase("__текст", "<p>__текст</p>", TestName = "Unpaired opening double underscore")]
@@ -148,6 +148,32 @@ namespace Markdown.Tests
 
             stopwatch.Stop();
             Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(200));
+        }
+
+        [TestCase(@"[текст](url\))", "<p><a href=\"url)\">текст</a></p>", TestName = "Escaped closing parenthesis in URL")]
+        [TestCase(@"[текст](url\\)", "<p><a href=\"url\\\">текст</a></p>", TestName = "Even backslashes before closing parenthesis")]
+        [TestCase(@"[текст](url/path)", "<p><a href=\"url/path\">текст</a></p>", TestName = "Normal slash in URL")]
+        [TestCase(@"[ссылка](https://example.com/path\_part)", "<p><a href=\"https://example.com/path_part\">ссылка</a></p>", TestName = "Escaped underscore in URL")]
+        [TestCase(@"[ссылка](https://example.com/path\\part)", "<p><a href=\"https://example.com/path\\part\">ссылка</a></p>", TestName = "Escaped backslash in URL")]
+        public void Render_UrlsWithSpecialCharacters_RendersCorrectly(string input, string expected)
+        {
+            Assert.That(md.Render(input), Is.EqualTo(expected));
+        }
+
+        [TestCase(@"*текст \_ хвост*", "<p>*текст _ хвост*</p>", TestName = "Escaped underscore inside asterisk text")]
+        [TestCase(@"_текст \_ хвост_", "<p><em>текст _ хвост</em></p>", TestName = "Escaped underscore inside italic")]
+        [TestCase(@"_текст \\_ хвост_", "<p><em>текст \\</em> хвост_</p>", TestName = "Even backslashes do not escape underscore")]
+        public void Render_EscapedCharactersInsideTags_RendersCorrectly(string input, string expected)
+        {
+            Assert.That(md.Render(input), Is.EqualTo(expected));
+        }
+
+        [TestCase("__пересечения _двойных__ и одинарных_", "<p>__пересечения _двойных__ и одинарных_</p>", TestName = "Intersecting strong and italic")]
+        [TestCase("_текст _ещё_", "<p><em>текст _ещё</em></p>", TestName = "Nested italic without closing first")]
+        [TestCase("__текст __ещё__", "<p><strong>текст __ещё</strong></p>", TestName = "Nested strong without closing first")]
+        public void Render_IntersectingTags_NotFormatted(string input, string expected)
+        {
+            Assert.That(md.Render(input), Is.EqualTo(expected));
         }
     }
 }
