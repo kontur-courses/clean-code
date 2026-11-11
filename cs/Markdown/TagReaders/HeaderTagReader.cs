@@ -2,14 +2,11 @@
 
 namespace Markdown.TagReaders;
 
-public class HeaderTagReader : ITagReaderWithNestedTokens
+public class HeaderTagReader : ITagReader
 {
     public char Opener => '#';
 
     public char[] TagSymbols => ['#'];
-
-    Token ITagReader.Read(string text, int start)
-        => Read(text, start, out _);
 
     public Token Read(string text, int start, out Token endToken)
     {

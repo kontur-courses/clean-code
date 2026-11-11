@@ -8,8 +8,10 @@ public class UnderscoresTagsReader : ITagReader
 
     public char[] TagSymbols => ['_'];
 
-    public Token Read(string text, int start)
+    public Token Read(string text, int start, out Token endToken)
     {
+        endToken = null;
+        
         var end = start;
         while (end < text.Length && text[end] == '_')
             end++;
