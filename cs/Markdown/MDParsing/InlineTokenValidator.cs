@@ -12,27 +12,21 @@ namespace Markdown.Parsing
             List<Token> innerTokens,
             int delimiterCount)
         {
-            // Правило 10: Пустая строка внутри не считается выделением (____)
             if (IsWhitespaceOnly(innerTokens))
                 return false;
 
-            // Правило 3: Выделение не работает, если граничит с цифрами (_12_3)
             if (IsBoundedByDigits(tokenBeforeOpen, tokenAfterClose))
                 return false;
 
-            // Правило 7: За открывающим _ должен следовать непробельный символ
             if (!FollowedByNonSpace(innerTokens))
                 return false;
 
-            // Правило 8: Перед закрывающим _ должен идти непробельный символ
             if (!PrecededByNonSpace(innerTokens))
                 return false;
 
-            // Правило 5: Одинарное _ не работает в разных словах (ра_зных сл_овах)
             if (delimiterCount == 1 && IsAcrossWords(tokenBeforeOpen, tokenAfterClose, innerTokens))
                 return false;
 
-            // Правило 9: Пересечение __ и _ (ни один не работает)
             if (IsCrossing(innerTokens, delimiterCount))
                 return false;
 
@@ -58,7 +52,6 @@ namespace Markdown.Parsing
             return isDigitBefore && isDigitAfter;
         }
 
-        // Проверяем только текстовые токены (UnderscoreCount == 0)
         private static bool FollowedByNonSpace(List<Token> innerTokens)
         {
             var firstTextToken = innerTokens.FirstOrDefault(t => t.UnderscoreCount == 0 && t.Text != null);
