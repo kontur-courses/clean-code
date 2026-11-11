@@ -18,11 +18,13 @@ public class MdRenderTests
     }
 
     [TestCase("\\_Вот это\\_", "<p>_Вот это_</p>")]
+    [TestCase("a\\_b\\_c", "<p>a_b_c</p>")]
     [TestCase("\\\\ _вот это_", "<p>\\ <em>вот это</em></p>")]
     [TestCase(
         "Сим\\волы экранирования\\ \\должны остаться.\\",
         "<p>Сим\\волы экранирования\\ \\должны остаться.\\</p>")]
     [TestCase("\\# текст", "<p># текст</p>")]
+    [TestCase("номер \\#1", "<p>номер \\#1</p>")]
     [TestCase("\\[a](u)", "<p>[a](u)</p>")]
     [TestCase("[a\\](u)", "<p>[a](u)</p>")]
     [TestCase("[a\\\\](u)", "<p><a href=\"u\">a\\</a></p>")]
@@ -109,6 +111,7 @@ public class MdRenderTests
     [TestCase("[a] (u)", "<p>[a] (u)</p>")]
     [TestCase("[текст без url]", "<p>[текст без url]</p>")]
     [TestCase("текст](url)", "<p>текст](url)</p>")]
+    [TestCase("текст](_курсив_)", "<p>текст](<em>курсив</em>)</p>")]
     [TestCase("[](u)", "<p>[](u)</p>")]
     public void Render_KeepsIncompleteLinkSyntaxAsText(string markdown, string expected)
     {

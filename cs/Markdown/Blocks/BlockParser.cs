@@ -29,10 +29,19 @@ public class BlockParser
         if (current.Count == 0)
             return;
 
-        var isHeader = current[0].StartsWith(HeaderMarker, StringComparison.Ordinal);
+        var firstLine = current[0];
+        var backslashCount = 0;
+        while (backslashCount < firstLine.Length && firstLine[backslashCount] == '\\')
+            backslashCount++;
+
+        var hasHeaderMarker = firstLine[backslashCount..].StartsWith(HeaderMarker, StringComparison.Ordinal);
+        var isHeader = backslashCount == 0 && hasHeaderMarker;
+        var isEscapedHeader = backslashCount % 2 == 1 && hasHeaderMarker;
 
         if (isHeader)
-            current[0] = current[0][HeaderMarker.Length..];
+            current[0] = firstLine[HeaderMarker.Length..];
+        else if (isEscapedHeader)
+            current[0] = firstLine[1..];
 
         blocks.Add(new Block(
             isHeader ? BlockKind.Header : BlockKind.Paragraph,
