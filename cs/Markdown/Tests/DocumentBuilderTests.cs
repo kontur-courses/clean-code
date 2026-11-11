@@ -10,8 +10,8 @@ namespace Markdown.Tests
         public void Build_ShouldJoinParagraphs_WhenTheyAreNotListItems_Test()
         {
             var document = new DocumentBuilder();
-            document.AddParagraph("a", false);
-            document.AddParagraph("b", false);
+            document.AddParagraph("a");
+            document.AddParagraph("b");
 
             var html = document.Build();
 
@@ -24,8 +24,8 @@ namespace Markdown.Tests
         public void Build_ShouldWrapListItemsInUl_WhenTheyGoInRow_Test()
         {
             var document = new DocumentBuilder();
-            document.AddParagraph("<li>a</li>", true);
-            document.AddParagraph("<li>b</li>", true);
+            document.AddListItem("<li>a</li>");
+            document.AddListItem("<li>b</li>");
 
             var html = document.Build();
 
@@ -38,8 +38,8 @@ namespace Markdown.Tests
         public void Build_ShouldOpenList_WhenListItemGoesAfterParagraph_Test()
         {
             var document = new DocumentBuilder();
-            document.AddParagraph("a", false);
-            document.AddParagraph("<li>b</li>", true);
+            document.AddParagraph("a");
+            document.AddListItem("<li>b</li>");
 
             var html = document.Build();
 

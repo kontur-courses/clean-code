@@ -12,7 +12,10 @@
             foreach (var paragraph in SplitIntoParagraphs(markdown))
             {
                 var paragraphHtml = paragraphRenderer.Render(paragraph);
-                document.AddParagraph(paragraphHtml, paragraphRenderer.IsListItem(paragraph));
+                if (paragraphRenderer.IsListItem(paragraph))
+                    document.AddListItem(paragraphHtml);
+                else
+                    document.AddParagraph(paragraphHtml);
             }
 
             return document.Build();
@@ -20,7 +23,7 @@
 
         private static IEnumerable<string> SplitIntoParagraphs(string markdown)
         {
-            return markdown.Split(ParagraphSeparators, StringSplitOptions.RemoveEmptyEntries);
+            return markdown.Split(ParagraphSeparators, StringSplitOptions.None);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace Markdown.Tests
             "Текст, <em>окруженный с двух сторон</em> одинарными")]
         [TestCase("_нач_але", "<em>нач</em>але")]
         [TestCase("кон_це._", "кон<em>це.</em>")]
+        [TestCase("_12_", "<em>12</em>")]
         [TestCase("__a__", "<strong>a</strong>")]
         [TestCase(
             "__Выделенный двумя символами текст__",

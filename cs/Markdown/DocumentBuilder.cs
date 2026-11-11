@@ -11,39 +11,50 @@ namespace Markdown
         private bool hasParagraphs;
         private bool isInsideList;
 
-        public void AddParagraph(string paragraphHtml, bool isListItem)
+        public void AddParagraph(string paragraphHtml)
         {
-            if (hasParagraphs)
-                html.Append(ParagraphSeparator);
-
-            CloseListIfEnded(isListItem);
-            OpenListIfStarted(isListItem);
+            CloseList();
+            AppendSeparator();
             html.Append(paragraphHtml);
-            hasParagraphs = true;
+        }
+
+        public void AddListItem(string listItemHtml)
+        {
+            AppendSeparator();
+            OpenList();
+            html.Append(listItemHtml);
         }
 
         public string Build()
         {
-            CloseListIfEnded(false);
+            CloseList();
             return html.ToString();
         }
 
-        private void OpenListIfStarted(bool isListItem)
+        private void AppendSeparator()
         {
-            if (isListItem && !isInsideList)
-            {
-                html.Append(HtmlTag.Open(ListTagName));
-                isInsideList = true;
-            }
+            if (hasParagraphs)
+                html.Append(ParagraphSeparator);
+
+            hasParagraphs = true;
         }
 
-        private void CloseListIfEnded(bool isListItem)
+        private void OpenList()
         {
-            if (isInsideList && !isListItem)
-            {
-                html.Append(HtmlTag.Close(ListTagName));
-                isInsideList = false;
-            }
+            if (isInsideList)
+                return;
+
+            html.Append(HtmlTag.Open(ListTagName));
+            isInsideList = true;
+        }
+
+        private void CloseList()
+        {
+            if (!isInsideList)
+                return;
+
+            html.Append(HtmlTag.Close(ListTagName));
+            isInsideList = false;
         }
     }
 }

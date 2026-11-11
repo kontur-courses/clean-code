@@ -38,8 +38,8 @@
 
         private static bool CanBePaired(Underscore opening, Underscore closing)
         {
-            var isInSameWord = opening.WordIndex == closing.WordIndex;
-            return closing.CanClose && (isInSameWord || !opening.IsInsideWord);
+            var pair = new UnderscorePair(opening, closing);
+            return closing.CanClose && !pair.IsBreakingWord;
         }
 
         private static List<UnderscorePair> RemoveIntersecting(List<UnderscorePair> pairs)
@@ -58,7 +58,7 @@
             var openPairs = new Stack<UnderscorePair>();
             foreach (var pair in sortedPairs)
             {
-                RemoveClosedPairs(openPairs, pair.Opening.Position);
+                RemoveClosedPairs(openPairs, pair.Start);
                 if (openPairs.Count > 0 && AreIntersecting(openPairs.Peek(), pair))
                 {
                     intersectingPairs.Add(openPairs.Peek());
@@ -73,9 +73,8 @@
 
         private static bool AreIntersecting(UnderscorePair first, UnderscorePair second)
         {
-            var startsInsideFirst = first.Opening.Position < second.Opening.Position
-                                    && second.Opening.Position < first.Closing.Position;
-            var endsAfterFirst = first.Closing.Position < second.Closing.Position;
+            var startsInsideFirst = first.Start < second.Start && second.Start < first.End;
+            var endsAfterFirst = first.End < second.End;
             return startsInsideFirst && endsAfterFirst;
         }
 
@@ -85,7 +84,7 @@
             var openSinglePairs = new Stack<UnderscorePair>();
             foreach (var pair in SortByOpening(pairs))
             {
-                RemoveClosedPairs(openSinglePairs, pair.Opening.Position);
+                RemoveClosedPairs(openSinglePairs, pair.Start);
                 if (IsDoubleInsideSingle(pair, openSinglePairs))
                     continue;
 
@@ -106,7 +105,7 @@
 
         private static void RemoveClosedPairs(Stack<UnderscorePair> openPairs, int position)
         {
-            while (openPairs.Count > 0 && openPairs.Peek().Closing.Position < position)
+            while (openPairs.Count > 0 && openPairs.Peek().End < position)
             {
                 openPairs.Pop();
             }
@@ -114,14 +113,15 @@
 
         private static bool IsInside(UnderscorePair inner, UnderscorePair outer)
         {
-            return outer.Opening.Position < inner.Opening.Position
-                   && inner.Closing.Position < outer.Closing.Position;
+            var startsAfterOuter = outer.Start < inner.Start;
+            var endsBeforeOuter = inner.End < outer.End;
+            return startsAfterOuter && endsBeforeOuter;
         }
 
         private static List<UnderscorePair> SortByOpening(IEnumerable<UnderscorePair> pairs)
         {
             return pairs
-                .OrderBy(pair => pair.Opening.Position)
+                .OrderBy(pair => pair.Start)
                 .ToList();
         }
     }

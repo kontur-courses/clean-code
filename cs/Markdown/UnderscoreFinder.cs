@@ -86,7 +86,7 @@
 
         private static bool IsInsideNumber(string text, int position, int length)
         {
-            return IsNextToDigit(text, position, length);
+            return IsInsideWord(text, position, length) && IsNextToDigit(text, position, length);
         }
 
         private static bool CanOpen(string text, int position, int length)

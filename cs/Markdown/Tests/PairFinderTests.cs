@@ -111,8 +111,8 @@ namespace Markdown.Tests
         private static IEnumerable<int> ToPositions(IEnumerable<UnderscorePair> pairs)
         {
             return pairs
-                .OrderBy(pair => pair.Opening.Position)
-                .SelectMany(pair => new[] { pair.Opening.Position, pair.Closing.Position });
+                .OrderBy(pair => pair.Start)
+                .SelectMany(pair => new[] { pair.Start, pair.End });
         }
     }
 }
