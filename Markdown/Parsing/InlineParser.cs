@@ -93,7 +93,7 @@ public class InlineParser()
             {
                 markerPairs.Add(new MarkerPair(openMarkerIndices.Pop(), i, token.Kind));
             }
-            else if (canOpen)
+            else if (canOpen && openMarkerIndices.Count == 0)
             {
                 openMarkerIndices.Push(i);
             }

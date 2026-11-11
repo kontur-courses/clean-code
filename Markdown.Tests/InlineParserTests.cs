@@ -105,6 +105,14 @@ public class InlineParserTests
         AssertLiteralText(parser.Parse(input), input);
     }
 
+    [Test]
+    public void Parse_ClosingMarkerAfterWhitespace_RemainsLiteralInsideEmphasis()
+    {
+        AssertNodes(
+            parser.Parse("_текст1 _текст2_"),
+            Emphasis(Text("текст1 _текст2")));
+    }
+
     [TestCase(@"\_буквально\_", "_буквально_", TestName = "Parse_EscapedEmphasisMarkers_ArePlainText")]
     [TestCase(@"\_\_жирный\_\_", "__жирный__", TestName = "Parse_EscapedStrongMarkers_ArePlainText")]
     [TestCase(@"\абв", @"\абв", TestName = "Parse_BackslashBeforeLetter_RemainsLiteral")]
