@@ -17,9 +17,11 @@ namespace MarkdownUnitTests
             parser = new InlineParser(registry);
         }
 
-        [TestCase(null)]
-        public void ParseToTokens_ThrowsArgumentNullException_WhenNull(string line)
+        [Test]
+        public void ParseToTokens_ThrowsArgumentNullException_WhenNull()
         {
+            string line = null;
+
             var action = () => parser.ParseToTokens(line);
 
             action.Should().Throw<ArgumentNullException>();
