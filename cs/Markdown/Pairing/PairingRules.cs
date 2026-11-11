@@ -16,12 +16,12 @@ public static class PairingRules
 
     public static bool HasSpaceBefore(this Token token)
     {
-        return token.Before == Token.Boundary || char.IsWhiteSpace(token.Before);
+        return IsBoundaryOrWhiteSpace(token.Before);
     }
 
     public static bool HasSpaceAfter(this Token token)
     {
-        return token.After == Token.Boundary || char.IsWhiteSpace(token.After);
+        return IsBoundaryOrWhiteSpace(token.After);
     }
 
     public static bool IsInsideWord(this Token token)
@@ -32,5 +32,10 @@ public static class PairingRules
     public static bool IsNearDigit(this Token token)
     {
         return char.IsDigit(token.Before) || char.IsDigit(token.After);
+    }
+
+    private static bool IsBoundaryOrWhiteSpace(char symbol)
+    {
+        return symbol == Token.Boundary || char.IsWhiteSpace(symbol);
     }
 }

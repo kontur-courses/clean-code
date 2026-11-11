@@ -38,13 +38,7 @@ public class TagPairer
                 continue;
             }
 
-            if (token.Kind == TokenKind.LeftBracket)
-            {
-                linkOpeners.Push(new LinkOpener(index, index));
-                continue;
-            }
-
-            if (token.Kind == TokenKind.RightBracket && TryCloseLink(tokens, index, linkOpeners, out var linkOpenIndex))
+            if (TryHandleLinkBracket(tokens, index, linkOpeners, out var linkOpenIndex) && linkOpenIndex >= 0)
                 DiscardDelimiterOpenersAfter(delimiterOpeners, linkOpenIndex);
         }
     }
@@ -106,13 +100,11 @@ public class TagPairer
         while (openers.Count > 0)
         {
             var openIndex = openers.Peek();
-            var isInsideWordSeparatedByWhitespace =
-                tokens[openIndex].IsInsideWord() && HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix);
 
-            if (!isInsideWordSeparatedByWhitespace)
+            if (!IsValidPair(tokens, openIndex, closeIndex, whitespacePrefix, assumeCloserOutsideWord: true))
+                openers.Pop();
+            else
                 break;
-
-            openers.Pop();
         }
     }
 
@@ -120,13 +112,17 @@ public class TagPairer
         IReadOnlyList<Token> tokens,
         int openIndex,
         int closeIndex,
-        int[] whitespacePrefix)
+        int[] whitespacePrefix,
+        bool assumeCloserOutsideWord = false)
     {
-        var isNeitherInsideWord = !tokens[openIndex].IsInsideWord() && !tokens[closeIndex].IsInsideWord();
-        if (isNeitherInsideWord)
+        var hasWhitespace = HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix);
+        if (!hasWhitespace)
             return true;
 
-        return !HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix);
+        if (tokens[openIndex].IsInsideWord())
+            return false;
+
+        return assumeCloserOutsideWord || !tokens[closeIndex].IsInsideWord();
     }
 
     private static bool HasWhitespaceBetween(int openIndex, int closeIndex, int[] whitespacePrefix)
@@ -170,15 +166,33 @@ public class TagPairer
                 continue;
             }
 
-            if (token.Kind == TokenKind.LeftBracket)
-            {
-                linkOpeners.Push(new LinkOpener(index, index));
-                continue;
-            }
-
-            if (token.Kind == TokenKind.RightBracket && TryCloseLink(tokens, index, linkOpeners, out var openIndex))
+            if (TryHandleLinkBracket(tokens, index, linkOpeners, out var openIndex) && openIndex >= 0)
                 DeactivateDelimitersCrossingLink(tokens, openIndex, index);
         }
+    }
+
+    private static bool TryHandleLinkBracket(
+        IReadOnlyList<Token> tokens,
+        int index,
+        Stack<LinkOpener> linkOpeners,
+        out int linkOpenIndex)
+    {
+        linkOpenIndex = -1;
+        var token = tokens[index];
+
+        if (token.Kind == TokenKind.LeftBracket)
+        {
+            linkOpeners.Push(new LinkOpener(index, index));
+            return true;
+        }
+
+        if (token.Kind == TokenKind.RightBracket)
+        {
+            TryCloseLink(tokens, index, linkOpeners, out linkOpenIndex);
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryCloseLink(

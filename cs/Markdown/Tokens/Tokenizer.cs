@@ -77,8 +77,7 @@ public class Tokenizer
         while (end < content.Length && content[end] == '_')
             end++;
 
-        var before = start > 0 ? content[start - 1] : Token.Boundary;
-        var after = end < content.Length ? content[end] : Token.Boundary;
+        var (before, after) = GetSurroundingChars(content, start, end);
 
         for (var index = start; index < end;)
         {
@@ -127,11 +126,20 @@ public class Tokenizer
     private static Token CreateMarkupToken(TokenKind kind, string value, string content, int start)
     {
         var end = start + value.Length;
+        var (before, after) = GetSurroundingChars(content, start, end);
         return new Token(kind, value)
         {
-            Before = start > 0 ? content[start - 1] : Token.Boundary,
-            After = end < content.Length ? content[end] : Token.Boundary
+            Before = before,
+            After = after
         };
+    }
+
+    private static (char Before, char After) GetSurroundingChars(string content, int start, int end)
+    {
+        return (
+            start > 0 ? content[start - 1] : Token.Boundary,
+            end < content.Length ? content[end] : Token.Boundary
+        );
     }
 
     private static int FindUrlEnd(string content, int urlStart, out int scannedUntil)

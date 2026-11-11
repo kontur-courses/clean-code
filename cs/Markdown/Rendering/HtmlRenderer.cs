@@ -30,7 +30,7 @@ public class HtmlRenderer
         switch (node)
         {
             case TextNode text:
-                AppendEscapedText(output, text.Text);
+                AppendEscaped(output, text.Text);
                 break;
             case EmNode em:
                 RenderContainer("em", em.Children, output);
@@ -49,46 +49,26 @@ public class HtmlRenderer
     private static void RenderContainer(string tag, IReadOnlyList<INode> children, StringBuilder output)
     {
         output.Append('<').Append(tag).Append('>');
-
-        foreach (var child in children)
-            RenderNode(child, output);
-
+        RenderChildren(children, output);
         output.Append("</").Append(tag).Append('>');
     }
 
     private static void RenderLink(LinkNode link, StringBuilder output)
     {
         output.Append("<a href=\"");
-        AppendEscapedAttribute(output, link.Url);
+        AppendEscaped(output, link.Url, escapeQuotes: true);
         output.Append("\">");
-
-        foreach (var child in link.Children)
-            RenderNode(child, output);
-
+        RenderChildren(link.Children, output);
         output.Append("</a>");
     }
 
-    private static void AppendEscapedText(StringBuilder output, string value)
+    private static void RenderChildren(IReadOnlyList<INode> children, StringBuilder output)
     {
-        foreach (var symbol in value)
-            switch (symbol)
-            {
-                case '&':
-                    output.Append("&amp;");
-                    break;
-                case '<':
-                    output.Append("&lt;");
-                    break;
-                case '>':
-                    output.Append("&gt;");
-                    break;
-                default:
-                    output.Append(symbol);
-                    break;
-            }
+        foreach (var child in children)
+            RenderNode(child, output);
     }
 
-    private static void AppendEscapedAttribute(StringBuilder output, string value)
+    private static void AppendEscaped(StringBuilder output, string value, bool escapeQuotes = false)
     {
         foreach (var symbol in value)
             switch (symbol)
@@ -102,7 +82,7 @@ public class HtmlRenderer
                 case '>':
                     output.Append("&gt;");
                     break;
-                case '"':
+                case '"' when escapeQuotes:
                     output.Append("&quot;");
                     break;
                 default:
