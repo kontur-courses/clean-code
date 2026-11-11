@@ -4,6 +4,7 @@ using FluentAssertions;
 using MarkdownTests.Extensions;
 namespace MarkdownTests.Unit
 {
+    [TestFixture]
     public class InlineParserUnitTests
     {
         private IInlineParser parser;
