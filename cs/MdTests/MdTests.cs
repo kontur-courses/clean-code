@@ -162,7 +162,21 @@ namespace MdTests
             _md.Parse(@"Текст с эскейпом внутри слова: подчеркив\ание").Should().Be(@"Текст с эскейпом внутри слова: подчеркив\ание");
         }
 
+        [Test]
+        public void Parse_SimpleHeaderNextLine_ReturnsH1AndNextLine()
+        {
+            _md.Parse("# Крутой текст\nПродолжение текста").Should().Be("<h1>Крутой текст</h1>\nПродолжение текста");
+        }
 
-        
+        [Test]
+        public void Parse_ComplexMarkdown_ReturnsCorrectHtml()
+        {
+            _md.Parse("# Заголовок с __жирным__ и _курсивом_ текстом" +
+                "\nПродолжение текста с __жирным__ и _курсивом_.").Should()
+                .Be("<h1>Заголовок с <strong>жирным</strong> и <em>курсивом</em> текстом</h1>" +
+                "\nПродолжение текста с <strong>жирным</strong> и <em>курсивом</em>.");
+        }
+
+
     }
 }
