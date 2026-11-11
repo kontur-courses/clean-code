@@ -86,12 +86,7 @@ public class MarkdownLexer : ILexer
     {
         if (currentIndex >= line.Length - 1) return TokenType.Word;
         currentIndex++;
-        foreach (var key in tokenSymbols.Keys)
-        {
-            if (line[currentIndex..].StartsWith(key)) 
-                return tokenSymbols[key];
-        }
 
-        return TokenType.Word;
+        return ScanFragment(line, currentIndex).tokenType;
     }
 }
