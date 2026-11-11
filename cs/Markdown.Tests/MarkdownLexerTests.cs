@@ -60,6 +60,7 @@ public class MarkdownLexerTests
         Assert.That(actual, Is.EqualTo(expected));
     }
     
+    
     [Test]
     public void GetTokens_ShouldTokenizeConsecutiveBoldMarkers()
     {
@@ -133,4 +134,39 @@ public class MarkdownLexerTests
         Assert.That(actual, Is.EqualTo(expected));
     }
   
+    [Test]
+    public void GetTokens_ShouldTokenizeMarkedList()
+    {
+        var text = "- something";
+        var expected = new List<Token>
+        {
+            new Token(TokenType.MarkedList),
+            new Token(TokenType.Space),
+            new Token(TokenType.Word, "something")
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeSeveralMarkedLists()
+    {
+        var text = "- something\r\n- something";
+        var expected = new List<Token>
+        {
+            new Token(TokenType.MarkedList),
+            new Token(TokenType.Space),
+            new Token(TokenType.Word, "something"),
+            new Token(TokenType.NewLine),
+            new Token(TokenType.MarkedList),
+            new Token(TokenType.Space),
+            new Token(TokenType.Word, "something"),
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
 }
