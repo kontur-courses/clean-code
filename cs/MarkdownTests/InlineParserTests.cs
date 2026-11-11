@@ -27,9 +27,11 @@ namespace MarkdownUnitTests
             action.Should().Throw<ArgumentNullException>();
         }
 
-        [TestCase("")]
-        public void ParseToTokens_ReturnsEmptyList_WhenEmptyLine(string line)
+        [Test]
+        public void ParseToTokens_ReturnsEmptyList_WhenEmptyLine()
         {
+            var line = "";
+
             var result = parser.ParseToTokens(line);
 
             result.Should().BeEmpty();
