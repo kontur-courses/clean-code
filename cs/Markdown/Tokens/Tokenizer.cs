@@ -8,8 +8,6 @@ public class Tokenizer
     {
         var tokens = new List<Token>();
         var textBuffer = new StringBuilder();
-        var textStart = -1;
-        var openBracketCount = 0;
         var index = 0;
 
         while (index < content.Length)
@@ -17,154 +15,104 @@ public class Tokenizer
             switch (content[index])
             {
                 case '\\':
-                    AppendEscape(textBuffer, ref textStart, content, ref index);
+                    index = AppendEscape(textBuffer, content, index);
                     break;
                 case '_':
-                    FlushText(tokens, textBuffer, ref textStart, content, index);
-                    AddUnderscore(tokens, content, ref index);
+                    FlushText(tokens, textBuffer);
+                    index = AddUnderscore(tokens, content, index);
                     break;
                 case '[':
-                    FlushText(tokens, textBuffer, ref textStart, content, index);
-                    AddLeftBracket(tokens, content, ref index, ref openBracketCount);
+                    FlushText(tokens, textBuffer);
+                    index = AddLeftBracket(tokens, content, index);
                     break;
                 case ']':
-                    FlushText(tokens, textBuffer, ref textStart, content, index);
-                    AddRightBracket(tokens, content, ref index, ref openBracketCount);
+                    FlushText(tokens, textBuffer);
+                    index = AddRightBracket(tokens, content, index);
                     break;
                 default:
-                    AppendText(textBuffer, ref textStart, content, ref index);
+                    index = AppendText(textBuffer, content, index);
                     break;
             }
         }
 
-        FlushText(tokens, textBuffer, ref textStart, content, content.Length);
+        FlushText(tokens, textBuffer);
         return tokens;
     }
 
-    private static void AppendText(StringBuilder textBuffer, ref int textStart, string content, ref int index)
+    private static int AppendText(StringBuilder textBuffer, string content, int index)
     {
-        if (textStart < 0)
-            textStart = index;
-
         var start = index;
         while (index < content.Length && !IsSpecial(content[index]))
             index++;
 
         textBuffer.Append(content, start, index - start);
+        return index;
     }
 
-    private static void AppendEscape(
-        StringBuilder textBuffer,
-        ref int textStart,
-        string content,
-        ref int index)
+    private static int AppendEscape(StringBuilder textBuffer, string content, int index)
     {
-        if (textStart < 0)
-            textStart = index;
-
-        var start = index;
-        var next = start + 1;
+        var next = index + 1;
 
         if (next < content.Length && IsSpecial(content[next]))
         {
             textBuffer.Append(content[next]);
-            index = next + 1;
-            return;
+            return next + 1;
         }
 
         textBuffer.Append('\\');
-        index = next;
+        return next;
     }
 
-    private static void FlushText(
-        List<Token> tokens,
-        StringBuilder textBuffer,
-        ref int textStart,
-        string content,
-        int currentIndex)
+    private static void FlushText(List<Token> tokens, StringBuilder textBuffer)
     {
         if (textBuffer.Length == 0)
             return;
 
-        tokens.Add(new Token(TokenKind.Text, textBuffer.ToString(), textStart)
-        {
-            Before = textStart > 0 ? content[textStart - 1] : Token.Boundary,
-            After = currentIndex < content.Length ? content[currentIndex] : Token.Boundary
-        });
-
+        tokens.Add(new Token(TokenKind.Text, textBuffer.ToString()));
         textBuffer.Clear();
-        textStart = -1;
     }
 
-    private static void AddUnderscore(List<Token> tokens, string content, ref int index)
+    private static int AddUnderscore(List<Token> tokens, string content, int index)
     {
-        var start = index;
-        var isDouble = start + 1 < content.Length && content[start + 1] == '_';
-        var length = isDouble ? 2 : 1;
+        var isDouble = index + 1 < content.Length && content[index + 1] == '_';
+        var token = isDouble
+            ? CreateMarkup(TokenKind.DoubleUnderscore, "__", content, index)
+            : CreateMarkup(TokenKind.Underscore, "_", content, index);
 
-        tokens.Add(new Token(
-            isDouble ? TokenKind.DoubleUnderscore : TokenKind.Underscore,
-            isDouble ? "__" : "_",
-            start)
-        {
-            Before = start > 0 ? content[start - 1] : Token.Boundary,
-            After = start + length < content.Length ? content[start + length] : Token.Boundary
-        });
-
-        index += length;
+        tokens.Add(token);
+        return index + token.Value.Length;
     }
 
-    private static void AddLeftBracket(
-        List<Token> tokens,
-        string content,
-        ref int index,
-        ref int openBracketCount)
+    private static int AddLeftBracket(List<Token> tokens, string content, int index)
     {
-        tokens.Add(new Token(TokenKind.LeftBracket, "[", index)
-        {
-            Before = index > 0 ? content[index - 1] : Token.Boundary,
-            After = index + 1 < content.Length ? content[index + 1] : Token.Boundary
-        });
-
-        openBracketCount++;
-        index++;
+        tokens.Add(CreateMarkup(TokenKind.LeftBracket, "[", content, index));
+        return index + 1;
     }
 
-    private static void AddRightBracket(
-        List<Token> tokens,
-        string content,
-        ref int index,
-        ref int openBracketCount)
+    private static int AddRightBracket(List<Token> tokens, string content, int index)
     {
-        var start = index;
-        var urlStart = start + 1;
+        tokens.Add(CreateMarkup(TokenKind.RightBracket, "]", content, index));
+        var next = index + 1;
 
-        tokens.Add(new Token(TokenKind.RightBracket, "]", start)
-        {
-            Before = start > 0 ? content[start - 1] : Token.Boundary,
-            After = urlStart < content.Length ? content[urlStart] : Token.Boundary
-        });
+        if (next >= content.Length || content[next] != '(')
+            return next;
 
-        var hadOpenBracket = openBracketCount > 0;
-        if (hadOpenBracket)
-            openBracketCount--;
-
-        index = urlStart;
-
-        if (!hadOpenBracket || urlStart >= content.Length || content[urlStart] != '(')
-            return;
-
-        var urlEnd = FindUrlEnd(content, urlStart);
+        var urlEnd = FindUrlEnd(content, next);
         if (urlEnd < 0)
-            return;
+            return next;
 
-        tokens.Add(new Token(TokenKind.LinkUrl, content[urlStart..(urlEnd + 1)], urlStart)
+        tokens.Add(CreateMarkup(TokenKind.LinkUrl, content[next..(urlEnd + 1)], content, next));
+        return urlEnd + 1;
+    }
+
+    private static Token CreateMarkup(TokenKind kind, string value, string content, int start)
+    {
+        var end = start + value.Length;
+        return new Token(kind, value)
         {
-            Before = content[urlStart - 1],
-            After = urlEnd + 1 < content.Length ? content[urlEnd + 1] : Token.Boundary
-        });
-
-        index = urlEnd + 1;
+            Before = start > 0 ? content[start - 1] : Token.Boundary,
+            After = end < content.Length ? content[end] : Token.Boundary
+        };
     }
 
     private static int FindUrlEnd(string content, int urlStart)

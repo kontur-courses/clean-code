@@ -4,19 +4,15 @@ public class Token
 {
     public const char Boundary = '\0';
 
-    public Token(TokenKind kind, string value, int position)
+    public Token(TokenKind kind, string value)
     {
         Kind = kind;
         Value = value;
-        Position = position;
     }
 
     public TokenKind Kind { get; }
 
     public string Value { get; }
-
-    /// <summary>Смещение от начала содержимого блока(не документа).</summary>
-    public int Position { get; }
 
     public char Before { get; init; } = Boundary;
 
