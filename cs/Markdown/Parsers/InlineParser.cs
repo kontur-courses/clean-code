@@ -6,39 +6,55 @@ namespace Markdown.Parsers
 {
     public class InlineParser
     {
-        private bool IsSpecialChar(char c) => c == '_' || c == '\\' || c == '#' || c == '[' || c == ']';
+        private const char EscapeChar = '\\';
+        private const char ItalicChar = '_';
+        private const char LinkOpenBracket = '[';
+        private const char LinkCloseBracket = ']';
+        private const char UrlOpenParen = '(';
+        private const char UrlCloseParen = ')';
+        private const char StrongChar = '_';
+        private const char HashChar = '#';
 
-        public List<IInlineTag> ParseInlineTags(string text, bool allowStrong = true)
+        private const int StrongLength = 2;
+        private const int ItalicLength = 1;
+
+        private bool IsEscapable(char c) => c == ItalicChar || c == EscapeChar || c == HashChar || c == LinkOpenBracket || c == LinkCloseBracket || c == UrlOpenParen || c == UrlCloseParen;
+
+        public List<IInlineTag> ParseInlineTags(string text)
+        {
+            return ParseInlineTagsInternal(text, allowStrong: true);
+        }
+
+        private List<IInlineTag> ParseInlineTagsInternal(string text, bool allowStrong)
         {
             var tags = new List<IInlineTag>();
             var currentText = new StringBuilder();
 
-            // Посимвольный обход строки
             for (int i = 0; i < text.Length; i++)
             {
                 // Экранирование
-                if (text[i] == '\\' && i + 1 < text.Length && IsSpecialChar(text[i + 1]))
+                if (text[i] == EscapeChar && i + 1 < text.Length && IsEscapable(text[i + 1]))
                 {
                     currentText.Append(text[i + 1]);
                     i++;
                     continue;
                 }
                 // Ссылки
-                if (text[i] == '[' && TryParseLink(text, ref i, out var linkTag))
+                if (text[i] == LinkOpenBracket && TryParseLink(text, ref i, out var linkTag))
                 {
                     FlushText(tags, currentText);
                     tags.Add(linkTag);
                     continue;
                 }
                 // Жирный
-                if (allowStrong && text[i] == '_' && i + 1 < text.Length && text[i + 1] == '_' && TryParseStrong(text, ref i, out var strongTag))
+                if (allowStrong && text[i] == StrongChar && i + StrongLength - 1 < text.Length && text[i + 1] == StrongChar && TryParseStrong(text, ref i, out var strongTag))
                 {
                     FlushText(tags, currentText);
                     tags.Add(strongTag);
                     continue;
                 }
                 // Курсив
-                if (text[i] == '_' && TryParseItalic(text, ref i, out var italicTag))
+                if (text[i] == ItalicChar && TryParseItalic(text, ref i, out var italicTag))
                 {
                     FlushText(tags, currentText);
                     tags.Add(italicTag);
@@ -60,63 +76,145 @@ namespace Markdown.Parsers
             }
         }
 
+
+        private int FindClosingIndex(string text, string closingStr, int startIndex, bool skipNested)
+        {
+            int index = startIndex;
+
+            while (index <= text.Length - closingStr.Length)
+            {
+                index = text.IndexOf(closingStr, index, System.StringComparison.Ordinal);
+
+                if (index == -1)
+                    return -1;
+
+                if (IsEscaped(text, index))
+                {
+                    index += closingStr.Length;
+                    continue;
+                }
+
+                if (skipNested)
+                {
+                    if (closingStr.Length == 1 &&
+                        index + 1 < text.Length &&
+                        text[index + 1] == StrongChar)
+                    {
+                        index += StrongLength;
+                        continue;
+                    }
+
+                    if (closingStr.Length == StrongLength &&
+                        index > 0 &&
+                        text[index - 1] == ItalicChar)
+                    {
+                        index += StrongLength;
+                        continue;
+                    }
+                }
+                return index;
+            }
+            return -1;
+        }
+
+        private bool IsEscaped(string text, int index)
+        {
+            int escapeCount = 0;
+
+            for (int i = index - 1; i >= 0 && text[i] == EscapeChar; i--)
+                escapeCount++;
+
+            return escapeCount % 2 != 0;
+        }
+
+
+        private bool IsValidUnderscoreContext(string text, int openIndex, int closeIndex, int markerLength)
+        {
+            bool isDigitAfterOpen = openIndex + markerLength < text.Length && char.IsDigit(text[openIndex + markerLength]);
+            bool isDigitBeforeOpen = openIndex > 0 && char.IsDigit(text[openIndex - 1]);
+
+            bool isDigitBeforeClose = closeIndex > 0 && char.IsDigit(text[closeIndex - 1]);
+            bool isDigitAfterClose = closeIndex + markerLength < text.Length && char.IsDigit(text[closeIndex + markerLength]);
+
+            if (isDigitAfterOpen || isDigitBeforeOpen || isDigitBeforeClose || isDigitAfterClose)
+                return false;
+
+            return true;
+        }
+
         private bool TryParseStrong(string text, ref int i, out StrongTag strongTag)
         {
             strongTag = null!;
-            int closeIndex = text.IndexOf("__", i + 2);
+            string closing = new string(StrongChar, StrongLength);
+            int closeIndex = FindClosingIndex(text, closing, i + StrongLength, skipNested: true);
 
-            // Проверка на пустоту и пробелы у границ
-            if (closeIndex == -1 || closeIndex == i + 2) return false;
-            if (char.IsWhiteSpace(text[i + 2]) || char.IsWhiteSpace(text[closeIndex - 1])) return false;
+            if (closeIndex == -1 || closeIndex == i + StrongLength) return false;
+            if (char.IsWhiteSpace(text[i + StrongLength]) || char.IsWhiteSpace(text[closeIndex - 1])) return false;
+
+            // Проверка цифр
+            if (!IsValidUnderscoreContext(text, i, closeIndex, StrongLength)) return false;
+
+            bool startsInsideWord = i > 0 && char.IsLetterOrDigit(text[i - 1]);
+            bool endsInsideWord = closeIndex + StrongLength < text.Length && char.IsLetterOrDigit(text[closeIndex + StrongLength]);
+
+            if ((startsInsideWord || endsInsideWord) && text.Substring(i + StrongLength, closeIndex - (i + StrongLength)).Contains(' ')) return false;
 
             // Обработка слипшихся тегов (__курсив___)
-            bool isTriple = closeIndex + 2 < text.Length && text[closeIndex + 2] == '_';
-            int actualEnd = isTriple ? closeIndex + 1 : closeIndex;
+            bool isTriple = closeIndex + StrongLength < text.Length && text[closeIndex + StrongLength] == ItalicChar;
 
-            var contentStr = text.Substring(i + 2, actualEnd - (i + 2));
+            int actualEnd = isTriple ? closeIndex + ItalicLength : closeIndex;
+
+            if (HasUnpairedItalicMarker(text, i + StrongLength, actualEnd))
+                return false;
+
+            var contentStr = text.Substring(i + StrongLength, actualEnd - (i + StrongLength));
 
             // Рекурсивный парсинг внутренностей (разрешаем курсив)
-            var innerTags = ParseInlineTags(contentStr, allowStrong: true);
+            var innerTags = ParseInlineTagsInternal(contentStr, allowStrong: true);
 
             strongTag = new StrongTag(innerTags);
-            i = actualEnd + 1;
+            i = actualEnd + StrongLength - 1;
             return true;
         }
 
         private bool TryParseItalic(string text, ref int i, out ItalicTag italicTag)
         {
             italicTag = null!;
-            // Часть жирного
-            if (i + 1 < text.Length && text[i + 1] == '_') return false;
-            int closeIndex = -1;
 
-            // Ищем закрывающее _, пропуская двойные (__)
-            for (int j = i + 1; j < text.Length; j++)
-            {
-                if (text[j] == '_')
-                {
-                    if (j + 1 < text.Length && text[j + 1] == '_')
-                    {
-                        j++;
-                        continue;
-                    }
-                    closeIndex = j;
-                    break;
-                }
-            }
+            if (i + 1 < text.Length && text[i + 1] == StrongChar)
+                return false;
 
-            // Проверка на пустоту, пробелы и цифры у границ
-            if (closeIndex == -1 || closeIndex == i + 1) return false;
-            if (char.IsWhiteSpace(text[i + 1]) || char.IsWhiteSpace(text[closeIndex - 1])) return false;
-            if (char.IsDigit(text[i + 1]) && closeIndex + 1 < text.Length && char.IsDigit(text[closeIndex + 1])) return false;
+            if (i > 0 && text[i - 1] == StrongChar)
+                return false;
 
-            var contentStr = text.Substring(i + 1, closeIndex - (i + 1));
+            int closeIndex = FindClosingIndex(text, ItalicChar.ToString(), i + ItalicLength, skipNested: true);
 
-            // Внутри курсива запрещаем жирный
-            var innerTags = ParseInlineTags(contentStr, allowStrong: false);
+            if (closeIndex == -1 || closeIndex == i + ItalicLength)
+                return false;
+
+            if (char.IsWhiteSpace(text[i + ItalicLength]) || char.IsWhiteSpace(text[closeIndex - 1]))
+                return false;
+
+            if (!IsValidUnderscoreContext(text, i, closeIndex, ItalicLength))
+                return false;
+
+            bool startsInsideWord = i > 0 && char.IsLetterOrDigit(text[i - 1]);
+
+            bool endsInsideWord = closeIndex + ItalicLength < text.Length && char.IsLetterOrDigit(text[closeIndex + ItalicLength]);
+
+            if ((startsInsideWord || endsInsideWord) && text.Substring(i + ItalicLength, closeIndex - (i + ItalicLength)).Contains(' '))
+                return false;
+
+            if (HasIntersectingStrong(text, i, closeIndex))
+                return false;
+
+            var contentStr = text.Substring(i + ItalicLength, closeIndex - (i + ItalicLength));
+
+            var innerTags = ParseInlineTagsInternal(contentStr, allowStrong: false);
 
             italicTag = new ItalicTag(innerTags);
             i = closeIndex;
+
             return true;
         }
 
@@ -124,12 +222,14 @@ namespace Markdown.Parsers
         private bool TryParseLink(string text, ref int i, out LinkTag linkTag)
         {
             linkTag = null!;
-            int closeBracket = text.IndexOf(']', i + 1);
+            int closeBracket = FindClosingIndex(text, LinkCloseBracket.ToString(), i + 1, skipNested: false);
 
-            if (closeBracket == -1 || closeBracket + 1 >= text.Length || text[closeBracket + 1] != '(') return false;
-            int closeParen = text.IndexOf(')', closeBracket + 2);
+            if (closeBracket == -1 || closeBracket + 1 >= text.Length || text[closeBracket + 1] != UrlOpenParen) return false;
+
+            int closeParen = FindClosingIndex(text, UrlCloseParen.ToString(), closeBracket + 2, skipNested: false);
 
             if (closeParen == -1) return false;
+
             string linkText = text.Substring(i + 1, closeBracket - (i + 1));
             string url = text.Substring(closeBracket + 2, closeParen - (closeBracket + 2));
 
@@ -138,5 +238,59 @@ namespace Markdown.Parsers
             return true;
         }
 
+        private bool HasIntersectingStrong(string text, int italicOpen, int italicClose)
+        {
+            for (int j = italicOpen + 1; j < italicClose; j++)
+            {
+                if (text[j] != StrongChar)
+                    continue;
+
+                if (j + 1 < text.Length && text[j + 1] == StrongChar)
+                {
+                    int strongClose = text.IndexOf("__", j + StrongLength, System.StringComparison.Ordinal);
+
+                    if (strongClose == -1)
+                        continue;
+
+                    if (strongClose + 1 >= italicClose)
+                        return true;
+
+                    j = strongClose + 1;
+                }
+            }
+            return false;
+        }
+
+        private bool HasUnpairedItalicMarker(string text, int start, int end)
+        {
+            int italicMarkersCount = 0;
+
+            for (int j = start; j < end;)
+            {
+                if (text[j] == EscapeChar && j + 1 < end && IsEscapable(text[j + 1]))
+                {
+                    j += 2;
+                    continue;
+                }
+
+                if (text[j] != ItalicChar)
+                {
+                    j++;
+                    continue;
+                }
+
+                int markerCount = 0;
+
+                while (j < end && text[j] == ItalicChar)
+                {
+                    markerCount++;
+                    j++;
+                }
+
+                if (markerCount % 2 != 0)
+                    italicMarkersCount++;
+            }
+            return italicMarkersCount % 2 != 0;
+        }
     }
 }

@@ -8,6 +8,11 @@ namespace Markdown;
 
 public class HtmlRenderer
 {
+    private const string HeadingFormat = "<h1>{0}</h1>";
+    private const string ParagraphFormat = "<p>{0}</p>";
+    private const string ItalicFormat = "<em>{0}</em>";
+    private const string StrongFormat = "<strong>{0}</strong>";
+    private const string LinkFormat = "<a href=\"{1}\">{0}</a>";
 
     public string RenderDocument(IEnumerable<IBlock> blocks)
     {
@@ -19,17 +24,15 @@ public class HtmlRenderer
         return sb.ToString();
     }
 
-
     private string RenderBlock(IBlock block)
     {
         return block switch
         {
-            HeadingBlock h => $"<h1>{RenderInlineTags(h.InlineTags)}</h1>",
-            ParagraphBlock p => $"<p>{RenderInlineTags(p.InlineTags)}</p>",
+            HeadingBlock heading => string.Format(HeadingFormat, RenderInlineTags(heading.InlineTags)),
+            ParagraphBlock paragraph => string.Format(ParagraphFormat, RenderInlineTags(paragraph.InlineTags)),
             _ => throw new NotSupportedException($"Unknown block type: {block.GetType()}")
         };
     }
-
 
     private string RenderInlineTags(IEnumerable<IInlineTag> tags)
     {
@@ -38,13 +41,24 @@ public class HtmlRenderer
         {
             sb.Append(tag switch
             {
-                TextTag t => t.Text,
-                ItalicTag i => $"<em>{RenderInlineTags(i.Content)}</em>",
-                StrongTag s => $"<strong>{RenderInlineTags(s.Content)}</strong>",
-                LinkTag l => $"<a href=\"{l.Url}\">{RenderInlineTags(l.Content)}</a>",
+                TextTag text => EscapeHtml(text.Text),
+                ItalicTag italic => string.Format(ItalicFormat, RenderInlineTags(italic.Content)),
+                StrongTag strong => string.Format(StrongFormat, RenderInlineTags(strong.Content)),
+                LinkTag link => string.Format(LinkFormat, RenderInlineTags(link.Content), EscapeHtml(link.Url)),
                 _ => throw new NotSupportedException($"Unknown tag type: {tag.GetType()}")
             });
         }
         return sb.ToString();
+    }
+
+    private string EscapeHtml(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+
+        return text
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;")
+            .Replace("\"", "&quot;");
     }
 }

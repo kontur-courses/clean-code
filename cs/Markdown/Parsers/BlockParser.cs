@@ -7,7 +7,8 @@ namespace Markdown.Parsers
     {
         private readonly InlineParser inlineParser = new();
 
-        // Разбивает входной текст на блоки
+        private const string HeadingMarker = "# ";
+
         public List<IBlock> ParseToBlocks(string markdown)
         {
             var blocks = new List<IBlock>();
@@ -17,12 +18,12 @@ namespace Markdown.Parsers
 
             foreach (var line in lines)
             {
-                string text = line.TrimEnd();
+                string text = line.TrimEnd('\r');
                 if (string.IsNullOrEmpty(text)) continue;
 
-                if (text.StartsWith("# "))
+                if (text.StartsWith(HeadingMarker))
                 {
-                    var inlineTags = inlineParser.ParseInlineTags(text.Substring(2));
+                    var inlineTags = inlineParser.ParseInlineTags(text.Substring(HeadingMarker.Length));
                     blocks.Add(new HeadingBlock(inlineTags));
                 }
                 else
@@ -31,7 +32,6 @@ namespace Markdown.Parsers
                     blocks.Add(new ParagraphBlock(inlineTags));
                 }
             }
-
             return blocks;
         }
     }
