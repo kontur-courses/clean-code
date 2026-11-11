@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("MarkdownTests")]
+[assembly: InternalsVisibleTo("MarkdownUnitTests")]
     
 
