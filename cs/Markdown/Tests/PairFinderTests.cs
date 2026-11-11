@@ -59,6 +59,7 @@ namespace Markdown.Tests
 
         [TestCase("ра_зных сл_овах")]
         [TestCase("a_b c_d")]
+        [TestCase("_a b_c")]
         public void Find_ShouldReturnEmpty_WhenUnderscoresInsideWordsAreInDifferentWords_Test(string text)
         {
             var pairs = FindPairs(text);

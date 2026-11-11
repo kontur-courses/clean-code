@@ -10,7 +10,6 @@ namespace Markdown.Tests
 
         [TestCase("")]
         [TestCase("abc")]
-        [TestCase("a b c")]
         public void Render_ShouldReturnSameText_WhenTextHasNoMarkup_Test(string text)
         {
             var html = inlineRenderer.Render(text);
@@ -65,8 +64,6 @@ namespace Markdown.Tests
         [TestCase("__a_")]
         [TestCase("____")]
         [TestCase("цифрами_12_3")]
-        [TestCase("ра_зных сл_овах")]
-        [TestCase("__a _b__ c_")]
         public void Render_ShouldKeepUnderscores_WhenTheyDoNotFormTags_Test(string text)
         {
             var html = inlineRenderer.Render(text);

@@ -42,6 +42,7 @@ namespace Markdown.Tests
                 .Be("# Не заголовок");
         }
 
+        [TestCase("a\n\nb", "a\n\nb")]
         [TestCase("a\nb", "a\nb")]
         [TestCase("a\r\nb", "a\nb")]
         [TestCase("# a\n_b_", "<h1>a</h1>\n<em>b</em>")]
@@ -56,6 +57,7 @@ namespace Markdown.Tests
 
         [TestCase("- a\n- b", "<ul><li>a</li>\n<li>b</li></ul>")]
         [TestCase("a\n- _b_", "a\n<ul><li><em>b</em></li></ul>")]
+        [TestCase("- a\nb", "<ul><li>a</li></ul>\nb")]
         public void Render_ShouldCreateList_WhenParagraphsStartWithDash_Test(string markdown, string expectedHtml)
         {
             var html = md.Render(markdown);
