@@ -1,4 +1,6 @@
 ﻿using Markdown.Entity;
+using Markdown.Enums;
+using Markdown.Parser.Inline;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,12 +14,20 @@ namespace Markdown.Parser.Block
     {
         public static Paragraph CreateParagraph(string paragraphText)
         {
-            throw new NotImplementedException();
+            var currentParagraph = new Paragraph(GetParagraphType(paragraphText));
+
+            var nodeTree = InlineParser.GetTagsTree(
+                currentParagraph.Type == ParagraphType.Heading ? paragraphText.Substring(2) : paragraphText);
+
+            currentParagraph.SetTagTree(nodeTree);
+            return currentParagraph;
         }
 
-        private static bool IsHeading(string text) 
-        { 
-            throw new NotImplementedException(); 
+        private static ParagraphType GetParagraphType(string text) 
+        {
+            if (!string.IsNullOrEmpty(text) && text.StartsWith("# ")) 
+                return ParagraphType.Heading;
+            return ParagraphType.Paragraph;
         }
     }
 }

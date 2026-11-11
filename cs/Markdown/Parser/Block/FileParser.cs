@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,14 +9,22 @@ namespace Markdown.Parser.Block
 {
     public static class FileParser
     {
-        public static string ParseFile(string filename)
+        public static IEnumerable<string> SplitTextForParagraph(string sourceText)
         {
-            throw new NotImplementedException();
-        }
+            if (string.IsNullOrWhiteSpace(sourceText))
+                yield break;
 
-        public static IEnumerable<string> SplitTextForParagraph(string text)
-        {
-            throw new NotImplementedException();
+            var normalizedText = sourceText.Replace("\r\n", "\n").Replace("\r", "\n");
+            var blocks = normalizedText.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var block in blocks)
+            {
+                var trimmedBlock = block.Trim();
+                if (!string.IsNullOrWhiteSpace(trimmedBlock))
+                {
+                    yield return trimmedBlock;
+                }
+            }
         }
     }
 }

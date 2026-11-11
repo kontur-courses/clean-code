@@ -10,16 +10,16 @@ namespace Markdown.Entity
     public class Paragraph
     {
         public ParagraphType Type { get; private set; }
-        public INode Tree { get; private set; }
+        public List<INode> TagsTree { get; private set; }
 
         public Paragraph(ParagraphType type)
         {
             Type = type;
         }
 
-        public void AddTag(INode tag)
+        public void SetTagTree(List<INode> tag)
         {
-
+            TagsTree = tag;
         }
     }
 }

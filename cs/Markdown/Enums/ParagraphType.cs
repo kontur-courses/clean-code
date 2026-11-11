@@ -8,7 +8,7 @@ namespace Markdown.Enums
 {
     public enum ParagraphType
     {
-        None,
+        Paragraph,
         Heading
     }
 }
