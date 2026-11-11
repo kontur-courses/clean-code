@@ -27,6 +27,10 @@ public class Md
 
     public string Render(string markdown)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(markdown))
+            return string.Empty;
+
+        var blocks = _blockParser.Parse(markdown);
+        return _renderer.Render(blocks);
     }
 }

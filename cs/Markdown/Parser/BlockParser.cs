@@ -1,4 +1,5 @@
 using Markdown.Node;
+using Markdown.Node.Type;
 using Markdown.Parser.Interfaces;
 using Markdown.Tokenizer.Interfaces;
 
@@ -17,6 +18,26 @@ public class BlockParser : IBlockParser
 
     public IReadOnlyList<BlockNode> Parse(string markdown)
     {
-        throw new NotImplementedException();
+        var blocks = new List<BlockNode>();
+        var lines = markdown.Split(["\r\n", "\n"], StringSplitOptions.None);
+
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("# ", StringComparison.Ordinal))
+            {
+                var headerContent = line[2..];
+                var tokens = _tokenizer.Tokenize(headerContent);
+                var children = _inlineParser.Parse(tokens);
+                blocks.Add(new BlockNode(BlockType.Header1, children));
+            }
+            else
+            {
+                var tokens = _tokenizer.Tokenize(line);
+                var children = _inlineParser.Parse(tokens);
+                blocks.Add(new BlockNode(BlockType.Paragraph, children));
+            }
+        }
+
+        return blocks;
     }
 }
