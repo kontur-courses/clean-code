@@ -1,11 +1,12 @@
 using NUnit.Framework;
 using Markdown;
 using FluentAssertions;
-using MarkdownTests.Extensions;
-namespace MarkdownTests.Unit
+using MarkdownUnitTests.Extensions;
+
+namespace MarkdownUnitTests
 {
     [TestFixture]
-    public class InlineParserUnitTests
+    public class InlineParserTests
     {
         private IInlineParser parser;
 

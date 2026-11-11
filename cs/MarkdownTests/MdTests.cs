@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarkdownTests.Unit
+namespace MarkdownUnitTests
 {
     [TestFixture]
-    internal class MdUnitTests
+    internal class MdTests
     {
         
     }

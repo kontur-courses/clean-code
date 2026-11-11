@@ -2,10 +2,10 @@
 using Markdown;
 using FluentAssertions;
 
-namespace MarkdownTests.Unit
+namespace MarkdownUnitTests
 {
     [TestFixture]
-    internal class HtmlRendererUnitTests
+    internal class HtmlRendererTests
     {
         private IHtmlRenderer renderer;
 
