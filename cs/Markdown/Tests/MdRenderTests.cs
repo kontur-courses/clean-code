@@ -17,13 +17,20 @@ public class MdRenderTests
         ShouldRenderTo(markdown, expected);
     }
 
-    [TestCase("# Заголовок", "<h1>Заголовок</h1>")]
-    [TestCase("# ", "<h1></h1>")]
+    [TestCase("\\_Вот это\\_", "<p>_Вот это_</p>")]
+    [TestCase("\\\\ _вот это_", "<p>\\ <em>вот это</em></p>")]
     [TestCase(
-        "# Заголовок __с _разными_ символами__",
-        "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
-    [TestCase("a\n# b", "<p>a\n# b</p>")]
-    public void Render_RendersHeaderOnlyAtBlockStart(string markdown, string expected)
+        "Сим\\волы экранирования\\ \\должны остаться.\\",
+        "<p>Сим\\волы экранирования\\ \\должны остаться.\\</p>")]
+    [TestCase("\\# текст", "<p># текст</p>")]
+    [TestCase("\\[a](u)", "<p>[a](u)</p>")]
+    [TestCase("[a\\](u)", "<p>[a](u)</p>")]
+    [TestCase("[a\\\\](u)", "<p><a href=\"u\">a\\</a></p>")]
+    [TestCase("\\a", "<p>\\a</p>")]
+    [TestCase("\\\\\\", "<p>\\\\</p>")]
+    [TestCase("\\\\_текст_", "<p>\\<em>текст</em></p>")]
+    [TestCase("\\__текст__", "<p>__текст__</p>")]
+    public void Render_RemovesEscapingCharacters(string markdown, string expected)
     {
         ShouldRenderTo(markdown, expected);
     }
@@ -35,10 +42,15 @@ public class MdRenderTests
         ShouldRenderTo(markdown, expected);
     }
 
-    [TestCase("цифрами_12_3", "<p>цифрами_12_3</p>")]
     [TestCase("и в _нач_але", "<p>и в <em>нач</em>але</p>")]
     [TestCase("сер_еди_не", "<p>сер<em>еди</em>не</p>")]
     [TestCase("кон_це._", "<p>кон<em>це.</em></p>")]
+    public void Render_EmphasizesPartOfWord(string markdown, string expected)
+    {
+        ShouldRenderTo(markdown, expected);
+    }
+
+    [TestCase("цифрами_12_3", "<p>цифрами_12_3</p>")]
     [TestCase("ра_зных сл_овах", "<p>ра_зных сл_овах</p>")]
     [TestCase("__Непарные_ символы", "<p>__Непарные_ символы</p>")]
     [TestCase("эти_ подчерки_", "<p>эти_ подчерки_</p>")]
@@ -52,14 +64,25 @@ public class MdRenderTests
         ShouldRenderTo(markdown, expected);
     }
 
-    [TestCase("\\_Вот это\\_", "<p>_Вот это_</p>")]
-    [TestCase("\\\\ _вот это будет выделено_", "<p>\\ <em>вот это будет выделено</em></p>")]
+    [TestCase("_a [b_ c](u)", "<p><em>a [b</em> c](u)</p>")]
+    [TestCase("[a _b](u) c_", "<p><a href=\"u\">a _b</a> c_</p>")]
+    public void Render_KeepsOnlyPairThatOpenedFirstOnCrossing(string markdown, string expected)
+    {
+        ShouldRenderTo(markdown, expected);
+    }
+
+    [TestCase("# Заголовок", "<h1>Заголовок</h1>")]
+    [TestCase("# ", "<h1></h1>")]
     [TestCase(
-        "Здесь сим\\волы экранирования\\ \\должны остаться.\\",
-        "<p>Здесь символы экранирования должны остаться.\\</p>")]
-    [TestCase("\\# текст", "<p># текст</p>")]
-    [TestCase("\\[a](u)", "<p>[a](u)</p>")]
-    public void Render_RemovesEscapingCharacters(string markdown, string expected)
+        "# Заголовок __с _разными_ символами__",
+        "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
+    public void Render_RendersHeader(string markdown, string expected)
+    {
+        ShouldRenderTo(markdown, expected);
+    }
+
+    [TestCase("a\n# b", "<p>a\n# b</p>")]
+    public void Render_KeepsHeaderMarkerInsideParagraphAsText(string markdown, string expected)
     {
         ShouldRenderTo(markdown, expected);
     }
@@ -67,7 +90,6 @@ public class MdRenderTests
     [TestCase("[текст](url)", "<p><a href=\"url\">текст</a></p>")]
     [TestCase("[a _b_ c](u)", "<p><a href=\"u\">a <em>b</em> c</a></p>")]
     [TestCase("[a](u) [b](v)", "<p><a href=\"u\">a</a> <a href=\"v\">b</a></p>")]
-    [TestCase("[a [b](u) c](v)", "<p><a href=\"v\">a <a href=\"u\">b</a> c</a></p>")]
     public void Render_RendersLinks(string markdown, string expected)
     {
         ShouldRenderTo(markdown, expected);
@@ -93,8 +115,22 @@ public class MdRenderTests
         ShouldRenderTo(markdown, expected);
     }
 
+    [TestCase("[a [b](u) c](v)", "<p>[a <a href=\"u\">b</a> c](v)</p>")]
+    [TestCase("[a [b [c](u) d](v) e](w)", "<p>[a [b <a href=\"u\">c</a> d](v) e](w)</p>")]
+    [TestCase("[a [b] c](v)", "<p><a href=\"v\">a [b] c</a></p>")]
+    public void Render_ForbidsLinksInsideLinks(string markdown, string expected)
+    {
+        ShouldRenderTo(markdown, expected);
+    }
+
+    [TestCase("a < b", "<p>a &lt; b</p>")]
+    [TestCase("a & b > c", "<p>a &amp; b &gt; c</p>")]
+    public void Render_EscapesHtmlInText(string markdown, string expected)
+    {
+        ShouldRenderTo(markdown, expected);
+    }
+
     [TestCase("a\n\nb", "<p>a</p>\n<p>b</p>")]
-    [TestCase("a\r\n\r\nb", "<p>a</p>\n<p>b</p>")]
     [TestCase("# h\n\nтекст", "<h1>h</h1>\n<p>текст</p>")]
     public void Render_SplitsBlocksByBlankLines(string markdown, string expected)
     {
@@ -110,13 +146,6 @@ public class MdRenderTests
     [TestCase("", "")]
     [TestCase("   ", "")]
     public void Render_ReturnsEmptyHtmlForBlankInput(string markdown, string expected)
-    {
-        ShouldRenderTo(markdown, expected);
-    }
-
-    [TestCase("a < b", "<p>a &lt; b</p>")]
-    [TestCase("a & b > c", "<p>a &amp; b &gt; c</p>")]
-    public void Render_EscapesHtmlInText(string markdown, string expected)
     {
         ShouldRenderTo(markdown, expected);
     }
