@@ -3,4 +3,4 @@ using Markdown.Node.Type;
 
 namespace Markdown.Node;
 
-public record EmphasisNode(EmphasisType EmphasisType, IReadOnlyCollection<INode> Children) : INode;
+public record EmphasisNode(EmphasisType EmphasisType, IReadOnlyList<INode> Children) : INode;
