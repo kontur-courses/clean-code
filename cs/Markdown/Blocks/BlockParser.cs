@@ -3,6 +3,7 @@ namespace Markdown.Blocks;
 public class BlockParser
 {
     private const string HeaderMarker = "# ";
+    private const string EscapedHeaderMarker = "\\# ";
 
     public IReadOnlyList<Block> Parse(IReadOnlyList<string> lines)
     {
@@ -30,17 +31,11 @@ public class BlockParser
             return;
 
         var firstLine = current[0];
-        var backslashCount = 0;
-        while (backslashCount < firstLine.Length && firstLine[backslashCount] == '\\')
-            backslashCount++;
-
-        var hasHeaderMarker = firstLine[backslashCount..].StartsWith(HeaderMarker, StringComparison.Ordinal);
-        var isHeader = backslashCount == 0 && hasHeaderMarker;
-        var isEscapedHeader = backslashCount % 2 == 1 && hasHeaderMarker;
+        var isHeader = firstLine.StartsWith(HeaderMarker, StringComparison.Ordinal);
 
         if (isHeader)
             current[0] = firstLine[HeaderMarker.Length..];
-        else if (isEscapedHeader)
+        else if (firstLine.StartsWith(EscapedHeaderMarker, StringComparison.Ordinal))
             current[0] = firstLine[1..];
 
         blocks.Add(new Block(

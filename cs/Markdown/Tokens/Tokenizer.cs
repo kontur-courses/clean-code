@@ -9,6 +9,7 @@ public class Tokenizer
         var tokens = new List<Token>();
         var textBuffer = new StringBuilder();
         var index = 0;
+        var noClosingParenBefore = -1;
 
         while (index < content.Length)
         {
@@ -19,7 +20,7 @@ public class Tokenizer
                     break;
                 case '_':
                     FlushText(tokens, textBuffer);
-                    index = AddUnderscore(tokens, content, index);
+                    index = AddUnderscores(tokens, content, index);
                     break;
                 case '[':
                     FlushText(tokens, textBuffer);
@@ -27,7 +28,7 @@ public class Tokenizer
                     break;
                 case ']':
                     FlushText(tokens, textBuffer);
-                    index = AddRightBracket(tokens, content, index);
+                    index = AddRightBracket(tokens, content, index, ref noClosingParenBefore);
                     break;
                 default:
                     index = AppendText(textBuffer, content, index);
@@ -72,15 +73,31 @@ public class Tokenizer
         textBuffer.Clear();
     }
 
-    private static int AddUnderscore(List<Token> tokens, string content, int index)
+    private static int AddUnderscores(List<Token> tokens, string content, int start)
     {
-        var isDouble = index + 1 < content.Length && content[index + 1] == '_';
-        var token = isDouble
-            ? CreateMarkup(TokenKind.DoubleUnderscore, "__", content, index)
-            : CreateMarkup(TokenKind.Underscore, "_", content, index);
+        var end = start;
+        while (end < content.Length && content[end] == '_')
+            end++;
 
-        tokens.Add(token);
-        return index + token.Value.Length;
+        var before = start > 0 ? content[start - 1] : Token.Boundary;
+        var after = end < content.Length ? content[end] : Token.Boundary;
+
+        for (var index = start; index < end;)
+        {
+            var isDouble = index + 1 < end;
+            var kind = isDouble ? TokenKind.DoubleUnderscore : TokenKind.Underscore;
+            var value = isDouble ? "__" : "_";
+
+            tokens.Add(new Token(kind, value)
+            {
+                Before = before,
+                After = after
+            });
+
+            index += value.Length;
+        }
+
+        return end;
     }
 
     private static int AddLeftBracket(List<Token> tokens, string content, int index)
@@ -89,15 +106,19 @@ public class Tokenizer
         return index + 1;
     }
 
-    private static int AddRightBracket(List<Token> tokens, string content, int index)
+    private static int AddRightBracket(
+        List<Token> tokens,
+        string content,
+        int index,
+        ref int noClosingParenBefore)
     {
         tokens.Add(CreateMarkup(TokenKind.RightBracket, "]", content, index));
         var next = index + 1;
 
-        if (next >= content.Length || content[next] != '(')
+        if (next >= content.Length || content[next] != '(' || next < noClosingParenBefore)
             return next;
 
-        var urlEnd = FindUrlEnd(content, next);
+        var urlEnd = FindUrlEnd(content, next, out noClosingParenBefore);
         if (urlEnd < 0)
             return next;
 
@@ -115,16 +136,24 @@ public class Tokenizer
         };
     }
 
-    private static int FindUrlEnd(string content, int urlStart)
+    private static int FindUrlEnd(string content, int urlStart, out int scannedUntil)
     {
         for (var index = urlStart + 1; index < content.Length; index++)
         {
             if (content[index] == '\n')
+            {
+                scannedUntil = index;
                 return -1;
+            }
+
             if (content[index] == ')')
+            {
+                scannedUntil = index;
                 return index;
+            }
         }
 
+        scannedUntil = content.Length;
         return -1;
     }
 
