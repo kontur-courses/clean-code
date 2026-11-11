@@ -6,45 +6,84 @@ public class MarkdownLexerTests
 {
     private readonly MarkdownLexer sut = new MarkdownLexer();
 
-    private static IEnumerable<object> ShouldResolveCases()
+    [Test]
+    public void GetTokens_ShouldTokenizeTextWithItalicMarkers()
     {
-        yield return new object[] {"_123 2_", new List<Token>
+        var text = "_123 2_";
+        var expected = new List<Token>
         {
             new Token(TokenType.ItalicSymbol),
             new Token(TokenType.Word, "123"),
             new Token(TokenType.Space),
             new Token(TokenType.Word, "2"),
             new Token(TokenType.ItalicSymbol)
-        }};
+        };
+
+        var actual = sut.GetTokens(text);
         
-        yield return new object[] {"__123 33__", new List<Token>
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeTextWithBoldMarkers()
+    {
+        var text = "__123 33__";
+        var expected = new List<Token>
         {
             new Token(TokenType.BoldSymbol),
             new Token(TokenType.Word, "123"),
             new Token(TokenType.Space),
             new Token(TokenType.Word, "33"),
             new Token(TokenType.BoldSymbol)
-        }};
-        
-        yield return new object[] {"# 123 123", new List<Token>
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeHeaderMarker()
+    {
+        var text = "# 123 123";
+        var expected = new List<Token>
         {
             new Token(TokenType.Header),
             new Token(TokenType.Space),
             new Token(TokenType.Word, "123"),
             new Token(TokenType.Space),
             new Token(TokenType.Word, "123")
-        }};
-        
-        yield return new object[] {"qwe______123", new List<Token>
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeConsecutiveBoldMarkers()
+    {
+        var text = "qwe______123";
+        var expected = new List<Token>
         {
             new Token(TokenType.Word, "qwe"),
             new Token(TokenType.BoldSymbol),
             new Token(TokenType.BoldSymbol),
             new Token(TokenType.BoldSymbol),
-            new Token(TokenType.Word, "123"),
-        }};
-        
-        yield return new object[] {"# 123 123\r\n123", new List<Token>
+            new Token(TokenType.Word, "123")
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeNewLine()
+    {
+        var text = "# 123 123\r\n123";
+        var expected = new List<Token>
         {
             new Token(TokenType.Header),
             new Token(TokenType.Space),
@@ -53,28 +92,45 @@ public class MarkdownLexerTests
             new Token(TokenType.Word, "123"),
             new Token(TokenType.NewLine),
             new Token(TokenType.Word, "123")
-        }};
-        
-        yield return new object[] {@"\__123", new List<Token>
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+    
+    [Test]
+    public void GetTokens_ShouldHandleEscaping()
+    {
+        var text = @"\__123";
+        var expected = new List<Token>
         {
             new Token(TokenType.Word, "_"),
             new Token(TokenType.ItalicSymbol),
-            new Token(TokenType.Word, "123"),
-        }};
-        
-        yield return new object[] {"asd\r\n\r\nasd", new List<Token>
+            new Token(TokenType.Word, "123")
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+ 
+    
+    [Test]
+    public void GetTokens_ShouldTokenizeSeveralNewLines()
+    {
+        var text = "asd\r\n\r\nasd";
+        var expected = new List<Token>
         {
             new Token(TokenType.Word, "asd"),
             new Token(TokenType.NewLine),
             new Token(TokenType.NewLine),
-            new Token(TokenType.Word, "asd"),
-        }};
+            new Token(TokenType.Word, "asd")
+        };
+
+        var actual = sut.GetTokens(text);
+
+        Assert.That(actual, Is.EqualTo(expected));
     }
-    
-    [TestCaseSource(nameof(ShouldResolveCases))]
-    public void GetTokens_ShouldResolveTextStyleSymbols(string text, List<Token> expected)
-    {
-        Assert.That(sut.GetTokens(text), Is.EqualTo(expected));
-    }
-    
+  
 }
