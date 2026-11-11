@@ -14,7 +14,46 @@ namespace Markdown.Parsing
 
             while (i < text.Length)
             {
-                if (text[i] == '_')
+                if (text[i] == '\\')
+                {
+                    int backslashCount = 0;
+                    while (i < text.Length && text[i] == '\\')
+                    {
+                        backslashCount++;
+                        i++;
+                    }
+
+                    if (i < text.Length && text[i] == '_')
+                    {
+                        if (backslashCount % 2 == 1)
+                        {
+                            if (currentText.Length > 0)
+                            {
+                                tokens.Add(new Token(text: currentText.ToString()));
+                                currentText.Clear();
+                            }
+
+                            int literalBackslashes = backslashCount / 2;
+                            if (literalBackslashes > 0)
+                            {
+                                currentText.Append(new string('\\', literalBackslashes));
+                            }
+
+                            tokens.Add(new Token(text: "_", isEscaped: true));
+                            i++; 
+                        }
+                        else
+                        {
+                            int literalBackslashes = backslashCount / 2;
+                            currentText.Append(new string('\\', literalBackslashes));
+                        }
+                    }
+                    else
+                    {
+                        currentText.Append(new string('\\', backslashCount));
+                    }
+                }
+                else if (text[i] == '_')
                 {
                     if (currentText.Length > 0)
                     {

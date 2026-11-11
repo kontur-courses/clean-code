@@ -91,7 +91,7 @@ namespace MdTests
         }
 
         [Test]
-        public void Parse_UnmutchedUnderscores_ReturnsAsIs()
+        public void Parse_UnmutchedUnderscores_ReturnsOnlyMatchingUnderscores()
         {
             _md.Parse("Текст с __непарными_ подчеркиваниями").Should().Be("Текст с <em>_непарными</em> подчеркиваниями");
 
@@ -113,6 +113,12 @@ namespace MdTests
             _md.Parse("Текст с 1__23_45__6").Should().Be("Текст с 1__23_45__6");
         }
 
+
+        [Test]
+        public void Parse_Escaped_ReturnsAsIs()
+        {
+            _md.Parse("Текст с \\__экранированным__ подчеркиванием").Should().Be("Текст с __экранированным__ подчеркиванием");
+        }
 
 
     }

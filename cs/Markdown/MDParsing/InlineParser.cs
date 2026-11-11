@@ -37,6 +37,12 @@ namespace Markdown.Parsing
 
             var token = _tokens[_currentIndex];
 
+            if (token.IsEscaped)
+            {
+                _currentIndex++;
+                return new TextNode(token.Text);
+            }
+
             if (token.UnderscoreCount == 0)
             {
                 _currentIndex++;
