@@ -12,14 +12,28 @@ namespace Markdown.Parsing
             List<Token> innerTokens,
             int delimiterCount)
         {
+            // Правило 10: Пустая строка внутри не считается выделением (____)
             if (IsWhitespaceOnly(innerTokens))
                 return false;
 
+            // Правило 3: Выделение не работает, если граничит с цифрами (_12_3)
             if (IsBoundedByDigits(tokenBeforeOpen, tokenAfterClose))
                 return false;
 
+            // Правило 7: За открывающим _ должен следовать непробельный символ
+            if (!FollowedByNonSpace(innerTokens))
+                return false;
 
-            if (delimiterCount == 1 && IsInsideWord(tokenBeforeOpen, tokenAfterClose))
+            // Правило 8: Перед закрывающим _ должен идти непробельный символ
+            if (!PrecededByNonSpace(innerTokens))
+                return false;
+
+            // Правило 5: Одинарное _ не работает в разных словах (ра_зных сл_овах)
+            if (delimiterCount == 1 && IsAcrossWords(tokenBeforeOpen, tokenAfterClose, innerTokens))
+                return false;
+
+            // Правило 9: Пересечение __ и _ (ни один не работает)
+            if (IsCrossing(innerTokens, delimiterCount))
                 return false;
 
             return true;
@@ -44,17 +58,52 @@ namespace Markdown.Parsing
             return isDigitBefore && isDigitAfter;
         }
 
-        private static bool IsInsideWord(Token? before, Token? after)
+        // Проверяем только текстовые токены (UnderscoreCount == 0)
+        private static bool FollowedByNonSpace(List<Token> innerTokens)
         {
-            bool isLetterBefore = before.HasValue && before.Value.UnderscoreCount == 0 &&
-                                  before.Value.Text.Length > 0 &&
-                                  char.IsLetter(before.Value.Text[^1]);
+            var firstTextToken = innerTokens.FirstOrDefault(t => t.UnderscoreCount == 0 && t.Text != null);
+            if (firstTextToken.Text == null) return false;
+            return firstTextToken.Text.Length > 0 && !char.IsWhiteSpace(firstTextToken.Text[0]);
+        }
 
-            bool isLetterAfter = after.HasValue && after.Value.UnderscoreCount == 0 &&
-                                 after.Value.Text.Length > 0 &&
-                                 char.IsLetter(after.Value.Text[0]);
+        private static bool PrecededByNonSpace(List<Token> innerTokens)
+        {
+            var lastTextToken = innerTokens.LastOrDefault(t => t.UnderscoreCount == 0 && t.Text != null);
+            if (lastTextToken.Text == null) return false;
+            return lastTextToken.Text.Length > 0 && !char.IsWhiteSpace(lastTextToken.Text[^1]);
+        }
 
-            return isLetterBefore && isLetterAfter;
+        private static bool IsAcrossWords(Token? before, Token? after, List<Token> innerTokens)
+        {
+            bool isNonSpaceBefore = before.HasValue && before.Value.UnderscoreCount == 0 &&
+                                    before.Value.Text.Length > 0 &&
+                                    !char.IsWhiteSpace(before.Value.Text[^1]);
+
+            bool isNonSpaceAfter = after.HasValue && after.Value.UnderscoreCount == 0 &&
+                                   after.Value.Text.Length > 0 &&
+                                   !char.IsWhiteSpace(after.Value.Text[0]);
+
+            bool hasSpaceBetween = innerTokens.Any(t => t.UnderscoreCount == 0 &&
+                                                         t.Text != null &&
+                                                         t.Text.Contains(" "));
+
+            return isNonSpaceBefore && isNonSpaceAfter && hasSpaceBetween;
+        }
+
+        private static bool IsCrossing(List<Token> innerTokens, int currentDelimiterCount)
+        {
+            if (currentDelimiterCount == 2)
+            {
+
+                int singleUnderscores = innerTokens.Sum(t => t.UnderscoreCount % 2);
+                return singleUnderscores % 2 != 0;
+            }
+            else
+            {
+
+                int doubleUnderscores = innerTokens.Sum(t => t.UnderscoreCount / 2);
+                return doubleUnderscores % 2 != 0;
+            }
         }
     }
 }

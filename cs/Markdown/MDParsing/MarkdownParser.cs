@@ -1,6 +1,7 @@
 ﻿using Markdown.Abstractions;
 using Markdown.MDElements;
-using Markdown.Parsing;
+using Markdown.MDParsing;
+
 
 namespace Markdown.Parsing
 {
@@ -18,26 +19,53 @@ namespace Markdown.Parsing
                 var trimmedLine = line.Trim();
                 if (string.IsNullOrEmpty(trimmedLine)) continue;
 
-                if (trimmedLine.StartsWith("# "))
+                var tokens = MarkdownTokenizer.Tokenize(trimmedLine);
+
+                if (IsHeader(tokens))
                 {
-                    var header = new HeaderNode();
-                    header.Children = ParseInline(trimmedLine.Substring(2));
-                    result.Add(header);
+                    var headerContent = GetHeaderContent(tokens);
+                    var headerNode = new HeaderNode();
+                    headerNode.Children = ParseInlineFromTokens(headerContent);
+                    result.Add(headerNode);
                 }
                 else
                 {
-                    result.AddRange(ParseInline(trimmedLine));
+                    result.AddRange(ParseInlineFromTokens(tokens));
                 }
             }
             return result;
         }
 
-        private List<InlineNode> ParseInline(string text)
-        {
-            var tokens = MarkdownTokenizer.Tokenize(text);
 
+        private bool IsHeader(List<Token> tokens)
+        {
+            if (tokens.Count == 0) return false;
+
+            if (tokens[0].IsEscaped) return false;
+            if (tokens[0].Text.StartsWith("# ")) return true;
+
+            return false;
+        }
+
+        private List<Token> GetHeaderContent(List<Token> tokens)
+        {
+            var result = new List<Token>(tokens);
+
+            result[0] = new Token(
+                text: result[0].Text.Substring(2),
+                underscoreCount: result[0].UnderscoreCount,
+                isEscaped: result[0].IsEscaped
+            );
+
+            return result;
+        }
+
+
+        private List<InlineNode> ParseInlineFromTokens(List<Token> tokens)
+        {
             var parser = new InlineParser(tokens);
             return parser.ParseAll();
         }
+
     }
 }

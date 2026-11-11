@@ -54,6 +54,30 @@ namespace MdTests
         }
 
         [Test]
+        public void Parse_ItalicStartInsideWord_ReturnsAsIs()
+        {
+            _md.Parse("Текст с подч_еркиванием_ внутри слова").Should().Be("Текст с подч<em>еркиванием</em> внутри слова");
+        }
+
+        [Test]
+        public void Parse_ItalicClosedInsedeWord_ReturnsAsIs()
+        {
+            _md.Parse("Текст с _подчерк_иванием внутри слова").Should().Be("Текст с <em>подчерк</em>иванием внутри слова");
+        }
+
+        [Test]
+        public void Parse_ItalicStartAndClosedInsideWord_ReturnsAsIs()
+        {
+            _md.Parse("Текст с подч_еркива_нием внутри слова").Should().Be("Текст с подч<em>еркива</em>нием внутри слова");
+        }
+
+        [Test]
+        public void Parse_StrongCloseInsedeItalic_ReturnsAsIs()
+        {
+            _md.Parse("__пересечения _двойных__ и одинарных_").Should().Be("__пересечения _двойных__ и одинарных_");
+        }
+
+        [Test]
         public void Parse_TripleUnderscore_ReturnsStrongTag()
         {
             _md.Parse("___текст___").Should().Be("<strong><em>текст</em></strong>");
@@ -115,11 +139,30 @@ namespace MdTests
 
 
         [Test]
-        public void Parse_Escaped_ReturnsAsIs()
+        public void Parse_EscapedWithStrongTag_ReturnsAsIs()
         {
             _md.Parse("Текст с \\__экранированным__ подчеркиванием").Should().Be("Текст с __экранированным__ подчеркиванием");
         }
 
+        [Test]
+        public void Parse_EscapedClosedTag_ReturnsAsIs()
+        {
+            _md.Parse("Текст с _Подчеркиваниями\\_ подчеркиванием").Should().Be("Текст с _Подчеркиваниями_ подчеркиванием");
+        }
 
+        [Test]
+        public void Parse_EscapedHeader_ReturnsAsIs()
+        {
+            _md.Parse("\\# Заголовок").Should().Be("# Заголовок");
+        }
+
+        [Test]
+        public void Parse_EscapedInsideWord_ReturnsAsIs()
+        {
+            _md.Parse(@"Текст с эскейпом внутри слова: подчеркив\ание").Should().Be(@"Текст с эскейпом внутри слова: подчеркив\ание");
+        }
+
+
+        
     }
 }
