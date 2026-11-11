@@ -15,9 +15,10 @@ namespace MarkdownUnitTests
             renderer = new HtmlRenderer(); // недоступ изза уровня защиты internal СПРОСИТЬ
         }
 
-        [TestCase(null)]
-        public void Render_ThrowsException_WhenInvalidData(List<Token> tokens)
+        [Test]
+        public void Render_ThrowsException_WhenInvalidData()
         {
+            List<Token> tokens = null;
             var action = () => renderer.Render(tokens);
 
             action.Should().Throw<ArgumentNullException>();
