@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown.csproj", "{C16F58BF-0836-46B5-8187-643A28533CAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C16F58BF-0836-46B5-8187-643A28533CAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C16F58BF-0836-46B5-8187-643A28533CAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C16F58BF-0836-46B5-8187-643A28533CAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C16F58BF-0836-46B5-8187-643A28533CAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {65E4DE19-48D0-451E-A153-23D78D2733A4}
+	EndGlobalSection
+EndGlobal
