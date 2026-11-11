@@ -63,11 +63,7 @@
             out Underscore underscore)
         {
             underscore = null;
-            var isInsideWord = IsInsideWord(text, position, length);
-            var isInsideNumber = isInsideWord && IsNextToDigit(text, position, length);
-            var isMissing = length == 0;
-            var isTooLong = length > MaxUnderscoreLength;
-            if (isMissing || isTooLong || isInsideNumber)
+            if (IsNotMarkup(text, position, length))
                 return false;
 
             underscore = new Underscore(
@@ -75,10 +71,22 @@
                 length,
                 CanOpen(text, position, length),
                 CanClose(text, position),
-                isInsideWord,
+                IsInsideWord(text, position, length),
                 wordIndex);
 
             return true;
+        }
+
+        private static bool IsNotMarkup(string text, int position, int length)
+        {
+            var isMissing = length == 0;
+            var isTooLong = length > MaxUnderscoreLength;
+            return isMissing || isTooLong || IsInsideNumber(text, position, length);
+        }
+
+        private static bool IsInsideNumber(string text, int position, int length)
+        {
+            return IsNextToDigit(text, position, length);
         }
 
         private static bool CanOpen(string text, int position, int length)

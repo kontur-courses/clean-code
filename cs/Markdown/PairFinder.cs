@@ -45,15 +45,20 @@
         private static List<UnderscorePair> RemoveIntersecting(List<UnderscorePair> pairs)
         {
             var sortedPairs = SortByOpening(pairs);
+            var intersectingPairs = FindIntersectingPairs(sortedPairs);
+
+            return sortedPairs
+                .Where(pair => !intersectingPairs.Contains(pair))
+                .ToList();
+        }
+
+        private static HashSet<UnderscorePair> FindIntersectingPairs(List<UnderscorePair> sortedPairs)
+        {
             var intersectingPairs = new HashSet<UnderscorePair>();
             var openPairs = new Stack<UnderscorePair>();
             foreach (var pair in sortedPairs)
             {
-                while (openPairs.Count > 0 && openPairs.Peek().Closing.Position < pair.Opening.Position)
-                {
-                    openPairs.Pop();
-                }
-
+                RemoveClosedPairs(openPairs, pair.Opening.Position);
                 if (openPairs.Count > 0 && AreIntersecting(openPairs.Peek(), pair))
                 {
                     intersectingPairs.Add(openPairs.Peek());
@@ -63,9 +68,7 @@
                 openPairs.Push(pair);
             }
 
-            return sortedPairs
-                .Where(pair => !intersectingPairs.Contains(pair))
-                .ToList();
+            return intersectingPairs;
         }
 
         private static bool AreIntersecting(UnderscorePair first, UnderscorePair second)
@@ -82,14 +85,8 @@
             var openSinglePairs = new Stack<UnderscorePair>();
             foreach (var pair in SortByOpening(pairs))
             {
-                while (openSinglePairs.Count > 0 && openSinglePairs.Peek().Closing.Position < pair.Opening.Position)
-                {
-                    openSinglePairs.Pop();
-                }
-
-                var isInsideSingle = openSinglePairs.Count > 0 && IsInside(pair, openSinglePairs.Peek());
-                var isDoubleInsideSingle = isInsideSingle && !pair.Opening.IsSingle;
-                if (isDoubleInsideSingle)
+                RemoveClosedPairs(openSinglePairs, pair.Opening.Position);
+                if (IsDoubleInsideSingle(pair, openSinglePairs))
                     continue;
 
                 if (pair.Opening.IsSingle)
@@ -99,6 +96,20 @@
             }
 
             return allowedPairs;
+        }
+
+        private static bool IsDoubleInsideSingle(UnderscorePair pair, Stack<UnderscorePair> openSinglePairs)
+        {
+            var isInsideSingle = openSinglePairs.Count > 0 && IsInside(pair, openSinglePairs.Peek());
+            return isInsideSingle && !pair.Opening.IsSingle;
+        }
+
+        private static void RemoveClosedPairs(Stack<UnderscorePair> openPairs, int position)
+        {
+            while (openPairs.Count > 0 && openPairs.Peek().Closing.Position < position)
+            {
+                openPairs.Pop();
+            }
         }
 
         private static bool IsInside(UnderscorePair inner, UnderscorePair outer)

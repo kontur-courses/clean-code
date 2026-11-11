@@ -19,8 +19,7 @@ namespace Markdown
 
         private static string CreateHtml(string text, IReadOnlyList<UnderscorePair> pairs, ISet<int> escapePositions)
         {
-            var openings = pairs
-                .ToDictionary(pair => pair.Opening.Position, pair => pair.Opening);
+            var openings = pairs.ToDictionary(pair => pair.Opening.Position, pair => pair.Opening);
             var closings = pairs.ToDictionary(pair => pair.Closing.Position, pair => pair.Closing);
             var html = new StringBuilder();
             var position = 0;
