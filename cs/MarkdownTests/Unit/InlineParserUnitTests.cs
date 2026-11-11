@@ -7,6 +7,7 @@ namespace MarkdownTests.Unit
     public class InlineParserUnitTests
     {
         private IInlineParser parser;
+
         [SetUp]
         public void Setup()
         {
@@ -15,7 +16,7 @@ namespace MarkdownTests.Unit
         }
 
         [TestCase(null)]
-        public void ParseToTokens_ThrowArgumentNullException_WhenNull(string line)
+        public void ParseToTokens_ThrowsArgumentNullException_WhenNull(string line)
         {
             var action = () => parser.ParseToTokens(line);
 
@@ -25,7 +26,7 @@ namespace MarkdownTests.Unit
         [TestCase("")]
         public void ParseToTokens_ReturnsEmptyList_WhenEmptyLine(string line)
         {
-           var result = parser.ParseToTokens(line);
+            var result = parser.ParseToTokens(line);
 
             result.Should().BeEmpty();
         }
@@ -39,6 +40,31 @@ namespace MarkdownTests.Unit
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
+            result[0].Content.Should().Be(line);
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenBackslashBeforeTag()
+        {
+            var line = "\\_text\\_";
+
+            var result = parser.ParseToTokens(line);
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Children.Should().BeNull();
+            result[0].Content.Should().Be(line);
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenOnlyBackslashes()
+        {
+            var line = "\\\\";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Children.Should().BeNull();
             result[0].Content.Should().Be(line);
         }
 
@@ -58,6 +84,126 @@ namespace MarkdownTests.Unit
             tagToken.Children[0].Content.Should().Be("text");
         }
 
-        
+        [Test]
+        public void ParseToTokens_ReturnsList_WhenSingleStrongTokenWithText()
+        {
+            var line = "<strong>text</strong>";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            var tagToken = result[0];
+            tagToken.IsTag().Should().BeTrue();
+            tagToken.Tag.MarkdownSymbol.Should().Be("__");
+            tagToken.Children.Should().HaveCount(1);
+            tagToken.Children[0].IsTag().Should().BeFalse();
+            tagToken.Children[0].Content.Should().Be("text");
+        }
+
+        [TestCase("_")]
+        [TestCase("__")]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenTagWithSpaces(string tagText)
+        {
+            var line = $"{tagText} text {tagText}";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Content.Should().Be(line);
+        }
+
+        [TestCase("_")]
+        [TestCase("__")]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenUnclosedTag(string tagText)
+        {
+            var line = $"{tagText}text";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Content.Should().Be(line);
+
+
+            line = $"text{tagText}";
+
+            result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Content.Should().Be(line);
+
+        }
+
+        [TestCase("_")]
+        [TestCase("__")]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenTagsInInvalidPlace(string tagText)
+        {
+            var line = $"{tagText}tex{tagText}t";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeFalse();
+            result[0].Content.Should().Be(line);
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithManyTokens_WhenMultiplyTags()
+        {
+            var line = "_a lot_ of __tags__";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(3);
+
+            result[0].IsTag().Should().BeTrue();
+            result[0].Tag.MarkdownSymbol.Should().Be("_");
+            result[0].Children[0].Should().Be("a lot");
+
+            result[1].IsTag().Should().BeFalse();
+            result[1].Content.Should().Be(" of ");
+
+            result[2].IsTag().Should().BeTrue();
+            result[2].Tag.MarkdownSymbol.Should().Be("__");
+            result[2].Children[0].Should().Be("tags");
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithManyTagTokens_WhenStrongContainsEmInside()
+        {
+            var line = "__strong and _em_ text__";
+
+            var result = parser.ParseToTokens(line);
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeTrue();
+            result[0].Tag.MarkdownSymbol.Should().Be("__");
+
+            result[0].Children.Should().HaveCount(3);
+            result[0].Children[0].Content.Should().Be("strong and ");
+
+            result[0].Children[1].IsTag().Should().BeTrue();
+            result[0].Children[1].Tag.MarkdownSymbol.Should().Be("_");
+            result[0].Children[1].Children[0].Content.Should().Be("em");
+
+            result[0].Children[2].Content.Should().Be(" text");
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithOneTagToken_WhenEmContainsStrongInside()
+        {
+            var result = parser.ParseToTokens("_text __strong__ text_");
+
+            result.Should().HaveCount(1);
+            result[0].IsTag().Should().BeTrue();
+            result[0].Tag.MarkdownSymbol.Should().Be("_");
+
+            result[0].Children.Should().HaveCount(1);
+            result[0].Children[0].IsTag().Should().BeFalse();
+            result[0].Children[0].Content.Should().Be("text __strong__ text");
+
+        }
     }
 }
