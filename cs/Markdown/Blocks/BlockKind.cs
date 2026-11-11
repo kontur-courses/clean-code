@@ -1,6 +1,6 @@
 namespace Markdown.Blocks;
 
-public enum BlockType
+public enum BlockKind
 {
     Paragraph,
     Header

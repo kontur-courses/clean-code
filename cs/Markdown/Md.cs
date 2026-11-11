@@ -20,6 +20,16 @@ public class Md
 
     public string Render(string markdown)
     {
-        throw new NotImplementedException();
+        var blocks = blockParser.Parse(lineSplitter.Split(markdown));
+        var html = new List<string>(blocks.Count);
+
+        foreach (var block in blocks)
+        {
+            var tokens = tokenizer.Tokenize(block.Content);
+            tagPairer.Pair(tokens);
+            html.Add(renderer.Render(block.Kind, treeBuilder.Build(tokens)));
+        }
+
+        return string.Join("\n", html);
     }
 }

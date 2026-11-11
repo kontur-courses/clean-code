@@ -1,3 +1,6 @@
 namespace Markdown.Blocks;
 
-public record Block(BlockType Type, string Content);
+/// <param name="Content">
+///     Для <see cref="BlockKind.Header" /> текст заголовка без маркера "# ".
+/// </param>
+public record Block(BlockKind Kind, string Content);

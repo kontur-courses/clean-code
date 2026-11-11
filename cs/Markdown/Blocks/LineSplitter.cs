@@ -2,8 +2,8 @@ namespace Markdown.Blocks;
 
 public class LineSplitter
 {
-    public IReadOnlyList<string> Split(string text)
+    public IReadOnlyList<string> Split(string markdown)
     {
-        throw new NotImplementedException();
+        return markdown.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
     }
 }
