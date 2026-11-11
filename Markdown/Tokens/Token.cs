@@ -10,27 +10,31 @@ public sealed record TokenType(string Name)
     
 }
 
-public sealed record Token(TokenType Type, string Value, bool CanOpen = false, bool CanClose = false)
+public abstract record Token(TokenType Type, string Value)
 {
-    public static Token Text(string value) => new(TokenType.Text, value);
-    public static Token Underscore(bool canOpen, bool canClose) => new(TokenType.Underscore, "_", canOpen, canClose);
-
-    public static Token DoubleUnderscore(bool canOpen, bool canClose) =>
-        new(TokenType.DoubleUnderscore, "__", canOpen, canClose);
+    public static readonly (string Pattern, Func<bool, bool, PairedToken> Create)[] Delimiters =
+    [
+        ("__", (canOpen, canClose) => new DoubleUnderscoreToken(canOpen, canClose)),
+        ("_", (canOpen, canClose) => new UnderscoreToken(canOpen, canClose))
+    ];
 
     public const string HeaderPrefix = "# ";
-    public static Token HeaderMarker() => new(TokenType.HeaderMarker, HeaderPrefix);
-
-    public static Token ParagraphBreak() => new(TokenType.ParagraphBreak, "\n");
-
-    public static readonly (string Pattern, Func<bool, bool, Token> Create)[] Delimiters = [
-        ("__", DoubleUnderscore),
-        ("_", Underscore)
-    
-    ];
+    public const string ParagraphBreaker = "\n";
 
 }
 
+public sealed record TextToken(string Value) : Token(TokenType.Text, Value);
 
+public sealed record HeaderMarkerToken() : Token(TokenType.HeaderMarker, HeaderPrefix);
 
+public sealed record ParagraphBreakToken() : Token(TokenType.ParagraphBreak, ParagraphBreaker);
 
+public abstract record PairedToken(TokenType Type, string Value, bool CanOpen, bool CanClose)
+    : Token(Type, Value);
+
+public sealed record UnderscoreToken(bool CanOpen, bool CanClose)
+    : PairedToken(TokenType.Underscore, "_", CanOpen, CanClose);
+
+public sealed record DoubleUnderscoreToken(bool CanOpen, bool CanClose)
+    : PairedToken(TokenType.DoubleUnderscore, "__", CanOpen, CanClose);
+    
