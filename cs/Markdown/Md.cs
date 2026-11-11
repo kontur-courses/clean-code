@@ -1,7 +1,7 @@
 ﻿namespace Markdown
 {
     /// <summary>
-    /// Публичный класс, который будет работать с другими приватными классами, скрывая реализацию и предоставляя интерфейс
+    /// Публичный класс, проверяет наличие нумерованных списков
     /// </summary>
     public class Md
     {
@@ -23,5 +23,12 @@
             //строки собираем в html текст
             return htmlText;
         }
+
+        public string RenderHeader(string line) => line.StartsWith("# ") ? $"<h1>{line.Skip(2)}</h1>" : line;
+
+        public string RenderUnnumerableListItem(string line) => line.StartsWith("- ") ? $"<li>{line.Skip(2)}</li>" : line;
+        public string RenderListStart(string line) => $"<ul> /r/n{line}";
+        public string RenderListEnd(string line) => $"line/r/n</ul>/r/n";
+        
     }
 }
