@@ -12,7 +12,6 @@ public class Tokenizer
         var noClosingParenBefore = -1;
 
         while (index < content.Length)
-        {
             switch (content[index])
             {
                 case '\\':
@@ -34,7 +33,6 @@ public class Tokenizer
                     index = AppendText(textBuffer, content, index);
                     break;
             }
-        }
 
         FlushText(tokens, textBuffer);
         return tokens;
@@ -102,7 +100,7 @@ public class Tokenizer
 
     private static int AddLeftBracket(List<Token> tokens, string content, int index)
     {
-        tokens.Add(CreateMarkup(TokenKind.LeftBracket, "[", content, index));
+        tokens.Add(CreateMarkupToken(TokenKind.LeftBracket, "[", content, index));
         return index + 1;
     }
 
@@ -112,7 +110,7 @@ public class Tokenizer
         int index,
         ref int noClosingParenBefore)
     {
-        tokens.Add(CreateMarkup(TokenKind.RightBracket, "]", content, index));
+        tokens.Add(CreateMarkupToken(TokenKind.RightBracket, "]", content, index));
         var next = index + 1;
 
         if (next >= content.Length || content[next] != '(' || next < noClosingParenBefore)
@@ -122,11 +120,11 @@ public class Tokenizer
         if (urlEnd < 0)
             return next;
 
-        tokens.Add(CreateMarkup(TokenKind.LinkUrl, content[next..(urlEnd + 1)], content, next));
+        tokens.Add(CreateMarkupToken(TokenKind.LinkUrl, content[next..(urlEnd + 1)], content, next));
         return urlEnd + 1;
     }
 
-    private static Token CreateMarkup(TokenKind kind, string value, string content, int start)
+    private static Token CreateMarkupToken(TokenKind kind, string value, string content, int start)
     {
         var end = start + value.Length;
         return new Token(kind, value)

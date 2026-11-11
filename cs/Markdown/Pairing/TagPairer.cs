@@ -6,7 +6,7 @@ public class TagPairer
 {
     public void Pair(IReadOnlyList<Token> tokens)
     {
-        var whitespacePrefix = CountWhitespaceTokens(tokens);
+        var whitespacePrefix = BuildWhitespacePrefixSums(tokens);
 
         PairTokens(tokens, whitespacePrefix);
 
@@ -26,13 +26,13 @@ public class TagPairer
             [TokenKind.Underscore] = new(),
             [TokenKind.DoubleUnderscore] = new()
         };
-        var linkOpeners = new Stack<(int OpenIndex, int MinDelimOpen)>();
+        var linkOpeners = new Stack<LinkOpener>();
 
         for (var index = 0; index < tokens.Count; index++)
         {
             var token = tokens[index];
 
-            if (token.IsDelimiter())
+            if (token.IsDelimiter)
             {
                 ProcessDelimiter(tokens, index, delimiterOpeners[token.Kind], linkOpeners, whitespacePrefix);
                 continue;
@@ -40,7 +40,7 @@ public class TagPairer
 
             if (token.Kind == TokenKind.LeftBracket)
             {
-                linkOpeners.Push((index, index));
+                linkOpeners.Push(new LinkOpener(index, index));
                 continue;
             }
 
@@ -53,7 +53,7 @@ public class TagPairer
         IReadOnlyList<Token> tokens,
         int index,
         Stack<int> sameKindOpeners,
-        Stack<(int OpenIndex, int MinDelimOpen)> linkOpeners,
+        Stack<LinkOpener> linkOpeners,
         int[] whitespacePrefix)
     {
         var token = tokens[index];
@@ -106,16 +106,24 @@ public class TagPairer
         while (openers.Count > 0)
         {
             var openIndex = openers.Peek();
-            if (!tokens[openIndex].IsInsideWord() || !HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix))
+            var isInsideWordSeparatedByWhitespace =
+                tokens[openIndex].IsInsideWord() && HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix);
+
+            if (!isInsideWordSeparatedByWhitespace)
                 break;
 
             openers.Pop();
         }
     }
 
-    private static bool IsValidPair(IReadOnlyList<Token> tokens, int openIndex, int closeIndex, int[] whitespacePrefix)
+    private static bool IsValidPair(
+        IReadOnlyList<Token> tokens,
+        int openIndex,
+        int closeIndex,
+        int[] whitespacePrefix)
     {
-        if (!tokens[openIndex].IsInsideWord() && !tokens[closeIndex].IsInsideWord())
+        var isNeitherInsideWord = !tokens[openIndex].IsInsideWord() && !tokens[closeIndex].IsInsideWord();
+        if (isNeitherInsideWord)
             return true;
 
         return !HasWhitespaceBetween(openIndex, closeIndex, whitespacePrefix);
@@ -126,25 +134,37 @@ public class TagPairer
         return whitespacePrefix[closeIndex] - whitespacePrefix[openIndex + 1] > 0;
     }
 
-    private static int[] CountWhitespaceTokens(IReadOnlyList<Token> tokens)
+    private static int[] BuildWhitespacePrefixSums(IReadOnlyList<Token> tokens)
     {
         var prefix = new int[tokens.Count + 1];
 
         for (var index = 0; index < tokens.Count; index++)
-            prefix[index + 1] = prefix[index] + (tokens[index].Value.Any(char.IsWhiteSpace) ? 1 : 0);
+        {
+            var hasWhitespace = ContainsWhitespace(tokens[index].Value);
+            prefix[index + 1] = prefix[index] + (hasWhitespace ? 1 : 0);
+        }
 
         return prefix;
     }
 
+    private static bool ContainsWhitespace(string text)
+    {
+        foreach (var ch in text)
+            if (char.IsWhiteSpace(ch))
+                return true;
+
+        return false;
+    }
+
     private static void PairLinkBrackets(IReadOnlyList<Token> tokens)
     {
-        var linkOpeners = new Stack<(int OpenIndex, int MinDelimOpen)>();
+        var linkOpeners = new Stack<LinkOpener>();
 
         for (var index = 0; index < tokens.Count; index++)
         {
             var token = tokens[index];
 
-            if (token.IsDelimiter() && token.Role == TokenRole.Closing)
+            if (token.IsDelimiter && token.Role == TokenRole.Closing)
             {
                 RecordClosedDelimiter(linkOpeners, token.PairIndex);
                 continue;
@@ -152,7 +172,7 @@ public class TagPairer
 
             if (token.Kind == TokenKind.LeftBracket)
             {
-                linkOpeners.Push((index, index));
+                linkOpeners.Push(new LinkOpener(index, index));
                 continue;
             }
 
@@ -164,7 +184,7 @@ public class TagPairer
     private static bool TryCloseLink(
         IReadOnlyList<Token> tokens,
         int closeIndex,
-        Stack<(int OpenIndex, int MinDelimOpen)> linkOpeners,
+        Stack<LinkOpener> linkOpeners,
         out int openIndex)
     {
         openIndex = -1;
@@ -174,24 +194,29 @@ public class TagPairer
         var (candidateOpenIndex, minDelimOpen) = linkOpeners.Pop();
         RecordClosedDelimiter(linkOpeners, minDelimOpen);
 
-        if (minDelimOpen < candidateOpenIndex || closeIndex == candidateOpenIndex + 1 || !HasUrlAfter(tokens, closeIndex))
+        var delimiterOpenedBeforeLink = minDelimOpen < candidateOpenIndex;
+        var isLinkTextEmpty = closeIndex == candidateOpenIndex + 1;
+
+        if (delimiterOpenedBeforeLink || isLinkTextEmpty || !HasUrlAfter(tokens, closeIndex))
             return false;
 
         openIndex = candidateOpenIndex;
         SetPair(tokens, openIndex, closeIndex);
+
+        // Вложенные ссылки запрещены спецификацией: срабатывает только внутренняя ссылка
         linkOpeners.Clear();
         return true;
     }
 
     private static void RecordClosedDelimiter(
-        Stack<(int OpenIndex, int MinDelimOpen)> linkOpeners,
+        Stack<LinkOpener> linkOpeners,
         int delimiterOpenIndex)
     {
         if (linkOpeners.Count == 0)
             return;
 
         var top = linkOpeners.Pop();
-        linkOpeners.Push((top.OpenIndex, Math.Min(top.MinDelimOpen, delimiterOpenIndex)));
+        linkOpeners.Push(new LinkOpener(top.OpenIndex, Math.Min(top.MinDelimiterOpenIndex, delimiterOpenIndex)));
     }
 
     private static void DiscardDelimiterOpenersAfter(
@@ -208,7 +233,7 @@ public class TagPairer
         for (var index = openIndex + 1; index < closeIndex; index++)
         {
             var token = tokens[index];
-            if (token.IsDelimiter() && token.Role == TokenRole.Opening && token.PairIndex > closeIndex)
+            if (token.IsDelimiter && token.Role == TokenRole.Opening && token.PairIndex > closeIndex)
                 DeactivatePair(tokens, token);
         }
     }
@@ -228,12 +253,12 @@ public class TagPairer
     private static bool DeactivateCrossingDelimiters(IReadOnlyList<Token> tokens)
     {
         var openers = new Stack<int>();
-        var deactivatedAny = false;
+        var hasCrossings = false;
 
         for (var index = 0; index < tokens.Count; index++)
         {
             var token = tokens[index];
-            if (!token.IsDelimiter())
+            if (!token.IsDelimiter)
                 continue;
 
             if (token.Role == TokenRole.Opening)
@@ -246,25 +271,25 @@ public class TagPairer
                 continue;
 
             var openIndex = token.PairIndex;
-            var isOuterCrossed = false;
+            var isCrossed = false;
 
             while (openers.Peek() != openIndex)
             {
                 var innerIndex = openers.Pop();
-                isOuterCrossed = true;
+                isCrossed = true;
                 DeactivatePair(tokens, innerIndex);
             }
 
             openers.Pop();
 
-            if (!isOuterCrossed)
-                continue;
-
-            DeactivatePair(tokens, openIndex);
-            deactivatedAny = true;
+            if (isCrossed)
+            {
+                DeactivatePair(tokens, openIndex);
+                hasCrossings = true;
+            }
         }
 
-        return deactivatedAny;
+        return hasCrossings;
     }
 
     private static void DeactivateStrongInsideEm(IReadOnlyList<Token> tokens)
@@ -306,4 +331,6 @@ public class TagPairer
         tokens[opener.PairIndex].Deactivate();
         opener.Deactivate();
     }
+
+    private readonly record struct LinkOpener(int OpenIndex, int MinDelimiterOpenIndex);
 }

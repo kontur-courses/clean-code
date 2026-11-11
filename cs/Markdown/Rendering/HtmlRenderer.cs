@@ -13,10 +13,10 @@ public class HtmlRenderer
         switch (kind)
         {
             case BlockKind.Header:
-                RenderWrapped("h1", nodes, output);
+                RenderContainer("h1", nodes, output);
                 break;
             case BlockKind.Paragraph:
-                RenderWrapped("p", nodes, output);
+                RenderContainer("p", nodes, output);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Неизвестный вид блока.");
@@ -30,29 +30,25 @@ public class HtmlRenderer
         switch (node)
         {
             case TextNode text:
-                output.Append(EscapeText(text.Text));
+                AppendEscapedText(output, text.Text);
                 break;
             case EmNode em:
-                RenderWrapped("em", em.Children, output);
+                RenderContainer("em", em.Children, output);
                 break;
             case StrongNode strong:
-                RenderWrapped("strong", strong.Children, output);
+                RenderContainer("strong", strong.Children, output);
                 break;
             case LinkNode link:
-                RenderWrapped("a", link.Children, output, $" href=\"{EscapeAttribute(link.Url)}\"");
+                RenderLink(link, output);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(node), node, "Неизвестный узел дерева.");
         }
     }
 
-    private static void RenderWrapped(
-        string tag,
-        IReadOnlyList<INode> children,
-        StringBuilder output,
-        string attributes = "")
+    private static void RenderContainer(string tag, IReadOnlyList<INode> children, StringBuilder output)
     {
-        output.Append('<').Append(tag).Append(attributes).Append('>');
+        output.Append('<').Append(tag).Append('>');
 
         foreach (var child in children)
             RenderNode(child, output);
@@ -60,10 +56,20 @@ public class HtmlRenderer
         output.Append("</").Append(tag).Append('>');
     }
 
-    private static string EscapeText(string value)
+    private static void RenderLink(LinkNode link, StringBuilder output)
     {
-        var output = new StringBuilder(value.Length);
+        output.Append("<a href=\"");
+        AppendEscapedAttribute(output, link.Url);
+        output.Append("\">");
 
+        foreach (var child in link.Children)
+            RenderNode(child, output);
+
+        output.Append("</a>");
+    }
+
+    private static void AppendEscapedText(StringBuilder output, string value)
+    {
         foreach (var symbol in value)
             switch (symbol)
             {
@@ -80,12 +86,28 @@ public class HtmlRenderer
                     output.Append(symbol);
                     break;
             }
-
-        return output.ToString();
     }
 
-    private static string EscapeAttribute(string value)
+    private static void AppendEscapedAttribute(StringBuilder output, string value)
     {
-        return EscapeText(value).Replace("\"", "&quot;");
+        foreach (var symbol in value)
+            switch (symbol)
+            {
+                case '&':
+                    output.Append("&amp;");
+                    break;
+                case '<':
+                    output.Append("&lt;");
+                    break;
+                case '>':
+                    output.Append("&gt;");
+                    break;
+                case '"':
+                    output.Append("&quot;");
+                    break;
+                default:
+                    output.Append(symbol);
+                    break;
+            }
     }
 }

@@ -20,16 +20,18 @@ public class Md
 
     public string Render(string markdown)
     {
-        var blocks = blockParser.Parse(lineSplitter.Split(markdown));
-        var html = new List<string>(blocks.Count);
+        var lines = lineSplitter.Split(markdown);
+        var blocks = blockParser.Parse(lines);
+        var htmlBlocks = new List<string>(blocks.Count);
 
         foreach (var block in blocks)
         {
             var tokens = tokenizer.Tokenize(block.Content);
             tagPairer.Pair(tokens);
-            html.Add(renderer.Render(block.Kind, treeBuilder.Build(tokens)));
+            var tree = treeBuilder.Build(tokens);
+            htmlBlocks.Add(renderer.Render(block.Kind, tree));
         }
 
-        return string.Join("\n", html);
+        return string.Join("\n", htmlBlocks);
     }
 }

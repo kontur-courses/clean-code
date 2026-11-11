@@ -27,7 +27,7 @@ public class TreeBuilder
                 BuildRange(tokens, index + 1, closeIndex, children);
                 nodes.Add(CreateNode(tokens, token, closeIndex, children));
 
-                index = NextIndexAfter(token, closeIndex);
+                index = GetNextIndexAfter(token, closeIndex);
                 continue;
             }
 
@@ -42,17 +42,18 @@ public class TreeBuilder
         {
             TokenKind.Underscore => new EmNode(children),
             TokenKind.DoubleUnderscore => new StrongNode(children),
-            TokenKind.LeftBracket => new LinkNode(UrlOf(tokens, closeIndex), children),
+            TokenKind.LeftBracket => new LinkNode(ExtractUrl(tokens, closeIndex), children),
             _ => throw new InvalidOperationException($"Открывающей лексемой не может быть {opener.Kind}.")
         };
     }
 
-    private static string UrlOf(IReadOnlyList<Token> tokens, int closeIndex)
+    private static string ExtractUrl(IReadOnlyList<Token> tokens, int closeBracketIndex)
     {
-        return tokens[closeIndex + 1].Value[1..^1];
+        var rawUrlWithParens = tokens[closeBracketIndex + 1].Value;
+        return rawUrlWithParens[1..^1];
     }
 
-    private static int NextIndexAfter(Token opener, int closeIndex)
+    private static int GetNextIndexAfter(Token opener, int closeIndex)
     {
         return opener.Kind == TokenKind.LeftBracket
             ? closeIndex + 2

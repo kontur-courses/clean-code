@@ -25,6 +25,8 @@ public class Token
 
     public bool IsMarkup => Kind != TokenKind.Text && Role != TokenRole.None;
 
+    public bool IsDelimiter => Kind is TokenKind.Underscore or TokenKind.DoubleUnderscore;
+
     public void Deactivate()
     {
         Role = TokenRole.None;

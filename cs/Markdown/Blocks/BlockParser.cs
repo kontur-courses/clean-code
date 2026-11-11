@@ -8,40 +8,50 @@ public class BlockParser
     public IReadOnlyList<Block> Parse(IReadOnlyList<string> lines)
     {
         var blocks = new List<Block>();
-        var blockContent = new List<string>();
+        var currentBlockLines = new List<string>();
 
         foreach (var line in lines)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                AddBlock(blocks, blockContent);
+                FlushBlock(blocks, currentBlockLines);
                 continue;
             }
 
-            blockContent.Add(line);
+            currentBlockLines.Add(line);
         }
 
-        AddBlock(blocks, blockContent);
+        FlushBlock(blocks, currentBlockLines);
         return blocks;
     }
 
-    private static void AddBlock(List<Block> blocks, List<string> current)
+    private static void FlushBlock(List<Block> blocks, List<string> lines)
     {
-        if (current.Count == 0)
+        if (lines.Count == 0)
             return;
 
-        var firstLine = current[0];
+        var firstLine = lines[0];
         var isHeader = firstLine.StartsWith(HeaderMarker, StringComparison.Ordinal);
 
+        var normalizedFirstLine = firstLine;
         if (isHeader)
-            current[0] = firstLine[HeaderMarker.Length..];
+            normalizedFirstLine = firstLine[HeaderMarker.Length..];
         else if (firstLine.StartsWith(EscapedHeaderMarker, StringComparison.Ordinal))
-            current[0] = firstLine[1..];
+            normalizedFirstLine = firstLine[1..];
 
-        blocks.Add(new Block(
-            isHeader ? BlockKind.Header : BlockKind.Paragraph,
-            string.Join("\n", current)));
+        var content = lines.Count == 1
+            ? normalizedFirstLine
+            : string.Join("\n", PrependFirstLine(normalizedFirstLine, lines));
 
-        current.Clear();
+        var kind = isHeader ? BlockKind.Header : BlockKind.Paragraph;
+        blocks.Add(new Block(kind, content));
+        lines.Clear();
+    }
+
+    private static IEnumerable<string> PrependFirstLine(string firstLine, List<string> remainingLines)
+    {
+        yield return firstLine;
+        for (var i = 1; i < remainingLines.Count; i++)
+            yield return remainingLines[i];
     }
 }
