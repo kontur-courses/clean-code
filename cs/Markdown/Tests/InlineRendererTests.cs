@@ -6,13 +6,11 @@ namespace Markdown.Tests
     [TestFixture]
     public class InlineRendererTests
     {
-        private readonly InlineRenderer inlineRenderer = new ();
-
         [TestCase("")]
         [TestCase("abc")]
         public void Render_ShouldReturnSameText_WhenTextHasNoMarkup_Test(string text)
         {
-            var html = inlineRenderer.Render(text);
+            var html = InlineRenderer.Render(text);
 
             html
                 .Should()
@@ -32,7 +30,7 @@ namespace Markdown.Tests
             "<strong>Выделенный двумя символами текст</strong>")]
         public void Render_ShouldWrapInTag_WhenTextIsInsideUnderscores_Test(string text, string expectedHtml)
         {
-            var html = inlineRenderer.Render(text);
+            var html = InlineRenderer.Render(text);
 
             html
                 .Should()
@@ -43,7 +41,7 @@ namespace Markdown.Tests
         [TestCase("_a __b__ c_", "<em>a __b__ c</em>")]
         public void Render_ShouldNestTags_OnlyWhenSingleIsInsideDouble_Test(string text, string expectedHtml)
         {
-            var html = inlineRenderer.Render(text);
+            var html = InlineRenderer.Render(text);
 
             html
                 .Should()
@@ -55,7 +53,7 @@ namespace Markdown.Tests
         [TestCase(@"сим\волы\", @"сим\волы\")]
         public void Render_ShouldRemoveBackslash_OnlyWhenItEscapesMarkup_Test(string text, string expectedHtml)
         {
-            var html = inlineRenderer.Render(text);
+            var html = InlineRenderer.Render(text);
 
             html
                 .Should()
@@ -67,7 +65,7 @@ namespace Markdown.Tests
         [TestCase("цифрами_12_3")]
         public void Render_ShouldKeepUnderscores_WhenTheyDoNotFormTags_Test(string text)
         {
-            var html = inlineRenderer.Render(text);
+            var html = InlineRenderer.Render(text);
 
             html
                 .Should()

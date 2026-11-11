@@ -2,17 +2,13 @@
 
 namespace Markdown
 {
-    public class InlineRenderer
+    public static class InlineRenderer
     {
-        private readonly EscapeFinder escapeFinder = new ();
-        private readonly UnderscoreFinder underscoreFinder = new ();
-        private readonly PairFinder pairFinder = new ();
-
-        public string Render(string text)
+        public static string Render(string text)
         {
-            var escapePositions = escapeFinder.FindEscapePositions(text);
-            var underscores = underscoreFinder.Find(text, escapePositions);
-            var pairs = pairFinder.Find(underscores);
+            var escapePositions = EscapeFinder.FindEscapePositions(text);
+            var underscores = UnderscoreFinder.Find(text, escapePositions);
+            var pairs = PairFinder.Find(underscores);
 
             return CreateHtml(text, pairs, escapePositions);
         }

@@ -6,14 +6,12 @@ namespace Markdown.Tests
     [TestFixture]
     public class EscapeFinderTests
     {
-        private readonly EscapeFinder escapeFinder = new ();
-
         [TestCase("")]
         [TestCase("abc")]
         [TestCase("_a_")]
         public void FindEscapePositions_ShouldReturnEmpty_WhenTextHasNoBackslashes_Test(string text)
         {
-            var positions = escapeFinder.FindEscapePositions(text);
+            var positions = EscapeFinder.FindEscapePositions(text);
 
             positions
                 .Should()
@@ -27,7 +25,7 @@ namespace Markdown.Tests
             string text,
             int[] expectedPositions)
         {
-            var positions = escapeFinder.FindEscapePositions(text);
+            var positions = EscapeFinder.FindEscapePositions(text);
 
             positions
                 .Should()
@@ -38,7 +36,7 @@ namespace Markdown.Tests
         [TestCase(@"\\\_", new[] { 0, 2 })]
         public void FindEscapePositions_ShouldSkipBackslash_WhenItIsEscaped_Test(string text, int[] expectedPositions)
         {
-            var positions = escapeFinder.FindEscapePositions(text);
+            var positions = EscapeFinder.FindEscapePositions(text);
 
             positions
                 .Should()
@@ -51,7 +49,7 @@ namespace Markdown.Tests
         [TestCase(@"a\")]
         public void FindEscapePositions_ShouldReturnEmpty_WhenBackslashIsNotBeforeMarkupSymbol_Test(string text)
         {
-            var positions = escapeFinder.FindEscapePositions(text);
+            var positions = EscapeFinder.FindEscapePositions(text);
 
             positions
                 .Should()

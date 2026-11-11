@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class EscapeFinder
+    public static class EscapeFinder
     {
         public const char EscapeSymbol = '\\';
 
@@ -8,7 +8,7 @@
 
         private static readonly HashSet<char> MarkupSymbols = [EscapeSymbol, UnderscoreFinder.UnderscoreSymbol];
 
-        public ISet<int> FindEscapePositions(string text)
+        public static ISet<int> FindEscapePositions(string text)
         {
             var escapePositions = new HashSet<int>();
             var position = 0;

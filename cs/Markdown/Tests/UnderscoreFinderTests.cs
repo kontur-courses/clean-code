@@ -6,8 +6,6 @@ namespace Markdown.Tests
     [TestFixture]
     public class UnderscoreFinderTests
     {
-        private readonly UnderscoreFinder underscoreFinder = new ();
-
         [TestCase("")]
         [TestCase("abc")]
         [TestCase("a b")]
@@ -65,7 +63,7 @@ namespace Markdown.Tests
             int[] escapePositions,
             int[] expectedPositions)
         {
-            var underscores = underscoreFinder.Find(text, escapePositions.ToHashSet());
+            var underscores = UnderscoreFinder.Find(text, escapePositions.ToHashSet());
 
             underscores
                 .Select(underscore => underscore.Position)
@@ -102,7 +100,9 @@ namespace Markdown.Tests
         [TestCase("a_b", true)]
         [TestCase("a _b", false)]
         [TestCase("_a", false)]
-        public void Find_ShouldAllowClosing_OnlyWhenPreviousSymbolIsNotWhitespace_Test(string text, bool expectedCanClose)
+        public void Find_ShouldAllowClosing_OnlyWhenPreviousSymbolIsNotWhitespace_Test(
+            string text,
+            bool expectedCanClose)
         {
             var underscore = FindSingleWithoutEscapes(text);
 
@@ -137,12 +137,12 @@ namespace Markdown.Tests
                 .Equal(expectedWordIndexes);
         }
 
-        private IReadOnlyList<Underscore> FindWithoutEscapes(string text)
+        private static IReadOnlyList<Underscore> FindWithoutEscapes(string text)
         {
-            return underscoreFinder.Find(text, new HashSet<int>());
+            return UnderscoreFinder.Find(text, new HashSet<int>());
         }
 
-        private Underscore FindSingleWithoutEscapes(string text)
+        private static Underscore FindSingleWithoutEscapes(string text)
         {
             return FindWithoutEscapes(text)
                 .Single();

@@ -1,13 +1,13 @@
 ﻿namespace Markdown
 {
-    public class UnderscoreFinder
+    public static class UnderscoreFinder
     {
         public const char UnderscoreSymbol = '_';
 
         private const int MaxUnderscoreLength = 2;
         private const char TextBoundarySymbol = ' ';
 
-        public IReadOnlyList<Underscore> Find(string text, ISet<int> escapePositions)
+        public static IReadOnlyList<Underscore> Find(string text, ISet<int> escapePositions)
         {
             var underscores = new List<Underscore>();
             var wordIndex = 0;

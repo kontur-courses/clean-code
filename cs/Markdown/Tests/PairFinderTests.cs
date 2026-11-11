@@ -6,9 +6,6 @@ namespace Markdown.Tests
     [TestFixture]
     public class PairFinderTests
     {
-        private readonly UnderscoreFinder underscoreFinder = new ();
-        private readonly PairFinder pairFinder = new ();
-
         [TestCase("_a_", new[] { 0, 2 })]
         [TestCase("__a__", new[] { 0, 3 })]
         [TestCase("_a_ _b_", new[] { 0, 2, 4, 6 })]
@@ -102,10 +99,10 @@ namespace Markdown.Tests
                 .Equal(expectedPositions);
         }
 
-        private IReadOnlyList<UnderscorePair> FindPairs(string text)
+        private static IReadOnlyList<UnderscorePair> FindPairs(string text)
         {
-            var underscores = underscoreFinder.Find(text, new HashSet<int>());
-            return pairFinder.Find(underscores);
+            var underscores = UnderscoreFinder.Find(text, new HashSet<int>());
+            return PairFinder.Find(underscores);
         }
 
         private static IEnumerable<int> ToPositions(IEnumerable<UnderscorePair> pairs)

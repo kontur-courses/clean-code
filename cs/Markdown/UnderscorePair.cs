@@ -6,8 +6,8 @@
 
         public int End => Closing.Position;
 
-        public bool IsInSameWord => Opening.WordIndex == Closing.WordIndex;
-
         public bool IsBreakingWord => !IsInSameWord && (Opening.IsInsideWord || Closing.IsInsideWord);
+
+        private bool IsInSameWord => Opening.WordIndex == Closing.WordIndex;
     }
 }

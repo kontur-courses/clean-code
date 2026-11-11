@@ -1,8 +1,8 @@
 ﻿namespace Markdown
 {
-    public class PairFinder
+    public static class PairFinder
     {
-        public IReadOnlyList<UnderscorePair> Find(IReadOnlyList<Underscore> underscores)
+        public static IReadOnlyList<UnderscorePair> Find(IReadOnlyList<Underscore> underscores)
         {
             var pairs = MatchPairs(underscores);
             var pairsWithoutIntersections = RemoveIntersecting(pairs);
@@ -47,9 +47,7 @@
             var sortedPairs = SortByOpening(pairs);
             var intersectingPairs = FindIntersectingPairs(sortedPairs);
 
-            return sortedPairs
-                .Where(pair => !intersectingPairs.Contains(pair))
-                .ToList();
+            return [.. sortedPairs.Where(pair => !intersectingPairs.Contains(pair))];
         }
 
         private static HashSet<UnderscorePair> FindIntersectingPairs(List<UnderscorePair> sortedPairs)
@@ -120,9 +118,7 @@
 
         private static List<UnderscorePair> SortByOpening(IEnumerable<UnderscorePair> pairs)
         {
-            return pairs
-                .OrderBy(pair => pair.Start)
-                .ToList();
+            return [.. pairs.OrderBy(pair => pair.Start)];
         }
     }
 }
