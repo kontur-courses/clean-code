@@ -3,6 +3,7 @@ using Markdown.Renderer.Interfaces;
 using Markdown.Node.Type;
 using System.Text;
 using Markdown.Node.Interfaces;
+using System.Net;
 
 namespace Markdown.Renderer;
 
@@ -48,21 +49,24 @@ public class HtmlRenderer : IRenderer
         switch (node)
         {
             case TextNode textNode:
-                sb.Append(textNode.Text);
+                sb.Append(WebUtility.HtmlEncode(textNode.Text));
                 break;
 
             case EmphasisNode emphasisNode:
                 var tag = emphasisNode.EmphasisType == EmphasisType.Italic ? "em" : "strong";
-                sb.Append('<').Append(tag).Append('>');
+                sb.Append($"<{tag}>");
                 RenderNodes(emphasisNode.Children, sb);
-                sb.Append("</").Append(tag).Append('>');
+                sb.Append($"</{tag}>");
                 break;
 
             case LinkNode linkNode:
-                sb.Append("<a href=\"").Append(linkNode.Url).Append("\">");
+                sb.Append($"<a href=\"{WebUtility.HtmlEncode(linkNode.Url)}\">");
                 RenderNodes(linkNode.Children, sb);
                 sb.Append("</a>");
                 break;
+
+            default:
+                throw new ArgumentOutOfRangeException($"Unknown node type: {node.GetType().Name}");
         }
     }
 }
