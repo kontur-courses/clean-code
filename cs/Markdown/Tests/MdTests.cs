@@ -6,10 +6,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class MdTests
     {
-        [TestCase("# Заголовок", "<h1>Заголовок</h1>")]
-        [TestCase(
-            "# Заголовок __с _разными_ символами__",
-            "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
+        [TestCaseSource(nameof(HeaderCases))]
         public void Render_ShouldWrapInH1_WhenParagraphStartsWithHash_Test(string markdown, string expectedHtml)
         {
             var html = Md.Render(markdown);
@@ -56,6 +53,7 @@ namespace Markdown.Tests
         [TestCase("- a\n- b", "<ul><li>a</li>\n<li>b</li></ul>")]
         [TestCase("a\n- _b_", "a\n<ul><li><em>b</em></li></ul>")]
         [TestCase("- a\nb", "<ul><li>a</li></ul>\nb")]
+        [TestCase("- a\n\n- b", "<ul><li>a</li></ul>\n\n<ul><li>b</li></ul>")]
         public void Render_ShouldCreateList_WhenParagraphsStartWithDash_Test(string markdown, string expectedHtml)
         {
             var html = Md.Render(markdown);
@@ -84,6 +82,14 @@ namespace Markdown.Tests
             html
                 .Should()
                 .Be("_a\nb_");
+        }
+
+        private static IEnumerable<TestCaseData> HeaderCases()
+        {
+            yield return new TestCaseData("# Заголовок", "<h1>Заголовок</h1>");
+            yield return new TestCaseData(
+                "# Заголовок __с _разными_ символами__",
+                "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>");
         }
     }
 }
