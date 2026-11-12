@@ -6,4 +6,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Compile Remove="Markdown.Tests\**" />
+        <EmbeddedResource Remove="Markdown.Tests\**" />
+        <None Remove="Markdown.Tests\**" />
+    </ItemGroup>
+
+
 </Project>
