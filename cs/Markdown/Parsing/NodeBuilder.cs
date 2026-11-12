@@ -48,7 +48,7 @@ internal static class NodeBuilder
         }
     }
 
-    private static Node? BuildNode(string line)
+    private static Node? BuildNode(string? line)
     {
         if (string.IsNullOrWhiteSpace(line))
         {
@@ -135,33 +135,28 @@ internal static class NodeBuilder
         return nodes;
     }
 
-    private static List<string> MergeLines(string markdown)
+    private static List<string?> MergeLines(string markdown)
     {
-        var lines = new List<string>();
+        var lines = new List<string?>();
         var sb = new StringBuilder();
 
         using var reader = new StringReader(markdown);
 
         while (reader.ReadLine() is { } line )
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if (string.IsNullOrWhiteSpace(line)
+                || line.StartsWith(HeaderPrefix))
             {
                 FlushSb(sb, lines.Add);
-
-                lines.Add(string.Empty);
+                lines.Add(line?.Trim());
                 continue;
             }
 
-            if (line.StartsWith(HeaderPrefix)
-                || line.StartsWith(UnorderedListItemPrefix))
-            {
+            if (line.StartsWith(UnorderedListItemPrefix))
                 FlushSb(sb, lines.Add);
-            }
 
             if (sb.Length > 0)
-            {
                 sb.Append(' ');
-            }
 
             sb.Append(line.Trim());
         }
