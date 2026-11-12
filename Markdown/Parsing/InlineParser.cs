@@ -19,11 +19,10 @@ public class InlineParser()
     {
         var tokens = inlineLexer.Tokenize(text);
 
-        var markerPairs = FindMarkerPairs(tokens);
-        var validPairs = RemoveCrossedPairs(tokens, markerPairs);
-        var pairsByOpeningTokenIndex = validPairs.ToDictionary(pair => pair.OpenTokenIndex);
+        var pairsByOpeningTokenIndex = FindMarkerPairs(tokens);
+        var validPairs = RemoveCrossedPairs(pairsByOpeningTokenIndex);
 
-        return BuildNodes(tokens, 0, tokens.Count, pairsByOpeningTokenIndex, insideEmphasis: false);
+        return BuildNodes(tokens, 0, tokens.Count, validPairs, insideEmphasis: false);
     }
 
     /// <summary>
@@ -63,16 +62,22 @@ public class InlineParser()
     /// <summary>
     /// Находит пары открывающих и закрывающих маркеров
     /// Для каждого вида маркеров хранит индексы открывающих маркеров в стеке
+    /// Одновременно считает префиксные суммы пробелов и отбрасывает пары, которые не могут охватывать слова
     /// </summary>
     /// <param name="tokens">Список токенов inline-разметки</param>
-    private static List<MarkerPair> FindMarkerPairs(IReadOnlyList<InlineToken> tokens)
+    /// <returns>Пары, расположенные по индексам открывающих маркеров</returns>
+    private static MarkerPair?[] FindMarkerPairs(IReadOnlyList<InlineToken> tokens)
     {
         var openMarkerIndicesByKind = new Dictionary<InlineTokenKind, Stack<int>>();
-        var markerPairs = new List<MarkerPair>();
+        var pairsByOpeningTokenIndex = new MarkerPair?[tokens.Count];
+        var tokensWithWhitespacePrefix = new int[tokens.Count + 1];
 
         for (var i = 0; i < tokens.Count; i++)
         {
             var token = tokens[i];
+            var containsWhitespace = token.Kind == InlineTokenKind.Text && token.Value.Any(char.IsWhiteSpace);
+            tokensWithWhitespacePrefix[i + 1] = tokensWithWhitespacePrefix[i] + (containsWhitespace ? 1 : 0);
+
             if (token.Kind == InlineTokenKind.Text)
             {
                 continue;
@@ -91,7 +96,11 @@ public class InlineParser()
 
             if (canClose && openMarkerIndices.Count > 0)
             {
-                markerPairs.Add(new MarkerPair(openMarkerIndices.Pop(), i, token.Kind));
+                var pair = new MarkerPair(openMarkerIndices.Pop(), i, token.Kind);
+                if (CanSpanWords(tokens, pair, tokensWithWhitespacePrefix))
+                {
+                    pairsByOpeningTokenIndex[pair.OpenTokenIndex] = pair;
+                }
             }
             else if (canOpen && openMarkerIndices.Count == 0)
             {
@@ -99,35 +108,24 @@ public class InlineParser()
             }
         }
 
-        return markerPairs;
+        return pairsByOpeningTokenIndex;
     }
 
     /// <summary>
-    /// Отбрасывает пары, которые пересекаются с другими парами или некорректно охватывают слова
+    /// Отбрасывает пары, которые пересекаются с другими парами
     /// </summary>
-    /// <param name="tokens">Список токенов inline-разметки</param>
-    /// <param name="markerPairs">Пары маркеров, найденные в токенах</param>
-    private static List<MarkerPair> RemoveCrossedPairs(
-        IReadOnlyList<InlineToken> tokens,
-        IReadOnlyList<MarkerPair> markerPairs)
+    /// <param name="pairsByOpeningTokenIndex">Пары маркеров, сгруппированные по индексу открывающего маркера</param>
+    private static MarkerPair?[] RemoveCrossedPairs(MarkerPair?[] pairsByOpeningTokenIndex)
     {
-        var tokensWithWhitespacePrefix = new int[tokens.Count + 1];
-        for (var i = 0; i < tokens.Count; i++)
-        {
-            var containsWhitespace = tokens[i].Kind == InlineTokenKind.Text && tokens[i].Value.Any(char.IsWhiteSpace);
-            tokensWithWhitespacePrefix[i + 1] = tokensWithWhitespacePrefix[i] + (containsWhitespace ? 1 : 0);
-        }
-
-        var candidates = markerPairs
-            .Where(pair => CanSpanWords(tokens, pair, tokensWithWhitespacePrefix))
-            .OrderBy(pair => pair.OpenTokenIndex)
-            .ToList();
-
         var activePairs = new Stack<MarkerPair>();
-        var crossedPairs = new HashSet<MarkerPair>();
 
-        foreach (var pair in candidates)
+        for (var i = 0; i < pairsByOpeningTokenIndex.Length; i++)
         {
+            if (pairsByOpeningTokenIndex[i] is not { } pair)
+            {
+                continue;
+            }
+
             while (activePairs.Count > 0 && activePairs.Peek().CloseTokenIndex < pair.OpenTokenIndex)
             {
                 activePairs.Pop();
@@ -136,13 +134,14 @@ public class InlineParser()
             var crossesAnOpenPair = false;
             while (activePairs.Count > 0 && activePairs.Peek().CloseTokenIndex < pair.CloseTokenIndex)
             {
-                crossedPairs.Add(activePairs.Pop());
+                var crossedPair = activePairs.Pop();
+                pairsByOpeningTokenIndex[crossedPair.OpenTokenIndex] = null;
                 crossesAnOpenPair = true;
             }
 
             if (crossesAnOpenPair)
             {
-                crossedPairs.Add(pair);
+                pairsByOpeningTokenIndex[i] = null;
             }
             else
             {
@@ -150,11 +149,12 @@ public class InlineParser()
             }
         }
 
-        return candidates.Where(pair => !crossedPairs.Contains(pair)).ToList();
+        return pairsByOpeningTokenIndex;
     }
 
     /// <summary>
-    /// Проверяет, может ли пара маркеров охватывать пробелы между словами.
+    /// Определяет, может ли пара маркеров охватывать текст с пробелами
+    /// Если внутри пары есть пробелы, проверяет, что перед открывающим и после закрывающего маркера нет букв или цифр
     /// </summary>
     /// <param name="tokens">Список токенов inline-разметки</param>
     /// <param name="pair">Проверяемая пара маркеров</param>
@@ -187,7 +187,7 @@ public class InlineParser()
         IReadOnlyList<InlineToken> tokens,
         int startTokenIndex,
         int endTokenIndexExclusive,
-        IReadOnlyDictionary<int, MarkerPair> pairsByOpeningTokenIndex,
+        IReadOnlyList<MarkerPair?> pairsByOpeningTokenIndex,
         bool insideEmphasis)
     {
         var nodes = new List<InlineNode>();
@@ -195,11 +195,11 @@ public class InlineParser()
 
         for (var i = startTokenIndex; i < endTokenIndexExclusive; i++)
         {
-            if (pairsByOpeningTokenIndex.TryGetValue(i, out var pair) &&
-                pair.CloseTokenIndex < endTokenIndexExclusive)
+            var pair = pairsByOpeningTokenIndex[i];
+
+            if (pair != null && pair.CloseTokenIndex < endTokenIndexExclusive)
             {
-                if (insideEmphasis &&
-                    pair.Kind is InlineTokenKind.StrongMarker or InlineTokenKind.StrongEmphasisMarker)
+                if (insideEmphasis && pair.Kind is InlineTokenKind.StrongMarker or InlineTokenKind.StrongEmphasisMarker)
                 {
                     AppendLiteralTokens(tokens, i, pair.CloseTokenIndex + 1, textBuffer);
                     i = pair.CloseTokenIndex;
