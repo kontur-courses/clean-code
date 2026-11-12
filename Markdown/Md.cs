@@ -11,13 +11,7 @@ public class Md
 {
     private readonly BlockParser blockParser;
 
-    public Md()
-    {
-        blockParser = new BlockParser();
-    }
+    public Md() => blockParser = new BlockParser();
 
-    public string Render(string markdownText)
-    {
-        throw new NotImplementedException();
-    }
+    public string Render(string markdownText) => blockParser.Parse(markdownText);
 }
