@@ -41,7 +41,7 @@ internal static class NodeBuilder
 
             nodes.Add(new UnorderedListNode
             {
-                Children = [.. unorderedList]
+                Children = unorderedList.ToList()
             });
 
             unorderedList.Clear();
