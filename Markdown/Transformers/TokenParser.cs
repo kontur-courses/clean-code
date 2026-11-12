@@ -7,6 +7,11 @@ public static class TokenParser
 {
     public static IReadOnlyList<Node> Parse(IReadOnlyList<Token> tokens)
     {
-        throw new NotImplementedException();
+        var nodes = new List<Node>();
+        
+        
+        
+        
+        return nodes;
     }
 }

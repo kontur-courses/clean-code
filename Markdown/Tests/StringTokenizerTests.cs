@@ -70,7 +70,7 @@ public class StringTokenizerTests
                 .SetName("Underscore: letter before and space after can only close");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("(_a_)",
                     [
-                        new TextToken("("), new UnderscoreToken(true, false, false), new TextToken("a"),
+                        new TextToken("("), new UnderscoreToken(true, true, false), new TextToken("a"),
                         new UnderscoreToken(true, true, false), new TextToken(")")
                     ])
                 .SetName("IntraWord: punctuation neighbors are not intra-word");
