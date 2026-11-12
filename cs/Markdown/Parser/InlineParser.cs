@@ -33,8 +33,8 @@ public class InlineParser : IInlineParser
         IReadOnlyList<Token> tokens,
         int startIndex,
         int endIndex,
-        Dictionary<int, LinkMatch> links,
-        Dictionary<int, int> matchedUnderscores)
+        Dictionary<int, LinkMatch> linksByStartIndex,
+        Dictionary<int, int> closingIndicesByOpeningIndex)
     {
         var nodes = new List<INode>();
 
@@ -42,27 +42,27 @@ public class InlineParser : IInlineParser
 
         while (i <= endIndex)
         {
-            if (links.TryGetValue(i, out var linkMatch) && linkMatch.CloseParenIndex <= endIndex)
+            if (linksByStartIndex.TryGetValue(i, out var linkMatch) && linkMatch.CloseParenIndex <= endIndex)
             {
                 var linkChildren = ParseRange(
                     tokens,
                     linkMatch.OpenBracketIndex + 1,
                     linkMatch.CloseBracketIndex - 1,
-                    links,
-                    matchedUnderscores);
+                    linksByStartIndex,
+                    closingIndicesByOpeningIndex);
 
                 nodes.Add(new LinkNode(linkMatch.Url, linkChildren));
                 i = linkMatch.CloseParenIndex + 1;
                 continue;
             }
 
-            if (matchedUnderscores.TryGetValue(i, out var closeIndex) && closeIndex <= endIndex)
+            if (closingIndicesByOpeningIndex.TryGetValue(i, out var closeIndex) && closeIndex <= endIndex)
             {
                 var emphasisType = tokens[i].Type == TokenType.SingleUnderscore
                     ? EmphasisType.Italic
                     : EmphasisType.Bold;
 
-                var children = ParseRange(tokens, i + 1, closeIndex - 1, links, matchedUnderscores);
+                var children = ParseRange(tokens, i + 1, closeIndex - 1, linksByStartIndex, closingIndicesByOpeningIndex);
                 nodes.Add(new EmphasisNode(emphasisType, children));
                 i = closeIndex + 1;
                 continue;
