@@ -11,7 +11,7 @@ namespace Markdown.Abstractions
     /// </summary>  
     public abstract class MarkdownNode
     {
-        public List<MarkdownNode> Children { get; set; }
+        public List<InlineNode> Children { get; set; } = new List<InlineNode>();
 
         public abstract string Render();
     }

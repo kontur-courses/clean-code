@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using Markdown.MDParsing;
+﻿using System.Text;
 
-namespace Markdown.Parsing
+namespace Markdown.MDParsing
 {
     public static class MarkdownTokenizer
     {
@@ -23,11 +21,11 @@ namespace Markdown.Parsing
                     {
                         if (currentText.Length > 0)
                         {
-                            tokens.Add(new Token(text: currentText.ToString()));
+                            tokens.Add(Token.CreateText(currentText.ToString()));
                             currentText.Clear();
                         }
 
-                        tokens.Add(new Token(text: text[i + 1].ToString(), isEscaped: true));
+                        tokens.Add(Token.CreateEscaped(text[i + 1]));
                         i += 2; 
                     }
                     else
@@ -40,7 +38,7 @@ namespace Markdown.Parsing
                 {
                     if (currentText.Length > 0)
                     {
-                        tokens.Add(new Token(text: currentText.ToString()));
+                        tokens.Add(Token.CreateText(currentText.ToString()));
                         currentText.Clear();
                     }
 
@@ -51,7 +49,7 @@ namespace Markdown.Parsing
                         i++;
                     }
 
-                    tokens.Add(new Token(underscoreCount: count));
+                    tokens.Add(Token.CreateUnderscores(count));
                 }
                 else
                 {
@@ -62,7 +60,7 @@ namespace Markdown.Parsing
 
             if (currentText.Length > 0)
             {
-                tokens.Add(new Token(text: currentText.ToString()));
+                tokens.Add(Token.CreateText(currentText.ToString()));
             }
 
             return tokens;

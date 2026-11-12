@@ -1,9 +1,7 @@
 ﻿using Markdown.Abstractions;
-using Markdown.MDElements;
-using Markdown.MDParsing;
+using Markdown.MDNodes;
 
-
-namespace Markdown.Parsing
+namespace Markdown.MDParsing
 {
     public class MarkdownParser
     {
@@ -37,26 +35,15 @@ namespace Markdown.Parsing
         }
 
 
-        private bool IsHeader(List<Token> tokens)
-        {
-            if (tokens.Count == 0) return false;
-
-            if (tokens[0].IsEscaped) return false;
-            if (tokens[0].Text.StartsWith("# ")) return true;
-
-            return false;
-        }
+        private bool IsHeader(List<Token> tokens) =>
+            tokens.Count > 0
+            && tokens[0].Type == TokenType.Text
+            && tokens[0].Text.StartsWith("# ");
 
         private List<Token> GetHeaderContent(List<Token> tokens)
         {
             var result = new List<Token>(tokens);
-
-            result[0] = new Token(
-                text: result[0].Text.Substring(2),
-                underscoreCount: result[0].UnderscoreCount,
-                isEscaped: result[0].IsEscaped
-            );
-
+            result[0] = Token.CreateText(result[0].Text.Substring(2));
             return result;
         }
 

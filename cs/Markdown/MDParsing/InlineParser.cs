@@ -1,135 +1,184 @@
 ﻿using Markdown.Abstractions;
-using Markdown.MDElements;
 using Markdown.MDNodes;
-using Markdown.MDParsing;
-using System;
-using System.Collections.Generic;
 
-namespace Markdown.Parsing
+namespace Markdown.MDParsing
 {
-    public class InlineParser
+    public sealed class InlineParser
     {
-        private readonly List<Token> _tokens;
-        private int _currentIndex;
-        private readonly bool _allowStrong;
+        private const char UnderscoreChar = '_';
+        private const int ItalicLength = 1;
+        private const int StrongLength = 2;
+        private const int StrongWithItalicLength = 3;
 
-        public InlineParser(List<Token> tokens, bool allowStrong = true)
+        private readonly IReadOnlyList<Token> _tokens;
+        private readonly bool[] _italicCloserAhead; 
+        private readonly List<InlineNode> _output = new();
+
+        private OpenDelimiter? _strong;
+        private OpenDelimiter? _italic;
+        private int _spaceTokens;
+
+        private int _doubleTokens;
+
+        public InlineParser(IReadOnlyList<Token> tokens)
         {
             _tokens = tokens;
-            _currentIndex = 0;
-            _allowStrong = allowStrong;
+            _italicCloserAhead = BuildItalicCloserAhead(tokens);
         }
 
         public List<InlineNode> ParseAll()
         {
-            var nodes = new List<InlineNode>();
-            while (_currentIndex < _tokens.Count)
+            for (int i = 0; i < _tokens.Count; i++)
             {
-                var node = ParseNext();
-                if (node != null) nodes.Add(node);
+                var token = _tokens[i];
+                if (token.IsUnderscores)
+                    ProcessUnderscores(i, token.UnderscoreCount);
+                else
+                    AddText(token.Text);
+
             }
-            return nodes;
+            return _output;
         }
 
-        private InlineNode ParseNext()
+        private void ProcessUnderscores(int index, int count)
         {
-            if (_currentIndex >= _tokens.Count) return null;
-
-            var token = _tokens[_currentIndex];
-
-            if (token.IsEscaped)
+            switch (count)
             {
-                _currentIndex++;
-                return new TextNode(token.Text);
-            }
-
-            if (token.UnderscoreCount == 0)
-            {
-                _currentIndex++;
-                return new TextNode(token.Text);
-            }
-
-            if (!_allowStrong && token.UnderscoreCount >= 1)
-            {
-                _currentIndex++;
-                return new TextNode(new string('_', token.UnderscoreCount));
-            }
-
-            if (token.UnderscoreCount >= 2)
-            {
-                var node = TryParsePaired(2, "__", children => new StrongNode(children));
-                if (node != null) return node;
-            }
-
-            if (token.UnderscoreCount >= 1)
-            {
-                var node = TryParsePaired(1, "_", children => new ItalicNode(children), allowStrongInside: false);
-                if (node != null) return node;
-            }
-
-            _currentIndex++;
-            return new TextNode(new string('_', token.UnderscoreCount));
-        }
-
-        private InlineNode TryParsePaired(
-            int count,
-            string delimiter,
-            Func<List<InlineNode>, InlineNode> factory,
-            bool allowStrongInside = true)
-        {
-            int savedIndex = _currentIndex;
-            int openingUnderscores = _tokens[_currentIndex].UnderscoreCount;
-            int remainingFromOpen = openingUnderscores - count;
-
-            _currentIndex++;
-
-            var innerTokens = new List<Token>();
-            bool isClosed = false;
-
-            while (_currentIndex < _tokens.Count)
-            {
-                var current = _tokens[_currentIndex];
-
-                bool isClosingToken = count == 2 ? current.UnderscoreCount >= 2 : current.UnderscoreCount == 1;
-
-                if (isClosingToken)
-                {
-                    int remainingFromClose = current.UnderscoreCount - count;
-                    isClosed = true;
-                    _currentIndex++;
-
-                    if (remainingFromOpen > 0)
-                        innerTokens.Insert(0, new Token(underscoreCount: remainingFromOpen));
-
-                    if (remainingFromClose > 0)
-                        innerTokens.Add(new Token(underscoreCount: remainingFromClose));
-
+                case ItalicLength:
+                case StrongLength:
+                    ProcessDelimiter(index, count);
                     break;
+                case StrongWithItalicLength:
+                    if (_strong != null || _italic != null)
+                    {
+                        ProcessDelimiter(index, ItalicLength);
+                        ProcessDelimiter(index, StrongLength);
+                    }
+                    else
+                    {
+                        ProcessDelimiter(index, StrongLength);
+                        ProcessDelimiter(index, ItalicLength);
+                    }
+                    break;
+                default:
+                    AddUnderscores(count);
+                    break;
+            }
+
+            if (count == StrongLength) _doubleTokens++;
+        }
+
+        private void ProcessDelimiter(int index, int length)
+        {
+            if (InlineTokenValidator.CanClose(_tokens, index) && TryClose(index, length)) return;
+            if (InlineTokenValidator.CanOpen(_tokens, index) && TryOpen(index, length)) return;
+            AddUnderscores(length);
+        }
+
+        private bool TryOpen(int index, int length)
+        {
+            if (length == StrongLength && _italic != null)
+                return false; 
+
+            var opener = new OpenDelimiter(
+                _output.Count,
+                _spaceTokens,
+                InlineTokenValidator.IsDigitBefore(_tokens, index),
+                InlineTokenValidator.HasTextBefore(_tokens, index),
+                _doubleTokens);
+
+            if (length == StrongLength) _strong = opener;
+            else _italic = opener;
+
+            AddUnderscores(length); 
+            return true;
+        }
+
+        private bool TryClose(int index, int length)
+        {
+            if (length == ItalicLength)
+                return TryCloseItalic(index);
+            return TryCloseStrong(index);
+        }
+
+        private bool TryCloseItalic(int index)
+        {
+            if (_italic == null || !IsValidPair(_italic, index, ItalicLength))
+                return false;
+
+            Wrap(_italic, children => new ItalicNode(children));
+            _italic = null;
+            return true;
+        }
+
+        private bool TryCloseStrong(int index)
+        {
+            if (_strong == null) return false;
+
+            if (_italic != null)
+            {
+                if (_italicCloserAhead[index + 1])
+                {
+                    _strong = null;
+                    _italic = null;
+                    AddUnderscores(StrongLength);
+                    return true;
                 }
-
-                innerTokens.Add(current);
-                _currentIndex++;
+                _italic = null; 
             }
 
-            if (!isClosed)
+            if (!IsValidPair(_strong, index, StrongLength)) return false;
+
+            Wrap(_strong, children => new StrongNode(children));
+            _strong = null;
+            return true;
+        }
+
+        private bool IsValidPair(OpenDelimiter opener, int closeIndex, int length)
+        {
+            bool isEmpty = _output.Count == opener.OutputIndex + 1;
+
+            bool boundedByDigits = opener.IsDigitBefore || InlineTokenValidator.IsDigitAfter(_tokens, closeIndex);
+
+            bool acrossWords = length == ItalicLength
+                               && opener.HasTextBefore
+                               && InlineTokenValidator.HasTextAfter(_tokens, closeIndex)
+                               && _spaceTokens > opener.SpaceTokensBefore;
+
+            bool crossesStrong = length == ItalicLength
+                         && (_doubleTokens - opener.DoubleTokensBefore) % 2 == 1;
+
+            return !isEmpty && !boundedByDigits && !acrossWords && !crossesStrong;
+        }
+
+        private void Wrap(OpenDelimiter opener, Func<List<InlineNode>, InlineNode> factory)
+        {
+            int start = opener.OutputIndex;
+            var children = _output.GetRange(start + 1, _output.Count - start - 1);
+            _output.RemoveRange(start, _output.Count - start);
+            _output.Add(factory(children));
+        }
+
+        private void AddText(string text)
+        {
+            _output.Add(new TextNode(text));
+            if (text.Contains(' ')) _spaceTokens++;
+        }
+
+        private void AddUnderscores(int count) =>
+            _output.Add(new TextNode(new string(UnderscoreChar, count)));
+
+        private static bool[] BuildItalicCloserAhead(IReadOnlyList<Token> tokens)
+        {
+            var ahead = new bool[tokens.Count + 1];
+            for (int i = tokens.Count - 1; i >= 0; i--)
             {
-                _currentIndex = savedIndex;
-                return null;
+                bool isItalicCloser = tokens[i].IsUnderscores
+                      && tokens[i].UnderscoreCount == ItalicLength
+                      && InlineTokenValidator.CanClose(tokens, i);
+                ahead[i] = ahead[i + 1] || isItalicCloser;
             }
-
-            Token? tokenBeforeOpen = savedIndex > 0 ? _tokens[savedIndex - 1] : null;
-            Token? tokenAfterClose = _currentIndex < _tokens.Count ? _tokens[_currentIndex] : null;
-
-            if (!InlineTokenValidator.IsValid(tokenBeforeOpen, tokenAfterClose, innerTokens, count))
-            {
-                _currentIndex = savedIndex;
-                return null;
-            }
-
-            var innerParser = new InlineParser(innerTokens, allowStrong: allowStrongInside);
-            var innerNodes = innerParser.ParseAll();
-
-            return factory(innerNodes);
+            return ahead;
         }
     }
 }

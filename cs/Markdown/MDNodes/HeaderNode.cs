@@ -1,6 +1,6 @@
 ﻿using Markdown.Abstractions;
 
-namespace Markdown.MDElements
+namespace Markdown.MDNodes
 {
     public class HeaderNode : BlockNode
     {

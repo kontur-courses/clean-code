@@ -1,8 +1,5 @@
-using NUnit;
 using Markdown;
-using Xunit;
 using FluentAssertions;
-using Markdown.Parsing;
 
 namespace MdTests
 {
@@ -83,30 +80,14 @@ namespace MdTests
             _md.Parse("___текст___").Should().Be("<strong><em>текст</em></strong>");
         }
 
-        [Test]
-        public void Parse_Header_ReturnsH1Tag()
+        [TestCase("# Заголовок", "<h1>Заголовок</h1>")]
+        [TestCase("# Заголовок с __жирным__ текстом", "<h1>Заголовок с <strong>жирным</strong> текстом</h1>")]
+        [TestCase("# Загаловк с _курсивом_ текстом", "<h1>Загаловк с <em>курсивом</em> текстом</h1>")]
+        [TestCase("# Заголовок с __жирным__ и _курсивом_ текстом", "<h1>Заголовок с <strong>жирным</strong> и <em>курсивом</em> текстом</h1>")]
+        public void Parse_Header_ReturnsH1Tag(string input, string expected)
         {
-            _md.Parse("# Заголовок").Should().Be("<h1>Заголовок</h1>");
+            _md.Parse(input).Should().Be(expected);
         }
-
-        [Test]
-        public void Parse_HeaderWithBoldText_ReturnsH1WithStrongTag()
-        {
-            _md.Parse("# Заголовок с __жирным__ текстом").Should().Be("<h1>Заголовок с <strong>жирным</strong> текстом</h1>");
-        }
-
-        [Test]
-        public void Parse_HeaderWithItalicText_ReturnsH1WithEmTag()
-        {
-            _md.Parse("# Заголовок с _курсивом_ текстом").Should().Be("<h1>Заголовок с <em>курсивом</em> текстом</h1>");
-        }
-
-        [Test]
-        public void Parse_HeaderWithBoldAndItalicText_ReturnsH1WithNestedTags()
-        {
-            _md.Parse("# Заголовок с __жирным__ и _курсивом_ текстом").Should().Be("<h1>Заголовок с <strong>жирным</strong> и <em>курсивом</em> текстом</h1>");
-        }
-
 
         [Test]
         public void Parse_DoubleHeader_ReturnThisString()
@@ -117,11 +98,10 @@ namespace MdTests
         [Test]
         public void Parse_UnmutchedUnderscores_ReturnsOnlyMatchingUnderscores()
         {
-            _md.Parse("Текст с __непарными_ подчеркиваниями").Should().Be("Текст с <em>_непарными</em> подчеркиваниями");
+            _md.Parse("Текст с __непарными_ подчеркиваниями").Should().Be("Текст с __непарными_ подчеркиваниями");
 
         }
 
-        [Test]
         [TestCase("#")]
         [TestCase("__")]
         [TestCase("____")]
@@ -134,7 +114,18 @@ namespace MdTests
         [Test]
         public void Parse_UnderscoreInDigits_ReturnsAsIs()
         {
-            _md.Parse("Текст с 1__23_45__6").Should().Be("Текст с 1__23_45__6");
+            _md.Parse("Текст с 1_23_456").Should().Be("Текст с 1_23_456");
+        }
+        [Test]
+        public void Parse_StrongInDigits_ReturnsAsIs()
+        {
+            _md.Parse("Текст с 1__23__456").Should().Be("Текст с 1__23__456");
+        }
+
+        [Test]
+        public void Parse_WordsWithDigits_ReturnsAsIs()
+        {
+            _md.Parse("цифрами_12_3").Should().Be("цифрами_12_3");
         }
 
 
@@ -177,6 +168,43 @@ namespace MdTests
                 "\nПродолжение текста с <strong>жирным</strong> и <em>курсивом</em>.");
         }
 
+        [Test]
+        public void Parse_HtmlTagsInText_EscapesThem()
+        {
+            _md.Parse("Текст с <div>тегом</div>")
+               .Should().Be("Текст с &lt;div&gt;тегом&lt;/div&gt;");
+        }
+
+        [Test]
+        public void Parse_StrongInsideItalic_ReturnsAsIs()
+        {
+            _md.Parse("_текст __жирный_ текст__").Should().Be("_текст __жирный_ текст__");
+        }
+
+        [Test]
+        public void Parse_UnderscoreInStrong_ReturnsCorrectHtml()
+        {
+            _md.Parse("__текст _ хвост__").Should().Be("<strong>текст _ хвост</strong>");
+        }
+
+        [Test]
+        public void Parse_LonelyUnderscoreWithSpacesInsideItalic_StaysUnderscore()
+        {
+            _md.Parse("_текст _ ещё_").Should().Be("<em>текст _ ещё</em>");
+        }
+
+        [TestCase("_ текст_", "_ текст_")]
+        [TestCase("_текст _", "_текст _")]
+        [TestCase("_ текст _", "_ текст _")]
+        [TestCase("__ текст__", "__ текст__")]
+        [TestCase("__текст __", "__текст __")]
+        [TestCase("__ текст __", "__ текст __")]
+        [TestCase("эти_ подчерки_ не", "эти_ подчерки_ не")]
+        [TestCase("текст _ текст_", "текст _ текст_")]
+        public void Parse_SpacesNextToDelimiters_DoesNotEmphasize(string input, string expected)
+        {
+            _md.Parse(input).Should().Be(expected);
+        }
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Markdown.Abstractions;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Markdown.MDNodes
 {
@@ -11,6 +12,19 @@ namespace Markdown.MDNodes
             Content = content;
         }
 
-        public override string Render() => Content;
+        public override string Render() => EscapeHtml(Content);
+
+        private static string EscapeHtml(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+
+            return text
+                .Replace("&", "&amp;")  
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;")
+                .Replace("'", "&#39;");
+        }
     }
 }

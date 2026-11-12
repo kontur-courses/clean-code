@@ -1,7 +1,6 @@
 ﻿using Markdown.Abstractions;
-using Markdown.MDNodes;
 
-namespace Markdown.MDElements
+namespace Markdown.MDNodes
 {
     public class ItalicNode : PairedInlineNode
     {
