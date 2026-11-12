@@ -1,4 +1,4 @@
-﻿namespace Markdown.Nodes;
+﻿namespace Markdown.Nodes.HtmlTags;
 
 public static class HtmlTagExtensions
 {
@@ -9,6 +9,8 @@ public static class HtmlTagExtensions
             HtmlTag.Em => "em",
             HtmlTag.Strong => "strong",
             HtmlTag.H1 => "h1",
+            HtmlTag.Ul => "ul",
+            HtmlTag.Li => "li",
             _ => throw new ArgumentOutOfRangeException(nameof(tag), tag, "Unknown HTML tag")
         };
     }

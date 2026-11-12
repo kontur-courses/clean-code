@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Markdown;
+namespace Markdown.Nodes;
 
 public interface INode
 {

@@ -1,4 +1,4 @@
-﻿using Markdown.Nodes;
+﻿using Markdown.Nodes.HtmlTags;
 
 namespace Markdown.Parsing;
 
