@@ -158,7 +158,7 @@ namespace MarkdownUnitTests
         }
 
         [Test, TestCaseSource(nameof(DeepNestingCases), Category = "NestingTags")]
-        public void Render_DeepNesting_ReturnsCorrectHtml(List<IToken> tokens, string expected)
+        public void Render_ReturnsTextWithHtmlTags_WhenNestingTags(List<IToken> tokens, string expected)
         {
             var result = renderer.Render(tokens);
             result.Should().Be(expected);

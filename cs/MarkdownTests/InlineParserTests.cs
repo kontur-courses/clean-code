@@ -46,8 +46,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [Test]
@@ -57,8 +56,7 @@ namespace MarkdownUnitTests
 
             var result = parser.ParseToTokens(line);
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [Test]
@@ -69,8 +67,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [Test]
@@ -81,12 +78,11 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            TagToken tagToken = result[0].AsTag();
-            tagToken.IsTag().Should().BeTrue();
-            tagToken.Tag.MarkdownSymbol.Should().Be("_");
-            tagToken.Children.Should().HaveCount(1);
-            tagToken.Children[0].IsTag().Should().BeFalse();
-            tagToken.Children[0].AsText().Content.Should().Be("text");
+            result[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "_" },
+                Children = new[] { new { Content = "text" } }
+            });
         }
 
         [Test]
@@ -97,12 +93,11 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            var tagToken = result[0].AsTag();
-            tagToken.IsTag().Should().BeTrue();
-            tagToken.Tag.MarkdownSymbol.Should().Be("__");
-            tagToken.Children.Should().HaveCount(1);
-            tagToken.Children[0].IsTag().Should().BeFalse();
-            tagToken.Children[0].AsText().Content.Should().Be("text");
+            result[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "__" },
+                Children = new[] { new { Content = "text" } }
+            });
         }
 
         [TestCase("_")]
@@ -114,8 +109,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [TestCase("_")]
@@ -127,16 +121,14 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
 
             line = $"text{tagText}";
 
             result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [TestCase("_")]
@@ -148,8 +140,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeFalse();
-            result[0].AsText().Content.Should().Be(line);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = line });
         }
 
         [Test]
@@ -161,16 +152,19 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(3);
 
-            result[0].IsTag().Should().BeTrue();
-            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("_");
-            result[0].AsTag().Children[0].AsText().Content.Should().Be("a lot");
+            result[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "_" },
+                Children = new[] { new { Content = "a lot" } }
+            });
 
-            result[1].IsTag().Should().BeFalse();
-            result[1].AsText().Content.Should().Be(" of ");
+            result[1].AsText().Should().BeEquivalentTo(new { Content = " of " });
 
-            result[2].IsTag().Should().BeTrue();
-            result[2].AsTag().Tag.MarkdownSymbol.Should().Be("__");
-            result[2].AsTag().Children[0].AsText().Content.Should().Be("tags");
+            result[2].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "__" },
+                Children = new[] { new { Content = "tags" } }
+            });
         }
 
         [Test]
@@ -181,17 +175,20 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeTrue();
-            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("__");
-
-            result[0].AsTag().Children.Should().HaveCount(3);
-            result[0].AsTag().Children[0].AsText().Content.Should().Be("strong and ");
-
-            result[0].AsTag().Children[1].IsTag().Should().BeTrue();
-            result[0].AsTag().Children[1].AsTag().Tag.MarkdownSymbol.Should().Be("_");
-            result[0].AsTag().Children[1].AsTag().Children[0].AsText().Content.Should().Be("em");
-
-            result[0].AsTag().Children[2].AsText().Content.Should().Be(" text");
+            result[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "__" },
+                Children = new object[]
+                {
+                    new { Content = "strong and " },
+                    new
+                    {
+                        Tag = new { MarkdownSymbol = "_" },
+                        Children = new[] { new { Content = "em" } }
+                    },
+                    new { Content = " text" }
+                }
+            });
         }
 
         [Test]
@@ -200,12 +197,54 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens("_text __strong__ text_");
 
             result.Should().HaveCount(1);
-            result[0].IsTag().Should().BeTrue();
-            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("_");
+            result[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "_" },
+                Children = new[] { new { Content = "text __strong__ text" } }
+            });
+        }
 
-            result[0].AsTag().Children.Should().HaveCount(1);
-            result[0].AsTag().Children[0].IsTag().Should().BeFalse();
-            result[0].AsTag().Children[0].AsText().Content.Should().Be("text __strong__ text");
+        [Test]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenLineContainsNewline()
+        {
+            var result = parser.ParseToTokens("first\nsecond");
+
+            result.Should().HaveCount(1);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = "first\nsecond" });
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsListWithSingleToken_WhenTagSpansNewline()
+        {
+            var result = parser.ParseToTokens("_first\nsecond_");
+
+            result.Should().HaveCount(1);
+            result[0].AsText().Should().BeEquivalentTo(new { Content = "_first\nsecond_" });
+        }
+
+        [Test]
+        public void ParseToTokens_ReturnsCorrectLists_WhenCalledForMultipleLines()
+        {
+            var result1 = parser.ParseToTokens("_first_");
+            var result2 = parser.ParseToTokens("__second__");
+            var result3 = parser.ParseToTokens("plain text");
+
+            result1.Should().HaveCount(1);
+            result1[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "_" },
+                Children = new[] { new { Content = "first" } }
+            });
+
+            result2.Should().HaveCount(1);
+            result2[0].AsTag().Should().BeEquivalentTo(new
+            {
+                Tag = new { MarkdownSymbol = "__" },
+                Children = new[] { new { Content = "second" } }
+            });
+
+            result3.Should().HaveCount(1);
+            result3[0].AsText().Should().BeEquivalentTo(new { Content = "plain text" });
         }
     }
-}
+}11
