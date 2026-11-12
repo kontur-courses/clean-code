@@ -13,29 +13,19 @@ internal static class NodeBuilder
         var nodes = new List<Node>();
         var unorderedList = new List<Node>();
 
-        foreach (var line in MergeLines(markdown))
+        foreach (var node in MergeLines(markdown).Select(ParseLine))
         {
-            if (string.IsNullOrWhiteSpace(line))
+            if (node is ListItemNode listItem)
             {
-                FlushList();
+                unorderedList.Add(listItem);
                 continue;
             }
 
-            if (line.StartsWith(HeaderPrefix))
+            FlushList();
+
+            if (node is not null)
             {
-                FlushList();
-                nodes.Add(BuildBlock<HeaderNode>(
-                    line, HeaderPrefix.Length));
-            }
-            else if (line.StartsWith(UnorderedListItemPrefix))
-            {
-                unorderedList.Add(BuildBlock<ListItemNode>(
-                    line, UnorderedListItemPrefix.Length));
-            }
-            else
-            {
-                FlushList();
-                nodes.Add(BuildBlock<ParagraphNode>(line));
+                nodes.Add(node);
             }
         }
 
@@ -56,6 +46,27 @@ internal static class NodeBuilder
 
             unorderedList.Clear();
         }
+    }
+
+    private static Node? ParseLine(string line)
+    {
+        if (string.IsNullOrWhiteSpace(line))
+        {
+            return null;
+        }
+
+        if (line.StartsWith(HeaderPrefix))
+        {
+            return BuildBlock<HeaderNode>(line, HeaderPrefix.Length);
+        }
+
+        if (line.StartsWith(UnorderedListItemPrefix))
+        {
+            return BuildBlock<ListItemNode>(
+                line, UnorderedListItemPrefix.Length);
+        }
+
+        return BuildBlock<ParagraphNode>(line);
     }
 
     private static TContainerNode BuildBlock<TContainerNode>(string line, int startIndex = 0)
