@@ -26,14 +26,19 @@ internal static class DelimiterMatcher
                     ? openingStrong
                     : openingEmphasis;
 
-                if (delimiter.CanClose && stack.TryPop(out var opening))
-                {
-                    pairs.Add(new DelimiterPair(
+                var pair = delimiter.CanClose && stack.TryPeek(out var opening)
+                    ? new DelimiterPair(
                         opening,
                         delimiter,
                         delimiter.Length == DelimiterRunToken.StrongLength
                             ? DelimiterType.Strong
-                            : DelimiterType.Emphasis));
+                            : DelimiterType.Emphasis)
+                    : null;
+
+                if (pair is not null && !IsInvalidWordPair(pair, text))
+                {
+                    stack.Pop();
+                    pairs.Add(pair);
                 }
                 else if (delimiter.CanOpen)
                 {
@@ -52,7 +57,6 @@ internal static class DelimiterMatcher
         return pairs.Where(pair =>
                 pair.Opening.Index + pair.Opening.Length
                     != pair.Closing.Index
-                && !IsInvalidWordPair(pair, text)
                 && !pairs.Any(other => HasInvalidRelation(pair, other)))
             .ToList();
     }

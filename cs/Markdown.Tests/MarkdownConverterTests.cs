@@ -5,6 +5,13 @@ namespace Markdown.Tests;
 [TestFixture]
 public class MarkdownConverterTests
 {
+    [TestCase("a_b c_d_e", "<p>a_b c<em>d</em>e</p>")]
+    [TestCase("a__b c__d__e", "<p>a__b c<strong>d</strong>e</p>")]
+    public void ToHtml_InvalidWordPair_DoesNotConsumeNextOpening(string markdown, string expected)
+    {
+        MarkdownConverter.ToHtml(markdown).Should().Be(expected);
+    }
+
     [TestCaseSource(nameof(MarkdownCases))]
     public void ToHtml_MarkdownSpecText_ReturnsExpectedHtml(string markdown, string expected)
     {
