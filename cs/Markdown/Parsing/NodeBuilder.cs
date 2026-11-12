@@ -110,7 +110,7 @@ internal static class NodeBuilder
 
             if (openings.TryGetValue(index, out var pair))
             {
-                FlushText();
+                FlushSb(sb, nodeText => nodes.Add(new TextNode(nodeText)));
 
                 var children = BuildInnerNodes(
                     text,
@@ -130,20 +130,9 @@ internal static class NodeBuilder
             sb.Append(text[index++]);
         }
 
-        FlushText();
+        FlushSb(sb, nodeText => nodes.Add(new TextNode(nodeText)));
 
         return nodes;
-
-        void FlushText()
-        {
-            if (sb.Length == 0)
-            {
-                return;
-            }
-
-            nodes.Add(new TextNode(sb.ToString()));
-            sb.Clear();
-        }
     }
 
     private static List<string> MergeLines(string markdown)
@@ -157,7 +146,7 @@ internal static class NodeBuilder
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                FlushSb();
+                FlushSb(sb, lines.Add);
 
                 lines.Add(string.Empty);
                 continue;
@@ -166,13 +155,7 @@ internal static class NodeBuilder
             if (line.StartsWith(HeaderPrefix)
                 || line.StartsWith(UnorderedListItemPrefix))
             {
-                FlushSb();
-            }
-
-            if (line.StartsWith(HeaderPrefix))
-            {
-                lines.Add(line.Trim());
-                continue;
+                FlushSb(sb, lines.Add);
             }
 
             if (sb.Length > 0)
@@ -183,19 +166,19 @@ internal static class NodeBuilder
             sb.Append(line.Trim());
         }
 
-        FlushSb();
+        FlushSb(sb, lines.Add);
 
         return lines;
+    }
 
-        void FlushSb()
+    private static void FlushSb(StringBuilder sb, Action<string> add)
+    {
+        if (sb.Length <= 0)
         {
-            if (sb.Length <= 0)
-            {
-                return;
-            }
-
-            lines.Add(sb.ToString());
-            sb.Clear();
+            return;
         }
+
+        add(sb.ToString());
+        sb.Clear();
     }
 }
