@@ -12,62 +12,9 @@ public static class HtmlRenderer
 
         foreach (var node in nodes)
         {
-            RenderNode(node, sb);
+            sb.Append(node.ToHtmlString());
         }
 
         return sb.ToString();
-    }
-
-    private static void RenderNode(Node node, StringBuilder sb)
-    {
-        switch (node)
-        {
-            case TextNode text:
-                sb.Append(text.Text);
-                break;
-
-            case HeaderNode header:
-                RenderContainer(header, "h1", sb);
-                break;
-
-            case ParagraphNode paragraph:
-                RenderContainer(paragraph, "p", sb);
-                break;
-
-            case EmphasisNode emphasis:
-                RenderContainer(emphasis, "em", sb);
-                break;
-
-            case StrongNode strong:
-                RenderContainer(strong, "strong", sb);
-                break;
-
-            case UnorderedListNode unorderedList:
-                RenderContainer(unorderedList, "ul", sb);
-                break;
-
-            case ListItemNode listItem:
-                RenderContainer(listItem, "li", sb);
-                break;
-
-            default:
-                throw new NotSupportedException(
-                    $"Unsupported node type: {node.GetType().Name}");
-        }
-    }
-
-    private static void RenderContainer(
-        ContainerNode node,
-        string tag,
-        StringBuilder sb)
-    {
-        sb.Append('<').Append(tag).Append('>');
-
-        foreach (var child in node.Children)
-        {
-            RenderNode(child, sb);
-        }
-
-        sb.Append("</").Append(tag).Append('>');
     }
 }
