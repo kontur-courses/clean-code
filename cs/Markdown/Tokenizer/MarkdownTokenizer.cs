@@ -10,7 +10,6 @@ public class MarkdownTokenizer : ITokenizer
     {
         var tokens = new List<Token>();
         var textBuffer = new StringBuilder();
-        var textStartPos = 0;
         var i = 0;
 
         while (i < text.Length)
@@ -19,9 +18,6 @@ public class MarkdownTokenizer : ITokenizer
 
             if (current == '\\')
             {
-                if (textBuffer.Length == 0)
-                    textStartPos = i;
-
                 if (i + 1 < text.Length && IsEscapable(text[i + 1]))
                 {
                     textBuffer.Append(text[i + 1]);
@@ -37,12 +33,12 @@ public class MarkdownTokenizer : ITokenizer
 
             if (char.IsWhiteSpace(current))
             {
-                FlushTextBuffer(tokens, textBuffer, textStartPos);
+                FlushTextBuffer(tokens, textBuffer);
                 var start = i;
                 while (i < text.Length && char.IsWhiteSpace(text[i]))
                     i++;
 
-                tokens.Add(new Token(TokenType.Whitespace, text[start..i], start));
+                tokens.Add(new Token(TokenType.Whitespace, text[start..i]));
                 continue;
             }
 
@@ -56,33 +52,28 @@ public class MarkdownTokenizer : ITokenizer
 
                 if (count > 2)
                 {
-                    if (textBuffer.Length == 0)
-                        textStartPos = start;
                     textBuffer.Append(text, start, count);
                     continue;
                 }
 
-                FlushTextBuffer(tokens, textBuffer, textStartPos);
+                FlushTextBuffer(tokens, textBuffer);
                 tokens.Add(CreateUnderscoreToken(text, start, i));
                 continue;
             }
 
             if (TryGetBracketTokenType(current, out var bracketType))
             {
-                FlushTextBuffer(tokens, textBuffer, textStartPos);
-                tokens.Add(new Token(bracketType, current.ToString(), i));
+                FlushTextBuffer(tokens, textBuffer);
+                tokens.Add(new Token(bracketType, current.ToString()));
                 i++;
                 continue;
             }
-
-            if (textBuffer.Length == 0)
-                textStartPos = i;
 
             textBuffer.Append(current);
             i++;
         }
 
-        FlushTextBuffer(tokens, textBuffer, textStartPos);
+        FlushTextBuffer(tokens, textBuffer);
         return tokens;
     }
 
@@ -105,15 +96,15 @@ public class MarkdownTokenizer : ITokenizer
         var canOpen = !hasDigitNeighbor && nextIsNonWhitespace;
         var canClose = !hasDigitNeighbor && prevIsNonWhitespace;
 
-        return new Token(type, text[start..end], start, canOpen, canClose, isInsideWord);
+        return new Token(type, text[start..end], canOpen, canClose, isInsideWord);
     }
 
-    private static void FlushTextBuffer(List<Token> tokens, StringBuilder buffer, int startPos)
+    private static void FlushTextBuffer(List<Token> tokens, StringBuilder buffer)
     {
         if (buffer.Length == 0)
             return;
 
-        tokens.Add(new Token(TokenType.Text, buffer.ToString(), startPos));
+        tokens.Add(new Token(TokenType.Text, buffer.ToString()));
         buffer.Clear();
     }
 
