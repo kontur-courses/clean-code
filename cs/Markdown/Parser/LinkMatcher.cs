@@ -9,6 +9,7 @@ public static class LinkMatcher
     {
         var matches = new Dictionary<int, LinkMatch>();
         var openBracketIndex = -1;
+        var lastScannedParenIndex = -1;
 
         for (var i = 0; i < tokens.Count; i++)
         {
@@ -22,7 +23,16 @@ public static class LinkMatcher
             {
                 if (i + 1 < tokens.Count && tokens[i + 1].Type == TokenType.OpenParen)
                 {
-                    var closeParenIndex = FindCloseParen(tokens, i + 2, out var url);
+                    var startParenIndex = i + 2;
+                    if (startParenIndex <= lastScannedParenIndex)
+                    {
+                        openBracketIndex = -1;
+                        continue;
+                    }
+
+                    var closeParenIndex = FindCloseParen(tokens, startParenIndex, out var url, out var lastScanned);
+                    lastScannedParenIndex = lastScanned;
+
                     if (closeParenIndex != -1)
                     {
                         matches[openBracketIndex] = new LinkMatch(
@@ -41,14 +51,21 @@ public static class LinkMatcher
         return matches;
     }
 
-    private static int FindCloseParen(IReadOnlyList<Token> tokens, int startIndex, out string url)
+    private static int FindCloseParen(
+        IReadOnlyList<Token> tokens,
+        int startIndex,
+        out string url,
+        out int lastScannedIndex)
     {
         var urlBuilder = new StringBuilder();
-        for (var i = startIndex; i < tokens.Count; i++)
+        var i = startIndex;
+
+        for (; i < tokens.Count; i++)
         {
             if (tokens[i].Type == TokenType.CloseParen)
             {
                 url = urlBuilder.ToString();
+                lastScannedIndex = i;
                 return i;
             }
 
@@ -59,6 +76,7 @@ public static class LinkMatcher
         }
 
         url = string.Empty;
+        lastScannedIndex = Math.Min(i, tokens.Count - 1);
         return -1;
     }
 }
