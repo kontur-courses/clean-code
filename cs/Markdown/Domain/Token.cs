@@ -21,13 +21,6 @@ public record DelimiterRunToken(
     public const int StrongLength = 2;
 }
 
-public enum DelimiterType
-{
-    Emphasis,
-    Strong
-}
-
 public sealed record DelimiterPair(
     DelimiterRunToken Opening,
-    DelimiterRunToken Closing,
-    DelimiterType Type);
+    DelimiterRunToken Closing);

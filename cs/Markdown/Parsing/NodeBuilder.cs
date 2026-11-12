@@ -119,9 +119,12 @@ internal static class NodeBuilder
                     openings,
                     escapes);
 
-                nodes.Add(pair.Type == DelimiterType.Emphasis
-                    ? new EmphasisNode { Children = children }
-                    : new StrongNode { Children = children });
+                nodes.Add(pair.Opening.Length switch
+                {
+                    DelimiterRunToken.EmphasisLength => new EmphasisNode { Children = children },
+                    DelimiterRunToken.StrongLength => new StrongNode { Children = children },
+                    _ => throw new InvalidOperationException("Unsupported delimiter length.")
+                });
 
                 index = pair.Closing.Index + pair.Closing.Length;
                 continue;

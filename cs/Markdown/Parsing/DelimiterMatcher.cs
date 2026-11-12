@@ -29,10 +29,7 @@ internal static class DelimiterMatcher
                 var pair = delimiter.CanClose && stack.TryPeek(out var opening)
                     ? new DelimiterPair(
                         opening,
-                        delimiter,
-                        delimiter.Length == DelimiterRunToken.StrongLength
-                            ? DelimiterType.Strong
-                            : DelimiterType.Emphasis)
+                        delimiter)
                     : null;
 
                 if (pair is not null && !IsInvalidWordPair(pair, text))

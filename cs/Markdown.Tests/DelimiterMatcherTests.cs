@@ -33,8 +33,7 @@ public class DelimiterMatcherTests
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(18, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(18, 1, false, true))
         };
 
         AssertPairs(text, expectedPairs);
@@ -76,52 +75,45 @@ public class DelimiterMatcherTests
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(5, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(5, 1, false, true))
         });
 
         yield return new TestCaseData("_three_delimiters_", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(6, 1, true, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(6, 1, true, true))
         });
 
         yield return new TestCaseData("_world gears_ _yes_", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(12, 1, false, true),
-                DelimiterType.Emphasis),
+                new DelimiterRunToken(12, 1, false, true)),
             new DelimiterPair(
                 new DelimiterRunToken(14, 1, true, false),
-                new DelimiterRunToken(18, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(18, 1, false, true))
         });
 
         yield return new TestCaseData("_start_word", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(6, 1, true, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(6, 1, true, true))
         });
 
         yield return new TestCaseData("mid_dle_word", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(3, 1, true, true),
-                new DelimiterRunToken(7, 1, true, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(7, 1, true, true))
         });
 
         yield return new TestCaseData("word_end_", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(4, 1, true, true),
-                new DelimiterRunToken(8, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(8, 1, false, true))
         });
 
     }
@@ -132,32 +124,28 @@ public class DelimiterMatcherTests
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(6, 2, false, true),
-                DelimiterType.Strong)
+                new DelimiterRunToken(6, 2, false, true))
         });
 
         yield return new TestCaseData("__three__delimiters__", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(7, 2, true, true),
-                DelimiterType.Strong)
+                new DelimiterRunToken(7, 2, true, true))
         });
 
         yield return new TestCaseData("____text__", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(2, 2, true, false),
-                new DelimiterRunToken(8, 2, false, true),
-                DelimiterType.Strong)
+                new DelimiterRunToken(8, 2, false, true))
         });
 
         yield return new TestCaseData("__text____", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(6, 2, false,  true),
-                DelimiterType.Strong)
+                new DelimiterRunToken(6, 2, false,  true))
         });
     }
 
@@ -167,48 +155,40 @@ public class DelimiterMatcherTests
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(17, 2, false, true),
-                DelimiterType.Strong),
+                new DelimiterRunToken(17, 2, false, true)),
             new DelimiterPair(
                 new DelimiterRunToken(7, 1, true, false),
-                new DelimiterRunToken(12, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(12, 1, false, true))
         });
 
         yield return new TestCaseData("___text word_ one__", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(17, 2, false, true),
-                DelimiterType.Strong),
+                new DelimiterRunToken(17, 2, false, true)),
             new DelimiterPair(
                 new DelimiterRunToken(2, 1, true, false),
-                new DelimiterRunToken(12, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(12, 1, false, true))
         });
 
         yield return new TestCaseData("__text _word one___", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(17, 2, false, true),
-                DelimiterType.Strong),
+                new DelimiterRunToken(17, 2, false, true)),
             new DelimiterPair(
                 new DelimiterRunToken(7, 1, true, false),
-                new DelimiterRunToken(16, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(16, 1, false, true))
         });
 
         yield return new TestCaseData("___text___", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(8, 2, false, true),
-                DelimiterType.Strong),
+                new DelimiterRunToken(8, 2, false, true)),
             new DelimiterPair(
                 new DelimiterRunToken(2, 1, true, false),
-                new DelimiterRunToken(7, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(7, 1, false, true))
         });
     }
 
@@ -218,16 +198,14 @@ public class DelimiterMatcherTests
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 1, true, false),
-                new DelimiterRunToken(16, 1, false, true),
-                DelimiterType.Emphasis)
+                new DelimiterRunToken(16, 1, false, true))
         });
 
         yield return new TestCaseData("__one __two__ three__", new[]
         {
             new DelimiterPair(
                 new DelimiterRunToken(0, 2, true, false),
-                new DelimiterRunToken(19, 2, false, true),
-                DelimiterType.Strong)
+                new DelimiterRunToken(19, 2, false, true))
         });
     }
 }
