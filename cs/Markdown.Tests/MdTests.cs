@@ -75,7 +75,9 @@ namespace Markdown.Tests
             Assert.That(md.Render("_текст __жирный__ текст_"),
                 Is.EqualTo("<p><em>текст __жирный__ текст</em></p>"));
         }
-        
+
+        [TestCase("[текст](", "<p>[текст](</p>", TestName = "Unclosed link parenthesis is not formatted")]
+        [TestCase("__ _текст __жирный__ текст_", "<p>__ <em>текст __жирный__ текст</em></p>", TestName = "Double underscore with space and nested strong inside italic")]
         [TestCase("_текст", "<p>_текст</p>", TestName = "Unpaired opening underscore")]
         [TestCase("текст_", "<p>текст_</p>", TestName = "Unpaired closing underscore")]
         [TestCase("__текст", "<p>__текст</p>", TestName = "Unpaired opening double underscore")]
@@ -160,6 +162,8 @@ namespace Markdown.Tests
             Assert.That(md.Render(input), Is.EqualTo(expected));
         }
 
+        [TestCase(@"__текст _ хвост__", "<p><strong>текст _ хвост</strong></p>", TestName = "")]
+        [TestCase(@"\__текст_", "<p>_<em>текст</em></p>", TestName = "Escaped first underscore followed by italic")]
         [TestCase(@"*текст \_ хвост*", "<p>*текст _ хвост*</p>", TestName = "Escaped underscore inside asterisk text")]
         [TestCase(@"_текст \_ хвост_", "<p><em>текст _ хвост</em></p>", TestName = "Escaped underscore inside italic")]
         [TestCase(@"_текст \\_ хвост_", "<p><em>текст \\</em> хвост_</p>", TestName = "Even backslashes do not escape underscore")]
@@ -175,5 +179,8 @@ namespace Markdown.Tests
         {
             Assert.That(md.Render(input), Is.EqualTo(expected));
         }
+
     }
+
+
 }
