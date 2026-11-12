@@ -47,7 +47,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Content.Should().Be(line);
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [Test]
@@ -58,8 +58,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Children.Should().BeNull();
-            result[0].Content.Should().Be(line);
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [Test]
@@ -71,8 +70,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Children.Should().BeNull();
-            result[0].Content.Should().Be(line);
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [Test]
@@ -83,12 +81,12 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            TagToken tagToken = (TagToken)result[0];
+            TagToken tagToken = result[0].AsTag();
             tagToken.IsTag().Should().BeTrue();
             tagToken.Tag.MarkdownSymbol.Should().Be("_");
             tagToken.Children.Should().HaveCount(1);
             tagToken.Children[0].IsTag().Should().BeFalse();
-            tagToken.Children[0].Content.Should().Be("text");
+            tagToken.Children[0].AsText().Content.Should().Be("text");
         }
 
         [Test]
@@ -99,12 +97,12 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            var tagToken = result[0];
+            var tagToken = result[0].AsTag();
             tagToken.IsTag().Should().BeTrue();
             tagToken.Tag.MarkdownSymbol.Should().Be("__");
             tagToken.Children.Should().HaveCount(1);
             tagToken.Children[0].IsTag().Should().BeFalse();
-            tagToken.Children[0].Content.Should().Be("text");
+            tagToken.Children[0].AsText().Content.Should().Be("text");
         }
 
         [TestCase("_")]
@@ -117,7 +115,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Content.Should().Be(line);
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [TestCase("_")]
@@ -130,8 +128,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Content.Should().Be(line);
-
+            result[0].AsText().Content.Should().Be(line);
 
             line = $"text{tagText}";
 
@@ -139,8 +136,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Content.Should().Be(line);
-
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [TestCase("_")]
@@ -153,7 +149,7 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeFalse();
-            result[0].Content.Should().Be(line);
+            result[0].AsText().Content.Should().Be(line);
         }
 
         [Test]
@@ -166,15 +162,15 @@ namespace MarkdownUnitTests
             result.Should().HaveCount(3);
 
             result[0].IsTag().Should().BeTrue();
-            result[0].Tag.MarkdownSymbol.Should().Be("_");
-            result[0].Children[0].Should().Be("a lot");
+            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("_");
+            result[0].AsTag().Children[0].AsText().Content.Should().Be("a lot");
 
             result[1].IsTag().Should().BeFalse();
-            result[1].Content.Should().Be(" of ");
+            result[1].AsText().Content.Should().Be(" of ");
 
             result[2].IsTag().Should().BeTrue();
-            result[2].Tag.MarkdownSymbol.Should().Be("__");
-            result[2].Children[0].Should().Be("tags");
+            result[2].AsTag().Tag.MarkdownSymbol.Should().Be("__");
+            result[2].AsTag().Children[0].AsText().Content.Should().Be("tags");
         }
 
         [Test]
@@ -186,16 +182,16 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeTrue();
-            result[0].Tag.MarkdownSymbol.Should().Be("__");
+            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("__");
 
-            result[0].Children.Should().HaveCount(3);
-            result[0].Children[0].Content.Should().Be("strong and ");
+            result[0].AsTag().Children.Should().HaveCount(3);
+            result[0].AsTag().Children[0].AsText().Content.Should().Be("strong and ");
 
-            result[0].Children[1].IsTag().Should().BeTrue();
-            result[0].Children[1].Tag.MarkdownSymbol.Should().Be("_");
-            result[0].Children[1].Children[0].Content.Should().Be("em");
+            result[0].AsTag().Children[1].IsTag().Should().BeTrue();
+            result[0].AsTag().Children[1].AsTag().Tag.MarkdownSymbol.Should().Be("_");
+            result[0].AsTag().Children[1].AsTag().Children[0].AsText().Content.Should().Be("em");
 
-            result[0].Children[2].Content.Should().Be(" text");
+            result[0].AsTag().Children[2].AsText().Content.Should().Be(" text");
         }
 
         [Test]
@@ -205,12 +201,11 @@ namespace MarkdownUnitTests
 
             result.Should().HaveCount(1);
             result[0].IsTag().Should().BeTrue();
-            result[0].Tag.MarkdownSymbol.Should().Be("_");
+            result[0].AsTag().Tag.MarkdownSymbol.Should().Be("_");
 
-            result[0].Children.Should().HaveCount(1);
-            result[0].Children[0].IsTag().Should().BeFalse();
-            result[0].Children[0].Content.Should().Be("text __strong__ text");
-
+            result[0].AsTag().Children.Should().HaveCount(1);
+            result[0].AsTag().Children[0].IsTag().Should().BeFalse();
+            result[0].AsTag().Children[0].AsText().Content.Should().Be("text __strong__ text");
         }
     }
 }
