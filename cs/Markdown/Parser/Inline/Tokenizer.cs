@@ -17,8 +17,17 @@ namespace Markdown.Parser.Inline
 
                 if (c == '\\' && i + 1 < text.Length)
                 {
-                    buffer.Append(text[i + 1]);
-                    i++;
+                    if (i + 2 < text.Length && text[i + 1] == '_' && text[i + 2] == '_')
+                    {
+                        buffer.Append(text[i + 1]);
+                        buffer.Append(text[i + 2]);
+                        i += 2;
+                    }
+                    else
+                    { 
+                        buffer.Append(text[i + 1]);
+                        i++;
+                    }
                     continue;
                 }
 

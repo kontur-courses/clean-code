@@ -117,6 +117,11 @@ namespace Markdown.Parser.Inline
         {
             var item = stack.Pop();
             AddText(item.Token, stack, root);
+
+            foreach(var child in item.Children)
+            {
+                AddNode(child, stack, root);
+            }
         }
 
         private static void AddText(Token token, Stack<StackItem> stack, List<INode> root)

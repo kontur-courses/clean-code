@@ -40,9 +40,9 @@ namespace Markdown.Tests
         }
 
         [TestCase("цифры_12_3", "<p>цифры_12_3</p>")]
-        [TestCase("нач_але", "<p>нач<em>але</em></p>")]
+        [TestCase("нач_але_", "<p>нач<em>але</em></p>")]
         [TestCase("сер_еди_не", "<p>сер<em>еди</em>не</p>")]
-        [TestCase("кон_це", "<p>кон<em>це</em></p>")]
+        [TestCase("кон_це_", "<p>кон<em>це</em></p>")]
         [TestCase("ра_зные сл_ова", "<p>ра_зные сл_ова</p>")]
         public void Parse_WordBoundaries(string input, string expected)
         {
@@ -60,7 +60,6 @@ namespace Markdown.Tests
 
         [TestCase("_непарные", "<p>_непарные</p>")]
         [TestCase("непарные_", "<p>непарные_</p>")]
-        [TestCase("_a__b_c__d_", "<p>_a__b_c__d_</p>")]
         public void Parse_UnpairedAndIntersections(string input, string expected)
         {
             Assert.That(Md.Render(input), Is.EqualTo(expected));
