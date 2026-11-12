@@ -1,4 +1,5 @@
-﻿using Markdown.Models.Interfaces;
+﻿using Markdown.Models;
+using Markdown.Models.Interfaces;
 
 namespace Markdown
 {
@@ -23,17 +24,17 @@ namespace Markdown
             throw new NotImplementedException();
         }
 
-        private bool IsValidStartingTag(string line, int index, TagInfo tag)
+        private bool IsValidStartingTag(string line, int index, PairedTagInfo tag)
         {
             throw new NotImplementedException();
         }
 
-        private int FindEndingTag(string subline, int index, TagInfo tag)
+        private int FindEndingTag(string subline, int index, PairedTagInfo tag)
         {
             throw new NotImplementedException();
         }
 
-        private bool IsValidEndingTag(string line, int index, TagInfo tag)
+        private bool IsValidEndingTag(string line, int index, PairedTagInfo tag)
         {
             throw new NotImplementedException(); 
         }

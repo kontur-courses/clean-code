@@ -78,7 +78,7 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("text") })
+                    new TagToken(new PairedTagInfo("_", "em"), new List<IToken> { new TextToken("text") })
                 },
                 "<em>text</em>"
             ).SetName("SingleEm");
@@ -86,7 +86,7 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("text") })
+                    new TagToken(new PairedTagInfo("__", "strong"), new List<IToken> { new TextToken("text") })
                 },
                 "<strong>text</strong>"
             ).SetName("SingleStrong");
@@ -95,7 +95,7 @@ namespace MarkdownUnitTests
                 new List<IToken>
                 {
                     new TextToken("i "),
-                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("am") }),
+                    new TagToken(new PairedTagInfo("__", "strong"), new List<IToken> { new TextToken("am") }),
                     new TextToken(" senya")
                 },
                 "i <strong>am</strong> senya"
@@ -104,8 +104,8 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("a") }),
-                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("b") })
+                    new TagToken(new PairedTagInfo("_", "em"), new List<IToken> { new TextToken("a") }),
+                    new TagToken(new PairedTagInfo("__", "strong"), new List<IToken> { new TextToken("b") })
                 },
                 "<em>a</em><strong>b</strong>"
             ).SetName("TwoTagsInRow");
@@ -123,9 +123,9 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("__", "strong"), new List<IToken>
+                    new TagToken(new PairedTagInfo("__", "strong"), new List<IToken>
                     {
-                        new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("text") })
+                        new TagToken(new PairedTagInfo("_", "em"), new List<IToken> { new TextToken("text") })
                     })
                 },
                 "<strong><em>text</em></strong>"
@@ -134,7 +134,7 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("_", "em"), new List<IToken>
+                    new TagToken(new PairedTagInfo("_", "em"), new List<IToken>
                     {
                         new TextToken("text "),
                         new TextToken("__strong__ text")
@@ -146,10 +146,10 @@ namespace MarkdownUnitTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    new TagToken(new TagInfo("__", "strong"), new List<IToken>
+                    new TagToken(new PairedTagInfo("__", "strong"), new List<IToken>
                     {
                         new TextToken("strong and "),
-                        new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("em") }),
+                        new TagToken(new PairedTagInfo("_", "em"), new List<IToken> { new TextToken("em") }),
                         new TextToken(" text")
                     })
                 },

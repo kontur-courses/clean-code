@@ -247,4 +247,4 @@ namespace MarkdownUnitTests
             result3[0].AsText().Should().BeEquivalentTo(new { Content = "plain text" });
         }
     }
-}11
+}

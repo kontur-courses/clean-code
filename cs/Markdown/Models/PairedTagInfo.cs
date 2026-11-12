@@ -1,26 +1,26 @@
-﻿using System;
+﻿using Markdown.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown
+namespace Markdown.Models
 {
     /// <summary>
     /// Класс, содержащий информацию о связке Markdown-HTML 
     /// </summary>
-    public class TagInfo
+    public class PairedTagInfo : ITagInfo
     {
         public string MarkdownSymbol { get; }
-        public string OpeningTag {  get; }
+        public string OpeningTag { get; }
         public string ClosingTag { get; }
         public int Length => MarkdownSymbol.Length;
-
-        public TagInfo(string symbol, string htmlTag)
+        public PairedTagInfo(string symbol, string htmlTag)
         {
-            this.MarkdownSymbol = symbol;
-            this.OpeningTag = $"<{htmlTag}>";
-            this.ClosingTag = $"</{htmlTag}>";
+            MarkdownSymbol = symbol;
+            OpeningTag = $"<{htmlTag}>";
+            ClosingTag = $"</{htmlTag}>";
         }
     }
 }
