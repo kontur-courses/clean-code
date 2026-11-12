@@ -9,13 +9,10 @@
             if (IsBlockTagEscaped(paragraph))
                 return InlineRenderer.Render(paragraph[1..]);
 
-            if (TryFindBlockTag(paragraph, out var blockTag))
-            {
-                var content = paragraph[blockTag.Prefix.Length..];
-                return HtmlTag.Wrap(blockTag.TagName, InlineRenderer.Render(content));
-            }
+            if (!TryFindBlockTag(paragraph, out var blockTag)) return InlineRenderer.Render(paragraph);
+            var content = paragraph[blockTag.Prefix.Length..];
+            return HtmlTag.Wrap(blockTag.TagName, InlineRenderer.Render(content));
 
-            return InlineRenderer.Render(paragraph);
         }
 
         public static bool IsListItem(string paragraph)
