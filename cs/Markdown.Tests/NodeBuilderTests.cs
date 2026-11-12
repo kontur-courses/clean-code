@@ -46,34 +46,22 @@ public class NodeBuilderTests
             "paragraph",
             new Node[]
             {
-                new HeaderNode
-                {
-                    Children = [new TextNode("header")]
-                },
-                new ParagraphNode
-                {
-                    Children = [new TextNode("paragraph")]
-                }
+                NodeFactory.Header(NodeFactory.Text("header")),
+                NodeFactory.Paragraph(NodeFactory.Text("paragraph"))
             }).SetName("Header followed by paragraph");
 
         yield return new TestCaseData(
             "# Text",
             new Node[]
             {
-                new HeaderNode
-                {
-                    Children = [new TextNode("Text")]
-                }
+                NodeFactory.Header(NodeFactory.Text("Text"))
             }).SetName("Header only");
 
         yield return new TestCaseData(
             "Text",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children = [new TextNode("Text")]
-                }
+                NodeFactory.Paragraph(NodeFactory.Text("Text"))
             }).SetName("Paragraph only");
 
         yield return new TestCaseData(
@@ -81,10 +69,7 @@ public class NodeBuilderTests
             "Also same paragraph",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children = [new TextNode("Text Also same paragraph")]
-                }
+                NodeFactory.Paragraph(NodeFactory.Text("Text Also same paragraph"))
             }).SetName("Paragraph only, split by lines");
 
         yield return new TestCaseData(
@@ -96,14 +81,8 @@ public class NodeBuilderTests
             """,
             new Node[]
             {
-                new HeaderNode
-                {
-                    Children = [new TextNode("header")]
-                },
-                new ParagraphNode
-                {
-                    Children = [new TextNode("Above is empty line")]
-                }
+                NodeFactory.Header(NodeFactory.Text("header")),
+                NodeFactory.Paragraph(NodeFactory.Text("Above is empty line"))
             }).SetName("Skip empty lines");
     }
 
@@ -113,16 +92,7 @@ public class NodeBuilderTests
             "_Text_",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children =
-                    [
-                        new EmphasisNode
-                        {
-                            Children = [new TextNode("Text")]
-                        }
-                    ]
-                }
+                NodeFactory.Paragraph(NodeFactory.Emphasis(NodeFactory.Text("Text")))
             }).SetName("Emphasis");
     }
 
@@ -132,16 +102,7 @@ public class NodeBuilderTests
             "__Text__",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children =
-                    [
-                        new StrongNode
-                        {
-                            Children = [new TextNode("Text")]
-                        }
-                    ]
-                }
+                NodeFactory.Paragraph(NodeFactory.Strong(NodeFactory.Text("Text")))
             }).SetName("Strong");
     }
 
@@ -151,76 +112,28 @@ public class NodeBuilderTests
             "___Text___",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children =
-                    [
-                        new StrongNode
-                        {
-                            Children =
-                            [
-                                new EmphasisNode
-                                {
-                                    Children = [new TextNode("Text")]
-                                }
-                            ]
-                        }
-                    ]
-                }
+                NodeFactory.Paragraph(NodeFactory.Strong(NodeFactory.Emphasis(NodeFactory.Text("Text"))))
             }).SetName("Strong wrapping emphasis");
 
         yield return new TestCaseData(
             "__Strong _Emphasis___",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children =
-                    [
-                        new StrongNode
-                        {
-                            Children =
-                            [
-                                new TextNode("Strong "),
-                                new EmphasisNode
-                                {
-                                    Children = [new TextNode("Emphasis")]
-                                }
-                            ]
-                        }
-                    ]
-                }
+                NodeFactory.Paragraph(NodeFactory.Strong(NodeFactory.Text("Strong "),
+                    NodeFactory.Emphasis(NodeFactory.Text("Emphasis"))))
             }).SetName("Emphasis inside strong with text");
 
         yield return new TestCaseData(
             "_em_ __strong__ _em_ __strong__",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children =
-                    [
-                        new EmphasisNode
-                        {
-                            Children = [new TextNode("em")]
-                        },
-                        new TextNode(" "),
-                        new StrongNode
-                        {
-                            Children = [new TextNode("strong")]
-                        },
-                        new TextNode(" "),
-                        new EmphasisNode
-                        {
-                            Children = [new TextNode("em")]
-                        },
-                        new TextNode(" "),
-                        new StrongNode
-                        {
-                            Children = [new TextNode("strong")]
-                        }
-                    ]
-                }
+                NodeFactory.Paragraph(NodeFactory.Emphasis(NodeFactory.Text("em")),
+                    NodeFactory.Text(" "),
+                    NodeFactory.Strong(NodeFactory.Text("strong")),
+                    NodeFactory.Text(" "),
+                    NodeFactory.Emphasis(NodeFactory.Text("em")),
+                    NodeFactory.Text(" "),
+                    NodeFactory.Strong(NodeFactory.Text("strong")))
             }).SetName("Alternating emphasis and strong");
     }
 
@@ -230,10 +143,7 @@ public class NodeBuilderTests
             @"\_em\_ \_\_strong\_\_",
             new Node[]
             {
-                new ParagraphNode
-                {
-                    Children = [new TextNode("_em_ __strong__")]
-                }
+                NodeFactory.Paragraph(NodeFactory.Text("_em_ __strong__"))
             }).SetName("Escaped underscores are plain text");
     }
 
@@ -247,15 +157,9 @@ public class NodeBuilderTests
             """,
             new Node[]
             {
-                new UnorderedListNode
-                {
-                    Children =
-                    [
-                        new ListItemNode { Children = [new TextNode("Item 1")] },
-                        new ListItemNode { Children = [new TextNode("Item 2")] },
-                        new ListItemNode { Children = [new TextNode("Item 3")] }
-                    ]
-                }
+                NodeFactory.UnorderedList(NodeFactory.ListItem(NodeFactory.Text("Item 1")),
+                    NodeFactory.ListItem(NodeFactory.Text("Item 2")),
+                    NodeFactory.ListItem(NodeFactory.Text("Item 3")))
             }).SetName("Unordered list with multiple items");
 
 
@@ -263,26 +167,14 @@ public class NodeBuilderTests
             """
             - Item 1
             - Item 2
-            
+
             - Item 21
             """,
             new Node[]
             {
-                new UnorderedListNode
-                {
-                    Children =
-                    [
-                        new ListItemNode { Children = [new TextNode("Item 1")] },
-                        new ListItemNode { Children = [new TextNode("Item 2")] },
-                    ]
-                },
-                new UnorderedListNode
-                {
-                    Children =
-                    [
-                        new ListItemNode { Children = [new TextNode("Item 21")] }
-                    ]
-                }
+                NodeFactory.UnorderedList(NodeFactory.ListItem(NodeFactory.Text("Item 1")),
+                    NodeFactory.ListItem(NodeFactory.Text("Item 2"))),
+                NodeFactory.UnorderedList(NodeFactory.ListItem(NodeFactory.Text("Item 21")))
             }).SetName("Multiple unordered lists");
     }
 }

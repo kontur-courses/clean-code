@@ -20,25 +20,10 @@ public class HtmlRendererTests
     [Test]
     public void Render_NestedNodes_ReturnsExpectedHtml()
     {
-        Node node = new ParagraphNode
-        {
-            Children =
-            [
-                new TextNode("Hello "),
-                new StrongNode
-                {
-                    Children =
-                    [
-                        new TextNode("bold "),
-                        new EmphasisNode
-                        {
-                            Children = [new TextNode("italic")]
-                        }
-                    ]
-                },
-                new TextNode("!")
-            ]
-        };
+        Node node = NodeFactory.Paragraph(NodeFactory.Text("Hello "),
+            NodeFactory.Strong(NodeFactory.Text("bold "),
+                NodeFactory.Emphasis(NodeFactory.Text("italic"))),
+            NodeFactory.Text("!"));
 
         var actual = RenderNodes([node]);
 
@@ -51,14 +36,8 @@ public class HtmlRendererTests
     {
         Node[] nodes =
         [
-            new HeaderNode
-            {
-                Children = [new TextNode("Title")]
-            },
-            new ParagraphNode
-            {
-                Children = [new TextNode("Content")]
-            }
+            NodeFactory.Header(NodeFactory.Text("Title")),
+            NodeFactory.Paragraph(NodeFactory.Text("Content"))
         ];
 
         var actual = RenderNodes(nodes);
@@ -78,10 +57,7 @@ public class HtmlRendererTests
     [Test]
     public void Render_EmptyContainer_ReturnsEmptyHtmlElement()
     {
-        Node node = new ParagraphNode
-        {
-            Children = []
-        };
+        Node node = NodeFactory.Paragraph();
 
         var actual = RenderNodes([node]);
 
@@ -91,50 +67,32 @@ public class HtmlRendererTests
     private static IEnumerable<TestCaseData> NodeCases()
     {
         yield return new TestCaseData(
-                new TextNode("Hello"),
+                NodeFactory.Text("Hello"),
                 "Hello")
             .SetName("Render_TextNode");
 
         yield return new TestCaseData(
-                new HeaderNode
-                {
-                    Children = [new TextNode("Hello")]
-                },
+                NodeFactory.Header(NodeFactory.Text("Hello")),
                 "<h1>Hello</h1>")
             .SetName("Render_HeaderNode");
 
         yield return new TestCaseData(
-                new ParagraphNode
-                {
-                    Children = [new TextNode("Hello")]
-                },
+                NodeFactory.Paragraph(NodeFactory.Text("Hello")),
                 "<p>Hello</p>")
             .SetName("Render_ParagraphNode");
 
         yield return new TestCaseData(
-                new EmphasisNode
-                {
-                    Children = [new TextNode("Hello")]
-                },
+                NodeFactory.Emphasis(NodeFactory.Text("Hello")),
                 "<em>Hello</em>")
             .SetName("Render_EmphasisNode");
 
         yield return new TestCaseData(
-                new StrongNode
-                {
-                    Children = [new TextNode("Hello")]
-                },
+                NodeFactory.Strong(NodeFactory.Text("Hello")),
                 "<strong>Hello</strong>")
             .SetName("Render_StrongNode");
 
         yield return new TestCaseData(
-                new UnorderedListNode
-                {
-                    Children = [new ListItemNode
-                    {
-                        Children = [new TextNode("Hello")]
-                    }]
-                },
+                NodeFactory.UnorderedList(NodeFactory.ListItem(NodeFactory.Text("Hello"))),
                 "<ul><li>Hello</li></ul>")
             .SetName("Render_UnorderedListNode");
     }
