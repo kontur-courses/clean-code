@@ -14,7 +14,7 @@ public class Md
     public Md() : this(
         new BlockParser(
             new MarkdownTokenizer(),
-            new InlineParser(new UnderscoreTagMatcher(), new LinkMatcher())),
+            new InlineParser()),
         new HtmlRenderer())
     {
     }

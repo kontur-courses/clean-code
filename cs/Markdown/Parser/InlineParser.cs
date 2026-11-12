@@ -8,13 +8,8 @@ namespace Markdown.Parser;
 
 public class InlineParser : IInlineParser
 {
-    private readonly UnderscoreTagMatcher _underscoreMatcher;
-    private readonly LinkMatcher _linkMatcher;
-
-    public InlineParser(UnderscoreTagMatcher underscoreMatcher, LinkMatcher linkMatcher)
+    public InlineParser()
     {
-        _underscoreMatcher = underscoreMatcher;
-        _linkMatcher = linkMatcher;
     }
 
     public IReadOnlyList<INode> Parse(IReadOnlyList<Token> tokens)
@@ -22,7 +17,7 @@ public class InlineParser : IInlineParser
         if (tokens.Count == 0)
             return [];
 
-        var links = _linkMatcher.MatchLinks(tokens);
+        var links = LinkMatcher.MatchLinks(tokens);
         var urlTokens = new HashSet<int>();
         foreach (var link in links.Values)
         {
@@ -30,11 +25,11 @@ public class InlineParser : IInlineParser
                 urlTokens.Add(j);
         }
 
-        var matchedUnderscores = _underscoreMatcher.MatchTags(tokens, 0, tokens.Count - 1, urlTokens);
+        var matchedUnderscores = UnderscoreTagMatcher.MatchTags(tokens, 0, tokens.Count - 1, urlTokens);
         return ParseRange(tokens, 0, tokens.Count - 1, links, matchedUnderscores);
     }
 
-    private IReadOnlyList<INode> ParseRange(
+    private static IReadOnlyList<INode> ParseRange(
         IReadOnlyList<Token> tokens,
         int startIndex,
         int endIndex,

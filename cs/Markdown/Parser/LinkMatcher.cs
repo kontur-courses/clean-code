@@ -3,9 +3,9 @@ using Markdown.Tokenizer.Tokens;
 
 namespace Markdown.Parser;
 
-public class LinkMatcher
+public static class LinkMatcher
 {
-    public Dictionary<int, LinkMatch> MatchLinks(IReadOnlyList<Token> tokens)
+    public static Dictionary<int, LinkMatch> MatchLinks(IReadOnlyList<Token> tokens)
     {
         var matches = new Dictionary<int, LinkMatch>();
         var openBracketIndex = -1;

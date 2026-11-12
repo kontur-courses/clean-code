@@ -2,9 +2,9 @@ using Markdown.Tokenizer.Tokens;
 
 namespace Markdown.Parser;
 
-public class UnderscoreTagMatcher
+public static class UnderscoreTagMatcher
 {
-    public Dictionary<int, int> MatchTags(IReadOnlyList<Token> tokens, int startIndex, int endIndex, HashSet<int>? ignoredIndices = null)
+    public static Dictionary<int, int> MatchTags(IReadOnlyList<Token> tokens, int startIndex, int endIndex, HashSet<int>? ignoredIndices = null)
     {
         var matchedPairs = new Dictionary<int, int>();
         var stack = new List<int>();
