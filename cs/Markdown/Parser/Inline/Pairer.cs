@@ -11,6 +11,7 @@ namespace Markdown.Parser.Inline
         {
             public Token Token { get; }
             public List<INode> Children { get; } = new();
+
             public StackItem(Token token) => Token = token;
         }
 
@@ -38,16 +39,14 @@ namespace Markdown.Parser.Inline
 
             if (TryCloseTag(token, stack, root)) return;
 
-            if (!token.IsDisabledFromIntersection && TryOpenTag(token, stack)) return;
+            if (TryOpenTag(token, stack)) return;
 
             AddText(token, stack, root);
         }
 
         private static bool TryOpenTag(Token token, Stack<StackItem> stack)
         {
-            if (!token.CanOpen) return false;
-
-            if (token.Type == TokenType.Strong && stack.Any(x => x.Token.Type == TokenType.Em))
+            if (!PairRules.CanOpen(token, stack.Select(x => x.Token)))
                 return false;
 
             stack.Push(new StackItem(token));
@@ -62,72 +61,54 @@ namespace Markdown.Parser.Inline
 
             if (topItem.Token.Type != token.Type)
             {
-                if (HandleIntersection(token, topItem, stack, root))
-                    return false;
-
+                if (PairRules.IsIntersection(token, stack.Select(x => x.Token)))
+                {
+                    HandleIntersection(token, stack, root);
+                    return true;
+                }
                 return false;
             }
 
-            if (topItem.Children.Count == 0)
+            if (!PairRules.CanClose(topItem.Token, topItem.Children, token))
             {
                 RemoveTopAsText(stack, root);
-                return false;
-            }
-
-            if (topItem.Token.IsInsideWord && token.IsInsideWord)
-            {
-                if (HasWhitespaceInside(topItem.Children))
-                {
-                    RemoveTopAsText(stack, root);
-                    return false;
-                }
+                AddText(token, stack, root);
+                return true;
             }
 
             stack.Pop();
-            var closedNode = CreateNode(topItem);
-            AddNode(closedNode, stack, root);
+            AddNode(CreateNode(topItem), stack, root);
             return true;
         }
 
-        private static bool HandleIntersection(Token token, StackItem topItem, Stack<StackItem> stack, List<INode> root)
+        private static void HandleIntersection(Token token, Stack<StackItem> stack, List<INode> root)
         {
-            var intersectingItem = stack.FirstOrDefault(x => x.Token.Type == token.Type);
-            if (intersectingItem == null) return false;
-
-            intersectingItem.Token.IsDisabledFromIntersection = true;
             token.IsDisabledFromIntersection = true;
-            topItem.Token.IsDisabledFromIntersection = true;
 
-            stack.Pop();
-            AddNode(new TextNode(topItem.Token.Value), stack, root);
-            foreach (var child in topItem.Children)
+            while (stack.Count > 0)
             {
-                AddNode(child, stack, root);
+                var top = stack.Peek();
+                bool isTargetType = top.Token.Type == token.Type;
+
+                top.Token.IsDisabledFromIntersection = true;
+                RemoveTopAsText(stack, root);
+
+                if (isTargetType) break;
             }
-
-            return true;
-        }
-
-        private static bool HasWhitespaceInside(List<INode> children)
-        {
-            return children.Any(c => c is TextNode t && t.Text.Any(char.IsWhiteSpace));
         }
 
         private static void RemoveTopAsText(Stack<StackItem> stack, List<INode> root)
         {
             var item = stack.Pop();
+
             AddText(item.Token, stack, root);
 
-            foreach(var child in item.Children)
-            {
+            foreach (var child in item.Children)
                 AddNode(child, stack, root);
-            }
         }
 
-        private static void AddText(Token token, Stack<StackItem> stack, List<INode> root)
-        {
+        private static void AddText(Token token, Stack<StackItem> stack, List<INode> root) =>
             AddNode(new TextNode(token.Value), stack, root);
-        }
 
         private static void AddNode(INode node, Stack<StackItem> stack, List<INode> root)
         {
@@ -135,24 +116,16 @@ namespace Markdown.Parser.Inline
             else stack.Peek().Children.Add(node);
         }
 
-        private static INode CreateNode(StackItem item)
-        {
-            return item.Token.Type == TokenType.Em
+        private static INode CreateNode(StackItem item) => 
+            item.Token.Type == TokenType.Em
                 ? new EmNode(item.Children)
                 : new StrongNode(item.Children);
-        }
 
         private static void FlushUnclosedTags(Stack<StackItem> stack, List<INode> root)
         {
             while (stack.Count > 0)
             {
-                var item = stack.Pop();
-                AddText(item.Token, stack, root);
-
-                foreach (var child in item.Children)
-                {
-                    AddNode(child, stack, root);
-                }
+                RemoveTopAsText(stack, root);
             }
         }
     }

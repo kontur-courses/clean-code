@@ -27,6 +27,7 @@ namespace Markdown.Tests
         [TestCase("\\__не жирный\\__", "<p>__не жирный__</p>")]
         [TestCase("экран\\ирование", "<p>экранирование</p>")]
         [TestCase("много экранирования \\\\", "<p>много экранирования \\</p>")]
+        [TestCase("отмена \\\\_экранирования_", "<p>отмена \\<em>экранирования</em></p>")]
         public void Parse_Escaping(string input, string expected)
         {
             Assert.That(Md.Render(input), Is.EqualTo(expected));

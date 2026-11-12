@@ -26,22 +26,16 @@ namespace Markdown.Render
             return sb.ToString().Trim();
         }
 
+        //здесь не понял какое разбиение надо сделал покороче с switch expression 
         private static string RenderNode(INode node)
         {
-            switch (node)
+            return node switch
             {
-                case TextNode textNode:
-                    return textNode.Text;
-
-                case EmNode emNode:
-                    return WrapWithTag("em", emNode.Children);
-
-                case StrongNode strongNode:
-                    return WrapWithTag("strong", strongNode.Children);
-
-                default:
-                    return string.Empty;
-            }
+                TextNode textNode => textNode.Text,
+                EmNode emNode => WrapWithTag("em", emNode.Children),
+                StrongNode strongNode => WrapWithTag("strong", strongNode.Children),
+                _ => string.Empty
+            };
         }
 
         private static string WrapWithTag(string tag, IReadOnlyList<INode> children)
