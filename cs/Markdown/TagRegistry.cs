@@ -6,19 +6,15 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    internal class TagRegistry
+    internal static class TagRegistry
     {
-        private readonly Dictionary<string, TagInfo> tags;
 
-        public TagRegistry()
-        {
-            tags = new Dictionary<string, TagInfo>() // появится новый тег - можно написать его сюда
+        private static readonly Dictionary<string, TagInfo>  tags = new Dictionary<string, TagInfo>() // появится новый тег - можно написать его сюда
             {
                 ["__"] = new TagInfo("__", "strong"),
                 ["_"] = new TagInfo("_", "em")
             };
-        }
 
-        public IEnumerable<TagInfo> GetAllTags() => tags.Values.OrderByDescending(tag => tag.Length).ToList();
+    public static IEnumerable<TagInfo> GetAllTags() => tags.Values.OrderByDescending(tag => tag.Length);
     }
 }
