@@ -40,12 +40,17 @@ public class HeaderTagReader : ITagReader
     private static bool TryParse(string text, int start, out int contentEnd)
     {
         contentEnd = 0;
-        if (!((start == 0 || (start > 0 && text[start - 1] == '\n')) && start < text.Length - 2 &&
-              text[start + 1] == ' ' && text[start + 2] != ' '))
+        if (!IsValidTag(text, start))
             return false;
         contentEnd = FindContentEnd(text, start);
         return true;
     }
+
+    private static bool IsValidTag(string text, int start)
+        => (start == 0 || (start > 0 && text[start - 1] == '\n')) 
+           && start < text.Length - 2 
+           && text[start + 1] == ' ' 
+           && text[start + 2] != ' ';
 
     private static int FindContentEnd(string text, int start)
     {

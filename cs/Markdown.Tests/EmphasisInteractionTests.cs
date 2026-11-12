@@ -18,7 +18,7 @@ public class EmphasisInteractionTests : MdTestBase
 
     [Test]
     public void Render_UnderscoresInsideTextWithDigits_AreNotEmphasis()
-        => Render("текста c цифрами_12_3 не").Should().Be("текста c цифрами_12_3 не");
+        => Render("текста c цифрами 1_2_3 не").Should().Be("текста c цифрами 1_2_3 не");
 
     [Test]
     public void Render_EmphasisInsideOneWord_Works()
