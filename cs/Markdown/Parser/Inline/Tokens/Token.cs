@@ -10,6 +10,7 @@ namespace Markdown.Parser.Inline.Tokens
     {
         public TokenType Type { get; private set; }
         public string Value { get; private set;  }
+        public string Url { get; private set; }
         public int Position { get; private set; }
         public bool CanOpen { get; set; }
         public bool CanClose { get; set; }
@@ -21,6 +22,14 @@ namespace Markdown.Parser.Inline.Tokens
             Type = type;
             Value = value;
             Position = position;
+        }
+
+        public void SetUrl(string url)
+        {
+            if (Type == TokenType.Link)
+                Url = url;
+            else
+                throw new InvalidOperationException("Token type must be TokenType.Link");
         }
     }
 }

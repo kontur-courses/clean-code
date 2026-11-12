@@ -32,13 +32,14 @@ namespace Markdown.Render
             return node switch
             {
                 TextNode textNode => textNode.Text,
-                EmNode emNode => WrapWithTag("em", emNode.Children),
-                StrongNode strongNode => WrapWithTag("strong", strongNode.Children),
-                _ => string.Empty
+                EmNode emNode => RenderPairTag("em", emNode.Children),
+                StrongNode strongNode => RenderPairTag("strong", strongNode.Children),
+                LinkNode linkNode => RenderLinkTag(linkNode.Url, linkNode.Children),
+                _ => string.Empty,
             };
         }
 
-        private static string WrapWithTag(string tag, IReadOnlyList<INode> children)
+        private static string RenderPairTag(string tag, IReadOnlyList<INode> children)
         {
             var sb = new StringBuilder();
             sb.Append($"<{tag}>");
@@ -47,6 +48,18 @@ namespace Markdown.Render
                 sb.Append(RenderNode(child));
             }
             sb.Append($"</{tag}>");
+            return sb.ToString();
+        }
+
+        private static string RenderLinkTag(string url, IReadOnlyList<INode> children)
+        {
+            var sb = new StringBuilder();
+            sb.Append($"<a href=\"{url}\">");
+            foreach (var child in children)
+            {
+                sb.Append(RenderNode(child));
+            }
+            sb.Append("</a>");
             return sb.ToString();
         }
     }

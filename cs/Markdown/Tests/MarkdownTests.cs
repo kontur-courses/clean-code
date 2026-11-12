@@ -28,6 +28,9 @@ namespace Markdown.Tests
         [TestCase("экран\\ирование", "<p>экранирование</p>")]
         [TestCase("много экранирования \\\\", "<p>много экранирования \\</p>")]
         [TestCase("отмена \\\\_экранирования_", "<p>отмена \\<em>экранирования</em></p>")]
+        [TestCase("\\[не ссылка](url)", "<p>[не ссылка](url)</p>")]
+        [TestCase("текст \\[не ссылка](url)", "<p>текст [не ссылка](url)</p>")]
+        [TestCase("[текст со \\] скобкой](url)", "<p><a href=\"url\">текст со ] скобкой</a></p>")]
         public void Parse_Escaping(string input, string expected)
         {
             Assert.That(Md.Render(input), Is.EqualTo(expected));
@@ -72,6 +75,30 @@ namespace Markdown.Tests
             var input = "# Заголовок с __разными__ символами _тут_";
             var expected = "<h1>Заголовок с <strong>разными</strong> символами <em>тут</em></h1>";
 
+            Assert.That(Md.Render(input), Is.EqualTo(expected));
+        }
+
+        [TestCase("[Google](https://google.com)", "<p><a href=\"https://google.com\">Google</a></p>")]
+        [TestCase("ссылка [текст](url) текст", "<p>ссылка <a href=\"url\">текст</a> текст</p>")]
+        [TestCase("[текст1](url1) и [текст2](url2)", "<p><a href=\"url1\">текст1</a> и <a href=\"url2\">текст2</a></p>")]
+        public void Parse_BasicLinks(string input, string expected)
+        {
+            Assert.That(Md.Render(input), Is.EqualTo(expected));
+        }
+
+        [TestCase("[текст _курсив_](url)", "<p><a href=\"url\">текст <em>курсив</em></a></p>")]
+        [TestCase("[__жирный__ текст](url)", "<p><a href=\"url\"><strong>жирный</strong> текст</a></p>")]
+        public void Parse_LinkWithFormattingInside(string input, string expected)
+        {
+            Assert.That(Md.Render(input), Is.EqualTo(expected));
+        }
+
+        [TestCase("[текст без скобок]", "<p>[текст без скобок]</p>")]
+        [TestCase("[текст](url", "<p>[текст](url</p>")]
+        [TestCase("[текст] (url)", "<p>[текст] (url)</p>")]
+        [TestCase("текст [ скобка", "<p>текст [ скобка</p>")]
+        public void Parse_BrokenLinks_ShouldRenderAsText(string input, string expected)
+        {
             Assert.That(Md.Render(input), Is.EqualTo(expected));
         }
     }

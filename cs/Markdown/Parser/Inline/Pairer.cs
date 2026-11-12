@@ -31,6 +31,15 @@ namespace Markdown.Parser.Inline
 
         private static void ProcessToken(Token token, Stack<StackItem> stack, List<INode> root)
         {
+            if (token.Type == TokenType.Link)
+            {
+                var childNodes = Pairing(Tokenizer.Tokenize(token.Value));
+                var linkNode = new LinkNode(token.Url, childNodes);
+
+                AddNode(linkNode, stack, root);
+                return;
+            }
+
             if (token.Type == TokenType.Text || token.IsDisabledFromIntersection)
             {
                 AddText(token, stack, root);

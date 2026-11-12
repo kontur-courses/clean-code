@@ -14,4 +14,6 @@ namespace Markdown.Entity
     public record EmNode(IReadOnlyList<INode> Children) : INode;
 
     public record StrongNode(IReadOnlyList<INode> Children) : INode;
+
+    public record LinkNode(string Url, IReadOnlyList<INode> Children) : INode;
 }

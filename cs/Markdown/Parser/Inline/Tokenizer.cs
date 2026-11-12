@@ -26,6 +26,10 @@ namespace Markdown.Parser.Inline
                         index += HandleUnderscore(text, index, tokens, buffer);
                         break;
 
+                    case '[':
+                        index += HandleLink(text, index, tokens, buffer);
+                        break;
+
                     default:
                         buffer.Append(c);
                         index++;
@@ -69,6 +73,51 @@ namespace Markdown.Parser.Inline
             tokens.Add(token);
 
             return length;
+        }
+
+        private static int HandleLink(string text, int i, List<Token> tokens, StringBuilder buffer)
+        {
+            var closeBracket = FindClosingChar(text, i + 1, ']');
+            if (closeBracket == -1 || closeBracket + 1 >= text.Length || text[closeBracket + 1] != '(')
+            {
+                buffer.Append('[');
+                return 1;
+            }
+
+            var closeParen = FindClosingChar(text, closeBracket + 2, ')');
+            if (closeParen == -1)
+            {
+                buffer.Append('[');
+                return 1;
+            }
+
+            AddTokenText(tokens, buffer, i);
+
+            var linkText = text.Substring(i + 1, closeBracket - i - 1);
+            var url = text.Substring(closeBracket + 2, closeParen - closeBracket - 2);
+
+            var token = new Token(TokenType.Link, linkText, i);
+            token.SetUrl(url);
+            tokens.Add(token);
+
+            return closeParen - i + 1;
+        }
+
+        private static int FindClosingChar(string text, int startIndex, char targetChar)
+        {
+            for (var i = startIndex; i < text.Length; i++)
+            {
+                if (text[i] == '\\')
+                {
+                    i++;
+                    continue;
+                }
+                if (text[i] == targetChar)
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private static void AddTokenText(List<Token> tokens, StringBuilder buffer, int currentIndex)

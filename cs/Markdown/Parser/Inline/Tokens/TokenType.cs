@@ -10,6 +10,7 @@ namespace Markdown.Parser.Inline.Tokens
     {
         Text,
         Em,
-        Strong
+        Strong,
+        Link
     }
 }
