@@ -10,13 +10,21 @@ public class TagPairer
 
         PairTokens(tokens, whitespacePrefix);
 
-        if (DeactivateCrossingDelimiters(tokens))
-        {
-            ResetLinks(tokens);
-            PairLinkBrackets(tokens);
-        }
+        var hasCrossings = DeactivateCrossingDelimiters(tokens);
+        var hasStrongInsideEm = DeactivateStrongInsideEm(tokens);
 
-        DeactivateStrongInsideEm(tokens);
+        if (hasCrossings || hasStrongInsideEm)
+            RepairLinks(tokens);
+    }
+
+    /// <summary>
+    ///     Скобки ссылки размечаются заново по уже действующим парам подчерков:
+    ///     пара, которая оказалась невалидной, не должна отменять ссылку.
+    /// </summary>
+    private static void RepairLinks(IReadOnlyList<Token> tokens)
+    {
+        ResetLinks(tokens);
+        PairLinkBrackets(tokens);
     }
 
     private static void PairTokens(IReadOnlyList<Token> tokens, int[] whitespacePrefix)
@@ -306,9 +314,10 @@ public class TagPairer
         return hasCrossings;
     }
 
-    private static void DeactivateStrongInsideEm(IReadOnlyList<Token> tokens)
+    private static bool DeactivateStrongInsideEm(IReadOnlyList<Token> tokens)
     {
         var emDepth = 0;
+        var hasDeactivated = false;
 
         foreach (var token in tokens)
         {
@@ -323,8 +332,13 @@ public class TagPairer
             }
 
             if (token.Kind == TokenKind.DoubleUnderscore && token.Role == TokenRole.Opening && emDepth > 0)
+            {
                 DeactivatePair(tokens, token);
+                hasDeactivated = true;
+            }
         }
+
+        return hasDeactivated;
     }
 
     private static void SetPair(IReadOnlyList<Token> tokens, int openIndex, int closeIndex)

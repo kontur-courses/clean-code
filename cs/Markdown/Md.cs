@@ -1,6 +1,7 @@
 using Markdown.Blocks;
 using Markdown.Pairing;
 using Markdown.Rendering;
+using Markdown.Syntax;
 using Markdown.Tokens;
 using Markdown.Tree;
 
@@ -32,6 +33,6 @@ public class Md
             htmlBlocks.Add(renderer.Render(block.Kind, tree));
         }
 
-        return string.Join("\n", htmlBlocks);
+        return string.Join(LineBreaks.NewLineSequence, htmlBlocks);
     }
 }

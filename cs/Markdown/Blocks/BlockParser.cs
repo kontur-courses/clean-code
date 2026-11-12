@@ -1,10 +1,9 @@
+using Markdown.Syntax;
+
 namespace Markdown.Blocks;
 
 public class BlockParser
 {
-    private const string HeaderMarker = "# ";
-    private const string EscapedHeaderMarker = "\\# ";
-
     public IReadOnlyList<Block> Parse(IReadOnlyList<string> lines)
     {
         var blocks = new List<Block>();
@@ -31,17 +30,17 @@ public class BlockParser
             return;
 
         var firstLine = lines[0];
-        var isHeader = firstLine.StartsWith(HeaderMarker, StringComparison.Ordinal);
+        var isHeader = firstLine.StartsWith(MarkupSymbols.HeaderMarker, StringComparison.Ordinal);
 
         var normalizedFirstLine = firstLine;
         if (isHeader)
-            normalizedFirstLine = firstLine[HeaderMarker.Length..];
-        else if (firstLine.StartsWith(EscapedHeaderMarker, StringComparison.Ordinal))
-            normalizedFirstLine = firstLine[1..];
+            normalizedFirstLine = firstLine[MarkupSymbols.HeaderMarker.Length..];
+        else if (firstLine.StartsWith(MarkupSymbols.EscapedHeaderMarker, StringComparison.Ordinal))
+            normalizedFirstLine = firstLine[MarkupSymbols.EscapeLength..];
 
         var content = lines.Count == 1
             ? normalizedFirstLine
-            : string.Join("\n", PrependFirstLine(normalizedFirstLine, lines));
+            : string.Join(LineBreaks.NewLineSequence, PrependFirstLine(normalizedFirstLine, lines));
 
         var kind = isHeader ? BlockKind.Header : BlockKind.Paragraph;
         blocks.Add(new Block(kind, content));

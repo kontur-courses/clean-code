@@ -1,4 +1,5 @@
 using System.Text;
+using Markdown.Syntax;
 
 namespace Markdown.Tokens;
 
@@ -14,18 +15,18 @@ public class Tokenizer
         while (index < content.Length)
             switch (content[index])
             {
-                case '\\':
+                case MarkupSymbols.Escape:
                     index = AppendEscape(textBuffer, content, index);
                     break;
-                case '_':
+                case MarkupSymbols.Underscore:
                     FlushText(tokens, textBuffer);
                     index = AddUnderscores(tokens, content, index);
                     break;
-                case '[':
+                case MarkupSymbols.LinkTextStart:
                     FlushText(tokens, textBuffer);
                     index = AddLeftBracket(tokens, content, index);
                     break;
-                case ']':
+                case MarkupSymbols.LinkTextEnd:
                     FlushText(tokens, textBuffer);
                     index = AddRightBracket(tokens, content, index, ref noClosingParenBefore);
                     break;
@@ -50,7 +51,7 @@ public class Tokenizer
 
     private static int AppendEscape(StringBuilder textBuffer, string content, int index)
     {
-        var next = index + 1;
+        var next = index + MarkupSymbols.EscapeLength;
 
         if (next < content.Length && IsSpecial(content[next]))
         {
@@ -58,7 +59,7 @@ public class Tokenizer
             return next + 1;
         }
 
-        textBuffer.Append('\\');
+        textBuffer.Append(MarkupSymbols.Escape);
         return next;
     }
 
@@ -74,16 +75,16 @@ public class Tokenizer
     private static int AddUnderscores(List<Token> tokens, string content, int start)
     {
         var end = start;
-        while (end < content.Length && content[end] == '_')
+        while (end < content.Length && content[end] == MarkupSymbols.Underscore)
             end++;
 
         var (before, after) = GetSurroundingChars(content, start, end);
 
         for (var index = start; index < end;)
         {
-            var isDouble = index + 1 < end;
+            var isDouble = index + MarkupSymbols.EmphasisDelimiter.Length < end;
             var kind = isDouble ? TokenKind.DoubleUnderscore : TokenKind.Underscore;
-            var value = isDouble ? "__" : "_";
+            var value = isDouble ? MarkupSymbols.StrongDelimiter : MarkupSymbols.EmphasisDelimiter;
 
             tokens.Add(new Token(kind, value)
             {
@@ -99,7 +100,7 @@ public class Tokenizer
 
     private static int AddLeftBracket(List<Token> tokens, string content, int index)
     {
-        tokens.Add(CreateMarkupToken(TokenKind.LeftBracket, "[", content, index));
+        tokens.Add(CreateMarkupToken(TokenKind.LeftBracket, MarkupSymbols.LinkTextStart, content, index));
         return index + 1;
     }
 
@@ -109,10 +110,10 @@ public class Tokenizer
         int index,
         ref int noClosingParenBefore)
     {
-        tokens.Add(CreateMarkupToken(TokenKind.RightBracket, "]", content, index));
+        tokens.Add(CreateMarkupToken(TokenKind.RightBracket, MarkupSymbols.LinkTextEnd, content, index));
         var next = index + 1;
 
-        if (next >= content.Length || content[next] != '(' || next < noClosingParenBefore)
+        if (next >= content.Length || content[next] != MarkupSymbols.UrlStart || next < noClosingParenBefore)
             return next;
 
         var urlEnd = FindUrlEnd(content, next, out noClosingParenBefore);
@@ -121,6 +122,11 @@ public class Tokenizer
 
         tokens.Add(CreateMarkupToken(TokenKind.LinkUrl, content[next..(urlEnd + 1)], content, next));
         return urlEnd + 1;
+    }
+
+    private static Token CreateMarkupToken(TokenKind kind, char symbol, string content, int start)
+    {
+        return CreateMarkupToken(kind, symbol.ToString(), content, start);
     }
 
     private static Token CreateMarkupToken(TokenKind kind, string value, string content, int start)
@@ -146,13 +152,13 @@ public class Tokenizer
     {
         for (var index = urlStart + 1; index < content.Length; index++)
         {
-            if (content[index] == '\n')
+            if (content[index] == LineBreaks.NewLine)
             {
                 scannedUntil = index;
                 return -1;
             }
 
-            if (content[index] == ')')
+            if (content[index] == MarkupSymbols.UrlEnd)
             {
                 scannedUntil = index;
                 return index;
@@ -165,6 +171,9 @@ public class Tokenizer
 
     private static bool IsSpecial(char symbol)
     {
-        return symbol is '\\' or '_' or '[' or ']';
+        return symbol is MarkupSymbols.Escape
+            or MarkupSymbols.Underscore
+            or MarkupSymbols.LinkTextStart
+            or MarkupSymbols.LinkTextEnd;
     }
 }

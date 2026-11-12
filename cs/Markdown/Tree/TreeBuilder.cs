@@ -1,3 +1,4 @@
+using Markdown.Syntax;
 using Markdown.Tokens;
 
 namespace Markdown.Tree;
@@ -50,7 +51,7 @@ public class TreeBuilder
     private static string ExtractUrl(IReadOnlyList<Token> tokens, int closeBracketIndex)
     {
         var rawUrlWithParens = tokens[closeBracketIndex + 1].Value;
-        return rawUrlWithParens[1..^1];
+        return rawUrlWithParens[MarkupSymbols.UrlWrapperLength..^MarkupSymbols.UrlWrapperLength];
     }
 
     private static int GetNextIndexAfter(Token opener, int closeIndex)
