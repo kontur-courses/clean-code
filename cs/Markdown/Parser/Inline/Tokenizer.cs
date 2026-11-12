@@ -19,7 +19,7 @@ namespace Markdown.Parser.Inline
                 switch (c)
                 {
                     case '\\':
-                        index += HandleEscape(text, index, buffer);
+                        index += Escaper.HandleEscape(text, index, buffer);
                         break;
 
                     case '_':
@@ -41,24 +41,6 @@ namespace Markdown.Parser.Inline
             return tokens;
         }
 
-        private static int HandleEscape(string text, int i, StringBuilder buffer)
-        {
-            if (i + 2 < text.Length && text[i + 1] == '_' && text[i + 2] == '_')
-            {
-                buffer.Append("__");
-                return 3;
-            }
-
-            if (i + 1 < text.Length)
-            {
-                buffer.Append(text[i + 1]);
-                return 2;
-            }
-
-            buffer.Append('\\');
-            return 1;
-        }
-
         private static int HandleUnderscore(string text, int i, List<Token> tokens, StringBuilder buffer)
         {
             AddTokenText(tokens, buffer, i);
@@ -77,14 +59,14 @@ namespace Markdown.Parser.Inline
 
         private static int HandleLink(string text, int i, List<Token> tokens, StringBuilder buffer)
         {
-            var closeBracket = FindClosingChar(text, i + 1, ']');
+            var closeBracket = Escaper.FindClosingChar(text, i + 1, ']');
             if (closeBracket == -1 || closeBracket + 1 >= text.Length || text[closeBracket + 1] != '(')
             {
                 buffer.Append('[');
                 return 1;
             }
 
-            var closeParen = FindClosingChar(text, closeBracket + 2, ')');
+            var closeParen = Escaper.FindClosingChar(text, closeBracket + 2, ')');
             if (closeParen == -1)
             {
                 buffer.Append('[');
@@ -94,30 +76,15 @@ namespace Markdown.Parser.Inline
             AddTokenText(tokens, buffer, i);
 
             var linkText = text.Substring(i + 1, closeBracket - i - 1);
-            var url = text.Substring(closeBracket + 2, closeParen - closeBracket - 2);
+            var rawUrl = text.Substring(closeBracket + 2, closeParen - closeBracket - 2);
+
+            var cleanUrl = Escaper.Unescape(rawUrl);
 
             var token = new Token(TokenType.Link, linkText, i);
-            token.SetUrl(url);
+            token.SetUrl(cleanUrl);
             tokens.Add(token);
 
             return closeParen - i + 1;
-        }
-
-        private static int FindClosingChar(string text, int startIndex, char targetChar)
-        {
-            for (var i = startIndex; i < text.Length; i++)
-            {
-                if (text[i] == '\\')
-                {
-                    i++;
-                    continue;
-                }
-                if (text[i] == targetChar)
-                {
-                    return i;
-                }
-            }
-            return -1;
         }
 
         private static void AddTokenText(List<Token> tokens, StringBuilder buffer, int currentIndex)
