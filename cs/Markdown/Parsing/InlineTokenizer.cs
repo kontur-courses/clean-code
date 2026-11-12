@@ -11,43 +11,48 @@ public static class InlineTokenizer
         var tokens = new List<Token>();
         var index = startIndex;
 
-        while(index < text.Length)
+        while (index < text.Length)
         {
-            if (IsEscape(text, index))
+            switch (text[index])
             {
-                tokens.Add(new EscapeToken(index));
-                index += 2;
-                continue;
-            }
-
-            if (text[index] != '_')
-            {
-                index++;
-                continue;
-            }
-
-            var start = index;
-
-            while(index < text.Length && text[index] == '_')
-            {
-                index++;
-            }
-
-            var canClose = start > startIndex && !char.IsWhiteSpace(text[start - 1]);
-            var canOpen = index < text.Length && !char.IsWhiteSpace(text[index]);
-
-            if ((canOpen || canClose)
-                && !IsDelimiterBetweenDigits(text, start, index - 1))
-            {
-                tokens.Add(new DelimiterRunToken(
-                    start,
-                    index - start,
-                    canOpen,
-                    canClose));
+                case '\\' when IsEscape(text, index):
+                    tokens.Add(new EscapeToken(index));
+                    index += 2;
+                    break;
+                case '_':
+                    index = ConsumeDelimiterRun(text, startIndex, index, tokens);
+                    break;
+                default:
+                    index++;
+                    break;
             }
         }
 
         return tokens;
+    }
+
+    private static int ConsumeDelimiterRun(string text, int startIndex, int index, List<Token> tokens)
+    {
+        var start = index;
+
+        while(index < text.Length && text[index] == '_')
+        {
+            index++;
+        }
+
+        var canClose = start > startIndex && !char.IsWhiteSpace(text[start - 1]);
+        var canOpen = index < text.Length && !char.IsWhiteSpace(text[index]);
+
+        if ((canOpen || canClose) && !IsDelimiterBetweenDigits(text, start, index - 1))
+        {
+            tokens.Add(new DelimiterRunToken(
+                start,
+                index - start,
+                canOpen,
+                canClose));
+        }
+
+        return index;
     }
 
     private static bool IsEscape(string text, int index)
