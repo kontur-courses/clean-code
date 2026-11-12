@@ -1,18 +1,18 @@
-﻿namespace Markdown
+﻿using Markdown.Models.Interfaces;
+
+namespace Markdown
 {
     /// <summary>
     /// Класс проходит посимвольно по строке и определяет текст или особые конструкции (курсив, выделение)
     /// </summary>
     internal class InlineParser : IInlineParser
     {
-        private readonly TagRegistry registry;
 
-        public InlineParser(TagRegistry registry)
+        public InlineParser()
         {
-            this.registry = registry;
         }
 
-        public List<Token> ParseToTokens(string line)
+        public List<IToken> ParseToTokens(string line)
         {
             throw new NotImplementedException();
         }

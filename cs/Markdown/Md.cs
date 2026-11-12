@@ -21,7 +21,8 @@
             //отдаем строки в parser -> токены
             //токены отдаем в renderer -> строки
             //строки собираем в html текст
-            return htmlText;
+            //return htmlText;
+            throw new NotImplementedException ();
         }
 
         public string RenderHeader(string line) => line.StartsWith("# ") ? $"<h1>{line.Skip(2)}</h1>" : line;

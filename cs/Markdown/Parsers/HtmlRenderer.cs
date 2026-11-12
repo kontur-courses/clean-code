@@ -1,29 +1,21 @@
-﻿using System;
+﻿using Markdown.Models.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Markdown
 {
 
     internal class HtmlRenderer : IHtmlRenderer
     {
-        private readonly TagRegistry registry;
-
-        public HtmlRenderer(TagRegistry registry)
+        public HtmlRenderer()
         {
-            this.registry = registry;
+
         }
 
-        public string Render(List<Token> tokens)
+        public string Render(List<IToken> tokens)
         {
             throw new NotImplementedException();
         }
-        
-
-
-
-
     }
 }

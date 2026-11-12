@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using Markdown;
 using FluentAssertions;
+using Markdown.Models.Interfaces;
+using Markdown.Models;
 
 namespace MarkdownUnitTests
 {
@@ -12,13 +14,13 @@ namespace MarkdownUnitTests
         [SetUp]
         public void Setup()
         {
-            renderer = new HtmlRenderer(); // недоступ изза уровня защиты internal СПРОСИТЬ
+            renderer = new HtmlRenderer();
         }
 
         [Test]
         public void Render_ThrowsException_WhenInvalidData()
         {
-            List<Token> tokens = null;
+            List<IToken> tokens = null;
             var action = () => renderer.Render(tokens);
 
             action.Should().Throw<ArgumentNullException>();
@@ -27,7 +29,7 @@ namespace MarkdownUnitTests
         [Test]
         public void Render_ReturnsEmptyString_WhenEmptyList()
         {
-            var tokens = new List<Token>();
+            var tokens = new List<IToken>();
 
             var result = renderer.Render(tokens);
 
@@ -41,9 +43,9 @@ namespace MarkdownUnitTests
         [TestCase("0123456789")]
         public void Render_ReturnsString_WhenSingleText(string tokenText)
         {
-            var tokens = new List<Token>
+            var tokens = new List<IToken>
             {
-                new Token(tokenText)
+                new TextToken(tokenText)
             };
 
             var result = renderer.Render(tokens);
@@ -54,9 +56,9 @@ namespace MarkdownUnitTests
         [Test]
         public void Render_ReturnsString_WhenTextWithSingleEmTag()
         {
-            var tokens = new List<Token>() //эквивалент _text_
+            var tokens = new List<IToken>() //эквивалент _text_
             {
-               new Token(new TagInfo("_", "em"), new List<Token>() {new Token("text")})
+               new TagToken(new TagInfo("_", "em"), new List<IToken>() {new TextToken("text")})
             };
             var expected = "<em>text</em>";
 
@@ -68,9 +70,9 @@ namespace MarkdownUnitTests
         [Test]
         public void Render_ReturnsString_WhenTextWithSingleStrongTag()
         {
-            var tokens = new List<Token>() //эквивалент __text__
+            var tokens = new List<IToken>() //эквивалент __text__
             {
-               new Token(new TagInfo("__", "strong"), new List<Token>() {new Token("text")})
+               new TagToken(new TagInfo("__", "strong"), new List<IToken>() {new TextToken("text")})
             };
             var expected = "<strong>text</strong>";
 
@@ -82,13 +84,13 @@ namespace MarkdownUnitTests
         [Test]
         public void Render_ReturnsString_WhenNestedStructureEmInStrong()
         {
-            var tokens = new List<Token>() //эквивалент ___text___
+            var tokens = new List<IToken>() //эквивалент ___text___
             {
-                new Token(new TagInfo("__", "strong"), new List<Token>()
+                new TagToken(new TagInfo("__", "strong"), new List<IToken>()
                 {
-                    new Token(new TagInfo("_", "em"), new List<Token>()
+                    new TagToken(new TagInfo("_", "em"), new List<IToken>()
                     {
-                        new Token("text")
+                        new TextToken("text")
                     })
                 })
             };
@@ -103,13 +105,13 @@ namespace MarkdownUnitTests
         [Test]
         public void Render_ReturnsStringWithOnlyEmTag_WhenNestedStructureStrongInEm()
         {
-            var tokens = new List<Token> //эквивалент _i __am__ senya_
+            var tokens = new List<IToken> //эквивалент _i __am__ senya_
             {
-                new Token(new TagInfo("_", "em"), new List<Token>
+                new TagToken(new TagInfo("_", "em"), new List<IToken>
                 {
-                    new Token("text "),
+                    new TextToken("text "),
 
-                    new Token("__strong__ text")
+                    new TextToken("__strong__ text")
                 })
             };
 
@@ -127,18 +129,18 @@ namespace MarkdownUnitTests
         public void Render_ReturnsString_WithMultipleChildren()
         {
 
-            var tokens = new List<Token> //эквивалент _i __am__ senya 
+            var tokens = new List<IToken> //эквивалент _i __am__ senya 
             {
-                new Token(new TagInfo("_", "em"), new List<Token>
+                new TagToken(new TagInfo("_", "em"), new List<IToken>
                 {
-                    new Token("i "),
+                    new TextToken("i "),
 
-                    new Token(new TagInfo("__", "strong"), new List<Token>
+                    new TagToken(new TagInfo("__", "strong"), new List<IToken>
                     {
-                        new Token("am")
+                        new TextToken("am")
                     }),
             
-                    new Token(" senya")
+                    new TextToken(" senya")
                 })
             };
 

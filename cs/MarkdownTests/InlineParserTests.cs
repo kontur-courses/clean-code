@@ -2,6 +2,8 @@ using NUnit.Framework;
 using Markdown;
 using FluentAssertions;
 using MarkdownUnitTests.Extensions;
+using Markdown.Models.Interfaces;
+using Markdown.Models;
 
 namespace MarkdownUnitTests
 {
@@ -13,8 +15,7 @@ namespace MarkdownUnitTests
         [SetUp]
         public void Setup()
         {
-            var registry = new TagRegistry();
-            parser = new InlineParser(registry);
+            parser = new InlineParser();
         }
 
         [Test]
@@ -82,7 +83,7 @@ namespace MarkdownUnitTests
             var result = parser.ParseToTokens(line);
 
             result.Should().HaveCount(1);
-            var tagToken = result[0];
+            TagToken tagToken = (TagToken)result[0];
             tagToken.IsTag().Should().BeTrue();
             tagToken.Tag.MarkdownSymbol.Should().Be("_");
             tagToken.Children.Should().HaveCount(1);

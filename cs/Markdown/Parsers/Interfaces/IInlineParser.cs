@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Markdown.Models.Interfaces;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Markdown
 {
     public interface IInlineParser
     {
-        public List<Token> ParseToTokens(string line);
+        public List<IToken> ParseToTokens(string line);
     }
 }
