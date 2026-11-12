@@ -13,7 +13,7 @@ internal static class NodeBuilder
         var nodes = new List<Node>();
         var unorderedList = new List<Node>();
 
-        foreach (var node in MergeLines(markdown).Select(ParseLine))
+        foreach (var node in MergeLines(markdown).Select(BuildNode))
         {
             if (node is ListItemNode listItem)
             {
@@ -48,7 +48,7 @@ internal static class NodeBuilder
         }
     }
 
-    private static Node? ParseLine(string line)
+    private static Node? BuildNode(string line)
     {
         if (string.IsNullOrWhiteSpace(line))
         {
@@ -57,19 +57,19 @@ internal static class NodeBuilder
 
         if (line.StartsWith(HeaderPrefix))
         {
-            return BuildBlock<HeaderNode>(line, HeaderPrefix.Length);
+            return BuildContainerNode<HeaderNode>(line, HeaderPrefix.Length);
         }
 
         if (line.StartsWith(UnorderedListItemPrefix))
         {
-            return BuildBlock<ListItemNode>(
+            return BuildContainerNode<ListItemNode>(
                 line, UnorderedListItemPrefix.Length);
         }
 
-        return BuildBlock<ParagraphNode>(line);
+        return BuildContainerNode<ParagraphNode>(line);
     }
 
-    private static TContainerNode BuildBlock<TContainerNode>(string line, int startIndex = 0)
+    private static TContainerNode BuildContainerNode<TContainerNode>(string line, int startIndex = 0)
         where TContainerNode : ContainerNode, new()
     {
         var tokens = InlineTokenizer.Tokenize(line, startIndex);
@@ -82,11 +82,11 @@ internal static class NodeBuilder
 
         return new TContainerNode
         {
-            Children = BuildNodes(line, startIndex, line.Length, openings, escapes)
+            Children = BuildInnerNodes(line, startIndex, line.Length, openings, escapes)
         };
     }
 
-    private static List<Node> BuildNodes(
+    private static List<Node> BuildInnerNodes(
         string text,
         int startIndex,
         int endIndex,
@@ -112,7 +112,7 @@ internal static class NodeBuilder
             {
                 FlushText();
 
-                var children = BuildNodes(
+                var children = BuildInnerNodes(
                     text,
                     pair.Opening.Index + pair.Opening.Length,
                     pair.Closing.Index,
