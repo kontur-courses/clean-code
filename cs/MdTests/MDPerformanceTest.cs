@@ -64,6 +64,17 @@ namespace MdTests
             MeasureMs(input).Should().BeLessThan(3000);
         }
 
+
+        [Test]
+        public void Parse_ManyListItems_FinishesInReasonableTime()
+        {
+            var input = Repeat("- _a_ __b__ _c\n", 100_000);
+
+            MeasureMs(input); 
+            MeasureMs(input).Should().BeLessThan(3000);
+        }
+
+
         private static string Repeat(string pattern, int times)
         {
             var sb = new StringBuilder(pattern.Length * times);
@@ -77,5 +88,7 @@ namespace MdTests
             _md.Parse(input);
             return sw.ElapsedMilliseconds;
         }
+
+
     }
 }

@@ -206,5 +206,97 @@ namespace MdTests
             _md.Parse(input).Should().Be(expected);
         }
 
+
+        [Test]
+        public void Parse_SingleListItem_ReturnsUlWithLi()
+        {
+            _md.Parse("- пункт").Should().Be("<ul><li>пункт</li></ul>");
+        }
+
+        [Test]
+        public void Parse_ConsecutiveListItems_AreGroupedIntoOneList()
+        {
+            _md.Parse("- один\n- два").Should().Be("<ul><li>один</li><li>два</li></ul>");
+        }
+
+        [Test]
+        public void Parse_ListItemWithFormatting_RendersInlineTags()
+        {
+            _md.Parse("- _курсив_ и __жирный__")
+                .Should().Be("<ul><li><em>курсив</em> и <strong>жирный</strong></li></ul>");
+        }
+
+        [Test]
+        public void Parse_ParagraphBeforeList_SeparatesBlocks()
+        {
+            _md.Parse("Текст\n- пункт").Should().Be("Текст\n<ul><li>пункт</li></ul>");
+        }
+
+        [Test]
+        public void Parse_ParagraphAfterList_EndsList()
+        {
+            _md.Parse("- пункт\nТекст").Should().Be("<ul><li>пункт</li></ul>\nТекст");
+        }
+
+        [Test]
+        public void Parse_ParagraphBetweenItems_SplitsIntoTwoLists()
+        {
+            _md.Parse("- a\nТекст\n- b")
+                .Should().Be("<ul><li>a</li></ul>\nТекст\n<ul><li>b</li></ul>");
+        }
+
+        [Test]
+        public void Parse_HeaderBetweenItems_SplitsIntoTwoLists()
+        {
+            _md.Parse("- a\n# Заголовок\n- b")
+                .Should().Be("<ul><li>a</li></ul>\n<h1>Заголовок</h1>\n<ul><li>b</li></ul>");
+        }
+
+        [Test]
+        public void Parse_LeadingSpacesBeforeMarker_AreIgnored()
+        {
+            _md.Parse("  - пункт").Should().Be("<ul><li>пункт</li></ul>");
+        }
+
+        [TestCase("-пункт", "-пункт")]
+        [TestCase("-", "-")]
+        [TestCase("- ", "-")]
+        public void Parse_NotAListItem_ReturnsAsText(string input, string expected)
+        {
+            _md.Parse(input).Should().Be(expected);
+        }
+
+        [Test]
+        public void Parse_EscapedMarker_IsNotListItem()
+        {
+            _md.Parse("\\- не пункт").Should().Be("- не пункт");
+        }
+
+        [Test]
+        public void Parse_MarkerInsideItem_StaysText()
+        {
+            _md.Parse("- пункт - не вложенный")
+                .Should().Be("<ul><li>пункт - не вложенный</li></ul>");
+        }
+
+        [Test]
+        public void Parse_HeaderMarkerInsideItem_StaysText()
+        {
+            _md.Parse("- # не заголовок").Should().Be("<ul><li># не заголовок</li></ul>");
+        }
+
+        [Test]
+        public void Parse_ListMarkerInsideHeader_StaysText()
+        {
+            _md.Parse("# - заголовок").Should().Be("<h1>- заголовок</h1>");
+        }
+
+        [Test]
+        public void Parse_UnpairedUnderscoresInDifferentItems_DoNotPair()
+        {
+            _md.Parse("- _a\n- b_").Should().Be("<ul><li>_a</li><li>b_</li></ul>");
+        }
+
+
     }
 }

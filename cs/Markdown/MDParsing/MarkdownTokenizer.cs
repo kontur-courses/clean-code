@@ -5,7 +5,7 @@ namespace Markdown.MDParsing
     public static class MarkdownTokenizer
     {
         // Специальные символы разметки, которые можно экранировать
-        private static readonly HashSet<char> SpecialChars = new HashSet<char> { '_', '#', '\\' };
+        private static readonly HashSet<char> SpecialChars = new HashSet<char> {'-', '_', '#', '\\' };
 
         public static List<Token> Tokenize(string text)
         {
