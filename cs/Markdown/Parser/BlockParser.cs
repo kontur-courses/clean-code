@@ -23,19 +23,15 @@ public class BlockParser : IBlockParser
 
         foreach (var line in lines)
         {
-            if (line.StartsWith("# ", StringComparison.Ordinal))
-            {
-                var headerContent = line[2..];
-                var tokens = _tokenizer.Tokenize(headerContent);
-                var children = _inlineParser.Parse(tokens);
-                blocks.Add(new BlockNode(BlockType.Header1, children));
-            }
-            else
-            {
-                var tokens = _tokenizer.Tokenize(line);
-                var children = _inlineParser.Parse(tokens);
-                blocks.Add(new BlockNode(BlockType.Paragraph, children));
-            }
+            var isHeader = line.StartsWith("# ", StringComparison.Ordinal);
+
+            var content = isHeader ? line[2..] : line;
+            var blockType = isHeader ? BlockType.Header1 : BlockType.Paragraph;
+
+            var tokens = _tokenizer.Tokenize(content);
+            var children = _inlineParser.Parse(tokens);
+
+            blocks.Add(new BlockNode(blockType, children));
         }
 
         return blocks;
