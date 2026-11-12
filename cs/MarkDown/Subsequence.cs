@@ -1,20 +1,14 @@
 ﻿namespace MarkDown;
 
-public class Subsequence
+public class Subsequence(int start, int length, bool dead)
 {
-    private int _start { get; set; }
-    private int _length { get; set; }
+    public int StartIdx { get; set; } = start;
+    public int Length { get; set; } = length;
     
-    private bool _canOpen { get; set; }
-    private bool _canClose { get; set; }
-    private bool _dead { get; set; }
+    public bool CanOpen { get; set; }
+    public bool CanClose { get; set; }
+    public bool IsDead { get; set; } = dead;
     
-    private List<Symbol>  _symbols { get; set; }
-
-    public Subsequence(int start, int length, bool canOpen, bool canClose, bool dead, List<Symbol> symbols)
-    {
-        _start = start;
-        _symbols = symbols;
-        
-    }
+    public List<Symbol>  _symbols { get; set; }
+    
 }

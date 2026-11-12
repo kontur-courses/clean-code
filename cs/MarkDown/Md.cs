@@ -2,11 +2,11 @@
 
 namespace MarkDown;
 
-public class Md
+public static class Md
 {
     private static bool IsEscapable(char c) => c == '\\' || c == '_' || c == '#';
     
-    public string Render(string markdown)
+    public static string Render(string markdown)
     {
         var paragraphs = SplitParagraph(markdown);
         var sb = new StringBuilder();
@@ -36,9 +36,10 @@ public class Md
 
         foreach (var raw in input.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
-            if (raw.StartsWith("#"))
+            if (string.IsNullOrWhiteSpace(raw)) continue;
+            if (raw.StartsWith("# "))
             {
-                paragraphs.Add(new Paragraph(ParagraphType.Heading, raw.Substring(1)));
+                paragraphs.Add(new Paragraph(ParagraphType.Heading, raw.Substring(2)));
             }
             else
             {
@@ -156,7 +157,7 @@ public class Md
                 for (int k = stack.Count - 1; k >= 0; k--)
                 {
                     if (stack[k].Length != subsequence.Length) continue;
-                    if (forbidden.Contains((stack[k], subsequence))) continue;   // ← вот ключ
+                    if (forbidden.Contains((stack[k], subsequence))) continue;
                     found = k;
                     break;
                 }
@@ -185,9 +186,10 @@ public class Md
             var killed = new List<Pair>();
             ApplyFilterEmpty(pairs, symbols, killed);
             ApplyFilterIntrawordSpace(pairs, symbols, killed);
-            ApplyFilterBoldInsideItalic(pairs, killed);       // C раньше E —
-            ApplyFilterIntersection(pairs, killed);            // чтобы «спасти» bold,
-            ApplyFilterDigitInside(pairs, symbols, killed);    // когда italic умирает
+            ApplyFilterBoldInsideItalic(pairs, killed);
+            ApplyFilterIntersection(pairs, killed);
+            ApplyFilterDigitInside(pairs, symbols, killed);
+            ApplyFilterNestedSameType(pairs, forbidden, killed);
 
             if (killed.Count == 0)
                 return pairs.Where(p => p.IsAlive).ToArray();
@@ -305,6 +307,27 @@ public class Md
                     p.IsAlive = false; killed.Add(p);
                     q.IsAlive = false; killed.Add(q);
                 }
+            }
+        }
+    }
+    
+    private static void ApplyFilterNestedSameType(Pair[] pairs, HashSet<(Subsequence, Subsequence)> forbidden, List<Pair> killed)
+    {
+        var alive = pairs.Where(x => x.IsAlive).ToList();
+        foreach (var inner in alive)
+        {
+            if (!inner.IsAlive) continue;
+            foreach (var outer in alive)
+            {
+                if (inner == outer) continue;
+                if (inner.Length != outer.Length) continue;
+                if (!IsContained(inner, outer)) continue;
+
+                inner.IsAlive = false;
+                killed.Add(inner);
+
+                forbidden.Add((outer.Open, inner.Close));
+                forbidden.Add((inner.Open, outer.Close));
             }
         }
     }
