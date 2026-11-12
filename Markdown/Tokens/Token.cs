@@ -22,8 +22,8 @@ public sealed record ParagraphBreakToken() : Token(TokenType.ParagraphBreak, Mar
 public abstract record PairedToken(TokenType Type, string Value, bool CanOpen, bool CanClose)
     : Token(Type, Value);
 
-public sealed record UnderscoreToken(bool CanOpen, bool CanClose)
+public sealed record UnderscoreToken(bool CanOpen, bool CanClose, bool IsInsideWord)
     : PairedToken(TokenType.Underscore, MarkdownSyntax.Underscore, CanOpen, CanClose);
 
-public sealed record DoubleUnderscoreToken(bool CanOpen, bool CanClose)
+public sealed record DoubleUnderscoreToken(bool CanOpen, bool CanClose, bool IsInsideWord)
     : PairedToken(TokenType.DoubleUnderscore, MarkdownSyntax.DoubleUnderscore, CanOpen, CanClose);

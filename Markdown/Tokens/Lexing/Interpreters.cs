@@ -15,24 +15,25 @@ public sealed class UnderscoreInterpreter : ISymbolInterpreter
     public Token Interpret(IReadOnlyList<RawSegment> segments, int index)
     {
         var symbol = (SymbolSegment)segments[index];
-        var (canOpen, canClose) = GetFlags(segments, index);
+        var (canOpen, canClose, isInsideWord) = GetFlags(segments, index);
 
         if (!canOpen && !canClose)
             return new TextToken(symbol.Symbol);
 
         return symbol.Symbol == MarkdownSyntax.DoubleUnderscore
-            ? new DoubleUnderscoreToken(canOpen, canClose)
-            : new UnderscoreToken(canOpen, canClose);
+            ? new DoubleUnderscoreToken(canOpen, canClose, isInsideWord)
+            : new UnderscoreToken(canOpen, canClose, isInsideWord);
     }
 
-    private static (bool CanOpen, bool CanClose) GetFlags(IReadOnlyList<RawSegment> segments, int index)
+    private static (bool CanOpen, bool CanClose, bool IsInsideWord) GetFlags(IReadOnlyList<RawSegment> segments, int index)
     {
         var before = SegmentNeighbors.CharBefore(segments, index);
         var after = SegmentNeighbors.CharAfter(segments, index);
         var nearDigits = char.IsDigit(before) || char.IsDigit(after);
 
         return (CanOpen: !char.IsWhiteSpace(after) && !nearDigits,
-            CanClose: !char.IsWhiteSpace(before) && !nearDigits);
+            CanClose: !char.IsWhiteSpace(before) && !nearDigits,
+            IsInsideWord: char.IsLetter(before) && char.IsLetter(after));
     }
 }
 

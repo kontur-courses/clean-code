@@ -36,8 +36,8 @@ public class StringTokenizerTests
                 .SetName("Header: marker only");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("# __x__",
                 [
-                    new HeaderMarkerToken(), new DoubleUnderscoreToken(true, false), new TextToken("x"),
-                    new DoubleUnderscoreToken(false, true)
+                    new HeaderMarkerToken(), new DoubleUnderscoreToken(true, false, false), new TextToken("x"),
+                    new DoubleUnderscoreToken(false, true, false)
                 ])
                 .SetName("Header: with double underscore inside");
         }
@@ -48,27 +48,35 @@ public class StringTokenizerTests
         get
         {
             yield return new TestCaseData<string, IReadOnlyList<Token>>("_Hello World!_",
-                    [new UnderscoreToken(true, false), new TextToken("Hello World!"), new UnderscoreToken(false, true)])
+                    [
+                        new UnderscoreToken(true, false, false), new TextToken("Hello World!"),
+                        new UnderscoreToken(false, true, false)
+                    ])
                 .SetName("Underscore: wraps text");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("_a",
-                    [new UnderscoreToken(true, false), new TextToken("a")])
+                    [new UnderscoreToken(true, false, false), new TextToken("a")])
                 .SetName("Underscore: at line start can only open");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("a_",
-                    [new TextToken("a"), new UnderscoreToken(false, true)])
+                    [new TextToken("a"), new UnderscoreToken(false, true, false)])
                 .SetName("Underscore: at line end can only close");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("a_b",
-                    [new TextToken("a"), new UnderscoreToken(true, true), new TextToken("b")])
+                    [new TextToken("a"), new UnderscoreToken(true, true, true), new TextToken("b")])
                 .SetName("Underscore: inside word can open and close");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("a _b",
-                    [new TextToken("a "), new UnderscoreToken(true, false), new TextToken("b")])
+                    [new TextToken("a "), new UnderscoreToken(true, false, false), new TextToken("b")])
                 .SetName("Underscore: space before and letter after can only open");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("a_ b",
-                    [new TextToken("a"), new UnderscoreToken(false, true), new TextToken(" b")])
+                    [new TextToken("a"), new UnderscoreToken(false, true, false), new TextToken(" b")])
                 .SetName("Underscore: letter before and space after can only close");
+            yield return new TestCaseData<string, IReadOnlyList<Token>>("(_a_)",
+                    [
+                        new TextToken("("), new UnderscoreToken(true, false, false), new TextToken("a"),
+                        new UnderscoreToken(true, true, false), new TextToken(")")
+                    ])
+                .SetName("IntraWord: punctuation neighbors are not intra-word");
         }
     }
 
-    
     public static IEnumerable NotDelimiterStringTokenizerCases
     {
         get
@@ -95,7 +103,7 @@ public class StringTokenizerTests
                     [new TextToken("_12_")])
                 .SetName("NotDelimiter: underscores around a number stay text");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("_a1_",
-                    [new UnderscoreToken(true, false), new TextToken("a1_")])
+                    [new UnderscoreToken(true, false, false), new TextToken("a1_")])
                 .SetName("NotDelimiter: closing underscore after digit stays text (current behavior)");
         }
     }
@@ -105,19 +113,25 @@ public class StringTokenizerTests
         get
         {
             yield return new TestCaseData<string, IReadOnlyList<Token>>("__a__",
-                    [new DoubleUnderscoreToken(true, false), new TextToken("a"), new DoubleUnderscoreToken(false, true)])
+                    [
+                        new DoubleUnderscoreToken(true, false, false), new TextToken("a"),
+                        new DoubleUnderscoreToken(false, true, false)
+                    ])
                 .SetName("DoubleUnderscore: wraps text");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("__Hello World!_",
-                    [new DoubleUnderscoreToken(true, false), new TextToken("Hello World!"), new UnderscoreToken(false, true)])
+                    [
+                        new DoubleUnderscoreToken(true, false, false), new TextToken("Hello World!"),
+                        new UnderscoreToken(false, true, false)
+                    ])
                 .SetName("DoubleUnderscore: mismatched closing underscore");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("a__b",
-                    [new TextToken("a"), new DoubleUnderscoreToken(true, true), new TextToken("b")])
+                    [new TextToken("a"), new DoubleUnderscoreToken(true, true, true), new TextToken("b")])
                 .SetName("DoubleUnderscore: inside word");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("____",
-                    [new DoubleUnderscoreToken(true, false), new DoubleUnderscoreToken(false, true)])
+                    [new DoubleUnderscoreToken(true, false, false), new DoubleUnderscoreToken(false, true, false)])
                 .SetName("DoubleUnderscore: four underscores split into two pairs");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("___",
-                    [new DoubleUnderscoreToken(true, false), new UnderscoreToken(false, true)])
+                    [new DoubleUnderscoreToken(true, false, false), new UnderscoreToken(false, true, false)])
                 .SetName("DoubleUnderscore: three underscores are greedy, double first");
         }
     }
@@ -128,22 +142,23 @@ public class StringTokenizerTests
         {
             yield return new TestCaseData<string, IReadOnlyList<Token>>("_a __b__ c_",
                 [
-                    new UnderscoreToken(true, false), new TextToken("a "),
-                    new DoubleUnderscoreToken(true, false), new TextToken("b"), new DoubleUnderscoreToken(false, true),
-                    new TextToken(" c"), new UnderscoreToken(false, true)
+                    new UnderscoreToken(true, false, false), new TextToken("a "),
+                    new DoubleUnderscoreToken(true, false, false), new TextToken("b"),
+                    new DoubleUnderscoreToken(false, true, false),
+                    new TextToken(" c"), new UnderscoreToken(false, true, false)
                 ])
                 .SetName("Mixed: double underscore nested in single");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("раз_ных слова_х",
                 [
-                    new TextToken("раз"), new UnderscoreToken(true, true),
-                    new TextToken("ных слова"), new UnderscoreToken(true, true), new TextToken("х")
+                    new TextToken("раз"), new UnderscoreToken(true, true, true),
+                    new TextToken("ных слова"), new UnderscoreToken(true, true, true), new TextToken("х")
                 ])
                 .SetName("Mixed: underscores in different words");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("___Три прочерка___",
                 [
-                    new DoubleUnderscoreToken(true, false), new UnderscoreToken(true, true),
+                    new DoubleUnderscoreToken(true, false, false), new UnderscoreToken(true, true, false),
                     new TextToken("Три прочерка"),
-                    new DoubleUnderscoreToken(true, true), new UnderscoreToken(false, true)
+                    new DoubleUnderscoreToken(true, true, false), new UnderscoreToken(false, true, false)
                 ])
                 .SetName("DoubleUnderscore: three underscores on both sides");
         }
@@ -186,7 +201,6 @@ public class StringTokenizerTests
         }
     }
 
-    
     public static IEnumerable EscapeStringTokenizerCases
     {
         get
@@ -195,15 +209,15 @@ public class StringTokenizerTests
                     [new TextToken("_a_")])
                 .SetName("Escape: both underscores escaped stay text, merged into one token");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("\\_a_",
-                    [new TextToken("_a"), new UnderscoreToken(false, true)])
+                    [new TextToken("_a"), new UnderscoreToken(false, true, false)])
                 .SetName("Escape: escaped opening underscore, closing stays delimiter");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("\\\\",
                     [new TextToken("\\")])
                 .SetName("Escape: escaped backslash");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("\\\\_a_",
                 [
-                    new TextToken("\\"), new UnderscoreToken(true, true), new TextToken("a"),
-                    new UnderscoreToken(false, true)
+                    new TextToken("\\"), new UnderscoreToken(true, true, false), new TextToken("a"),
+                    new UnderscoreToken(false, true, false)
                 ])
                 .SetName("Escape: escaped backslash does not escape following underscore");
             yield return new TestCaseData<string, IReadOnlyList<Token>>("сим\\волы",
