@@ -59,14 +59,14 @@ namespace Markdown.Parser.Inline
 
         private static int HandleLink(string text, int i, List<Token> tokens, StringBuilder buffer)
         {
-            var closeBracket = Escaper.FindClosingChar(text, i + 1, ']');
+            var closeBracket = Escaper.GetNotEscapedClosingCharIndex(text, i + 1, ']');
             if (closeBracket == -1 || closeBracket + 1 >= text.Length || text[closeBracket + 1] != '(')
             {
                 buffer.Append('[');
                 return 1;
             }
 
-            var closeParen = Escaper.FindClosingChar(text, closeBracket + 2, ')');
+            var closeParen = Escaper.GetNotEscapedClosingCharIndex(text, closeBracket + 2, ')');
             if (closeParen == -1)
             {
                 buffer.Append('[');
@@ -78,7 +78,7 @@ namespace Markdown.Parser.Inline
             var linkText = text.Substring(i + 1, closeBracket - i - 1);
             var rawUrl = text.Substring(closeBracket + 2, closeParen - closeBracket - 2);
 
-            var cleanUrl = Escaper.Unescape(rawUrl);
+            var cleanUrl = Escaper.HandleEscapeForWord(rawUrl);
 
             var token = new Token(TokenType.Link, linkText, i);
             token.SetUrl(cleanUrl);

@@ -4,7 +4,7 @@ namespace Markdown.Parser.Inline
 {
     public static class Escaper
     {
-        public static int FindClosingChar(string text, int startIndex, char targetChar)
+        public static int GetNotEscapedClosingCharIndex(string text, int startIndex, char targetChar)
         {
             for (var i = startIndex; i < text.Length; i++)
             {
@@ -22,14 +22,27 @@ namespace Markdown.Parser.Inline
             return -1;
         }
 
-        public static string Unescape(string text)
+        public static string HandleEscapeForWord(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
 
-            return text
-                .Replace("\\)", ")")
-                .Replace("\\(", "(")
-                .Replace("\\\\", "\\");
+            var buffer = new StringBuilder(text.Length);
+            var i = 0;
+
+            while (i < text.Length)
+            {
+                if (text[i] == '\\')
+                {
+                    i += HandleEscape(text, i, buffer);
+                }
+                else
+                {
+                    buffer.Append(text[i]);
+                    i++;
+                }
+            }
+
+            return buffer.ToString();
         }
 
         public static int HandleEscape(string text, int i, StringBuilder buffer)
