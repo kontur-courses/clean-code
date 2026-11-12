@@ -15,11 +15,11 @@ public static class InlineTokenizer
         {
             switch (text[index])
             {
-                case '\\' when IsEscape(text, index):
+                case EscapeToken.Symbol when IsEscape(text, index):
                     tokens.Add(new EscapeToken(index));
                     index += 2;
                     break;
-                case '_':
+                case DelimiterRunToken.Symbol:
                     index = ConsumeDelimiterRun(text, startIndex, index, tokens);
                     break;
                 default:
@@ -35,7 +35,7 @@ public static class InlineTokenizer
     {
         var start = index;
 
-        while(index < text.Length && text[index] == '_')
+        while(index < text.Length && text[index] == DelimiterRunToken.Symbol)
         {
             index++;
         }
@@ -57,9 +57,9 @@ public static class InlineTokenizer
 
     private static bool IsEscape(string text, int index)
     {
-        return text[index] == '\\'
+        return text[index] == EscapeToken.Symbol
                && index + 1 < text.Length
-               && (text[index + 1] is '\\' or '_');
+               && (text[index + 1] is EscapeToken.Symbol or DelimiterRunToken.Symbol);
     }
 
     private static bool IsDelimiterBetweenDigits(string text, int startIndex, int endIndex)

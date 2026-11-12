@@ -4,37 +4,34 @@ namespace Markdown.Parsing;
 
 internal static class DelimiterMatcher
 {
-    private const int EmphasisLength = 1;
-    private const int StrongLength = 2;
-
     public static IReadOnlyList<DelimiterPair> FindPairs(
         IReadOnlyList<Token> tokens,
         string text)
     {
         var pairs = new List<DelimiterPair>();
 
-        var strong = new Stack<DelimiterRunToken>();
-        var emphasis = new Stack<DelimiterRunToken>();
+        var openingEmphasis = new Stack<DelimiterRunToken>();
+        var openingStrong = new Stack<DelimiterRunToken>();
 
         foreach (var token in tokens.OfType<DelimiterRunToken>())
         {
             var emphasisFirst =
-                emphasis.TryPeek(out var openEmphasis)
-                && (!strong.TryPeek(out var openStrong)
+                openingEmphasis.TryPeek(out var openEmphasis)
+                && (!openingStrong.TryPeek(out var openStrong)
                     || openEmphasis.Index > openStrong.Index);
 
             foreach (var delimiter in SplitRun(token, emphasisFirst))
             {
-                var stack = delimiter.Length == StrongLength
-                    ? strong
-                    : emphasis;
+                var stack = delimiter.Length == DelimiterRunToken.StrongLength
+                    ? openingStrong
+                    : openingEmphasis;
 
                 if (delimiter.CanClose && stack.TryPop(out var opening))
                 {
                     pairs.Add(new DelimiterPair(
                         opening,
                         delimiter,
-                        delimiter.Length == StrongLength
+                        delimiter.Length == DelimiterRunToken.StrongLength
                             ? DelimiterType.Strong
                             : DelimiterType.Emphasis));
                 }
@@ -52,14 +49,12 @@ internal static class DelimiterMatcher
         IReadOnlyList<DelimiterPair> pairs,
         string text)
     {
-        return
-        [
-            .. pairs.Where(pair =>
+        return pairs.Where(pair =>
                 pair.Opening.Index + pair.Opening.Length
                     != pair.Closing.Index
                 && !IsInvalidWordPair(pair, text)
                 && !pairs.Any(other => HasInvalidRelation(pair, other)))
-        ];
+            .ToList();
     }
 
     private static bool HasInvalidRelation(
@@ -77,8 +72,8 @@ internal static class DelimiterMatcher
             || (otherStart < start && start < otherEnd && otherEnd < end);
 
         var strongInsideEmphasis =
-            pair.Opening.Length == StrongLength
-            && other.Opening.Length == EmphasisLength
+            pair.Opening.Length == DelimiterRunToken.StrongLength
+            && other.Opening.Length == DelimiterRunToken.EmphasisLength
             && otherStart < start
             && end < otherEnd;
 
@@ -123,23 +118,23 @@ internal static class DelimiterMatcher
         var index = run.Index;
         var remaining = run.Length;
 
-        if (remaining % 2 != 0 && emphasisFirst)
+        if (remaining % DelimiterRunToken.StrongLength != 0 && emphasisFirst)
         {
-            yield return run with { Index = index, Length = EmphasisLength };
-            index++;
-            remaining--;
+            yield return run with { Index = index, Length = DelimiterRunToken.EmphasisLength };
+            index += DelimiterRunToken.EmphasisLength;
+            remaining -= DelimiterRunToken.EmphasisLength;
         }
 
-        while (remaining >= StrongLength)
+        while (remaining >= DelimiterRunToken.StrongLength)
         {
-            yield return run with { Index = index, Length = StrongLength };
-            index += StrongLength;
-            remaining -= StrongLength;
+            yield return run with { Index = index, Length = DelimiterRunToken.StrongLength };
+            index += DelimiterRunToken.StrongLength;
+            remaining -= DelimiterRunToken.StrongLength;
         }
 
-        if (remaining == EmphasisLength)
+        if (remaining == DelimiterRunToken.EmphasisLength)
         {
-            yield return run with { Index = index, Length = EmphasisLength };
+            yield return run with { Index = index, Length = DelimiterRunToken.EmphasisLength };
         }
     }
 }
