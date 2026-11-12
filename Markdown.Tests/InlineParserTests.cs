@@ -117,7 +117,7 @@ public class InlineParserTests
     [TestCase(@"\_\_жирный\_\_", "__жирный__", TestName = "Parse_EscapedStrongMarkers_ArePlainText")]
     [TestCase(@"\абв", @"\абв", TestName = "Parse_BackslashBeforeLetter_RemainsLiteral")]
     [TestCase(@"текст\ продолжение", @"текст\ продолжение", TestName = "Parse_BackslashBeforeWhitespace_RemainsLiteral")]
-    [TestCase(@"текст\!ещё", "текст!ещё", TestName = "Parse_EscapedOrdinaryCharacter_RemovesEscape")]
+    [TestCase(@"текст\!ещё", @"текст\!ещё", TestName = "Parse_BackslashBeforeNonMarkupPunctuation_RemainsLiteral")]
     public void Parse_EscapedCharacters_ArePlainText(string input, string expected)
     {
         AssertLiteralText(parser.Parse(input), expected);

@@ -5,10 +5,14 @@ namespace Markdown.Lexer;
 /// </summary>
 public enum InlineTokenKind
 {
-    Text, // Текст без разметки
-    EmphasisMarker, // Маркер для выделения текста курсивом
-    StrongMarker, // Маркер для выделения текста жирным
-    StrongEmphasisMarker, // Маркер для выделения текста жирным курсивом
+    /// <summary>Текст без разметки</summary>
+    Text,
+    /// <summary>Маркер для выделения текста курсивом</summary>
+    EmphasisMarker,
+    /// <summary>Маркер для выделения текста жирным</summary>
+    StrongMarker,
+    /// <summary>Маркер для выделения текста жирным курсивом</summary>
+    StrongEmphasisMarker,
 }
 
 public sealed record InlineToken(

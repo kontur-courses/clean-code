@@ -53,7 +53,7 @@ public class InlineLexerTests
     {
         var actual = lexer.Tokenize(string.Empty);
 
-        Assert.That(actual, Is.Empty);
+        Assert.IsEmpty(actual);
     }
 
     [Test]
@@ -181,12 +181,12 @@ public class InlineLexerTests
     }
 
     [Test]
-    public void Tokenize_EscapedPunctuation_RemovesEscapeCharacter()
+    public void Tokenize_BackslashBeforeNonMarkupPunctuation_RemainsInText()
     {
         var actual = lexer.Tokenize(@"a\!b");
 
         CollectionAssert.AreEqual(
-            new[] { Text("a!b") },
+            new[] { Text(@"a\!b") },
             actual);
     }
 
@@ -202,12 +202,22 @@ public class InlineLexerTests
     }
 
     [Test]
-    public void Tokenize_EscapedSymbol_RemovesEscapeCharacter()
+    public void Tokenize_BackslashBeforeNonMarkupSymbol_RemainsInText()
     {
         var actual = lexer.Tokenize(@"a\©b");
 
         CollectionAssert.AreEqual(
-            new[] { Text("a©b") },
+            new[] { Text(@"a\©b") },
+            actual);
+    }
+
+    [Test]
+    public void Tokenize_EscapedHeadingMarker_RemovesEscapeCharacter()
+    {
+        var actual = lexer.Tokenize(@"\# заголовок");
+
+        CollectionAssert.AreEqual(
+            new[] { Text("# заголовок") },
             actual);
     }
 

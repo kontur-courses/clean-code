@@ -23,54 +23,45 @@ public sealed class InlineLexer
         {
             var currentChar = text[i];
 
-            if (currentChar == '\\' && i + 1 < text.Length && CanEscape(text[i + 1]))
-            {
-                textBuffer.Append(text[i + 1]);
-                i++;
-                continue;
-            }
-
             if (currentChar == '\\')
             {
-                textBuffer.Append(currentChar);
+                if(i + 1 < text.Length && CanEscape(text[i + 1]))
+                {
+                    textBuffer.Append(text[i + 1]);
+                    i++;
+                }
+                else
+                {
+                    textBuffer.Append(currentChar);
+                }
                 continue;
             }
 
             if (currentChar == '_')
             {
-                if (i + 1 < text.Length && text[i + 1] == '_')
+                var markerLength = 1;
+                while (markerLength < 3 &&
+                        i + markerLength < text.Length &&
+                        text[i + markerLength] == '_')
                 {
-                    if (i + 2 < text.Length && text[i + 2] == '_')
-                    {
-                        if (textBuffer.Length > 0)
-                        {
-                            tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
-                            textBuffer.Clear();
-                        }
-                        tokens.Add(new InlineToken(InlineTokenKind.StrongEmphasisMarker, "___"));
-                        i += 2;
-                    }
-                    else
-                    {
-                        if (textBuffer.Length > 0)
-                        {
-                            tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
-                            textBuffer.Clear();
-                        }
-                        tokens.Add(new InlineToken(InlineTokenKind.StrongMarker, "__"));
-                        i++;
-                    }
-                }
-                else
-                {
-                    if (textBuffer.Length > 0)
-                    {
-                        tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
-                        textBuffer.Clear();
-                    }
-                    tokens.Add(new InlineToken(InlineTokenKind.EmphasisMarker, "_"));
+                    markerLength++;
                 }
 
+                if (textBuffer.Length > 0)
+                {
+                    tokens.Add(new InlineToken(InlineTokenKind.Text, textBuffer.ToString()));
+                    textBuffer.Clear();
+                }
+
+                var (markerKind, markerValue) = markerLength switch
+                {
+                    1 => (InlineTokenKind.EmphasisMarker, "_"),
+                    2 => (InlineTokenKind.StrongMarker, "__"),
+                    _ => (InlineTokenKind.StrongEmphasisMarker, "___")
+                };
+
+                tokens.Add(new InlineToken(markerKind, markerValue));
+                i += markerLength - 1;
                 continue;
             }
 
@@ -86,5 +77,5 @@ public sealed class InlineLexer
     }
 
     private static bool CanEscape(char character) =>
-        character == '\\' || char.IsPunctuation(character) || char.IsSymbol(character);
+        character is '\\' or '_' or '#';
 }
