@@ -10,7 +10,7 @@ public static class MarkdownSyntax
     public const string Underscore = "_";
 
 
-    public static IReadOnlyList<SymbolDefinition> Symbols =
+    public static readonly IReadOnlyList<SymbolDefinition> Symbols =
     [
         new(HeaderPrefix, true),
         new(DoubleUnderscore),

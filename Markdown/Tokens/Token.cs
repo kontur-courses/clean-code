@@ -19,11 +19,39 @@ public sealed record HeaderMarkerToken() : Token(TokenType.HeaderMarker, Markdow
 
 public sealed record ParagraphBreakToken() : Token(TokenType.ParagraphBreak, MarkdownSyntax.ParagraphBreaker);
 
-public abstract record PairedToken(TokenType Type, string Value, bool CanOpen, bool CanClose)
+public abstract record PairedToken(TokenType Type, string Value, bool CanOpen, bool CanClose, bool IsInsideWord)
     : Token(Type, Value);
 
 public sealed record UnderscoreToken(bool CanOpen, bool CanClose, bool IsInsideWord)
-    : PairedToken(TokenType.Underscore, MarkdownSyntax.Underscore, CanOpen, CanClose);
+    : PairedToken(TokenType.Underscore, MarkdownSyntax.Underscore, CanOpen, CanClose, IsInsideWord);
 
 public sealed record DoubleUnderscoreToken(bool CanOpen, bool CanClose, bool IsInsideWord)
-    : PairedToken(TokenType.DoubleUnderscore, MarkdownSyntax.DoubleUnderscore, CanOpen, CanClose);
+    : PairedToken(TokenType.DoubleUnderscore, MarkdownSyntax.DoubleUnderscore, CanOpen, CanClose, IsInsideWord);
+
+public static class TokenExtensions
+{
+    public static IEnumerable<IReadOnlyList<Token>> SplitByParagraphBreak(
+        this IEnumerable<Token> tokens)
+    {
+        var current = new List<Token>();
+        var hasTokens = false;
+
+        foreach (var token in tokens)
+        {
+            hasTokens = true;
+
+            if (token is ParagraphBreakToken)
+            {
+                yield return current;
+                current = [];
+            }
+            else
+            {
+                current.Add(token);
+            }
+        }
+
+        if (hasTokens)
+            yield return current;
+    }
+}
