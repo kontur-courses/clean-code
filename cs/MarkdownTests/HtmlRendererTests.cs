@@ -37,117 +37,130 @@ namespace MarkdownUnitTests
             result.Should().BeEmpty();
         }
 
-        [TestCase("text without tags йоу")]
-        [TestCase("x")]
-        [TestCase("       x       ")]
-        [TestCase("0123456789")]
-        public void Render_ReturnsString_WhenSingleText(string tokenText)
+        [Test]
+        public void Render_ReturnsBackslashLine()
         {
-            var tokens = new List<IToken>
-            {
-                new TextToken(tokenText)
-            };
+            var tokens = new List<IToken> { new TextToken("\\") };
 
             var result = renderer.Render(tokens);
 
-            result.Should().Be(tokenText);
+            result.Should().Be("\\");
         }
 
-        [Test]
-        public void Render_ReturnsString_WhenTextWithSingleEmTag()
+        private static IEnumerable<TestCaseData> TokensWithoutChildrenCases()
         {
-            var tokens = new List<IToken>() //эквивалент _text_
-            {
-               new TagToken(new TagInfo("_", "em"), new List<IToken>() {new TextToken("text")})
-            };
-            var expected = "<em>text</em>";
+            yield return new TestCaseData(new List<IToken> { new TextToken("text without tags йоу") },
+                                          "text without tags йоу").SetName("SingleText");
 
+            yield return new TestCaseData(new List<IToken> { new TextToken("x") },
+                                          "x").SetName("SingleChar");
+
+            yield return new TestCaseData(new List<IToken> { new TextToken("       x       ") },
+                                          "       x       ").SetName("TextWithSpaces");
+
+            yield return new TestCaseData(new List<IToken> { new TextToken("0123456789") },
+                                          "0123456789").SetName("Digits");
+
+            //вот такого в моем понимании быть не может, но пусть будет как тест
+            yield return new TestCaseData(new List<IToken> { new TextToken("a"), new TextToken("b"), new TextToken("c") },
+                                          "abc").SetName("Multi Text Tokens");
+        }
+
+        [TestCaseSource(nameof(TokensWithoutChildrenCases), Category = "OnlyTextTokens")]
+        public void Render_ReturnsConcatenatedText_WhenTokensWithoutChildren(List<IToken> tokens, string expected)
+        {
             var result = renderer.Render(tokens);
-
             result.Should().Be(expected);
         }
 
-        [Test]
-        public void Render_ReturnsString_WhenTextWithSingleStrongTag()
+        private static IEnumerable<TestCaseData> TokensWithChildrenCases()
         {
-            var tokens = new List<IToken>() //эквивалент __text__
-            {
-               new TagToken(new TagInfo("__", "strong"), new List<IToken>() {new TextToken("text")})
-            };
-            var expected = "<strong>text</strong>";
-
-            var result = renderer.Render(tokens);
-
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void Render_ReturnsString_WhenNestedStructureEmInStrong()
-        {
-            var tokens = new List<IToken>() //эквивалент ___text___
-            {
-                new TagToken(new TagInfo("__", "strong"), new List<IToken>()
+            yield return new TestCaseData(
+                new List<IToken>
                 {
-                    new TagToken(new TagInfo("_", "em"), new List<IToken>()
-                    {
-                        new TextToken("text")
-                    })
-                })
-            };
+                    new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("text") })
+                },
+                "<em>text</em>"
+            ).SetName("SingleEm");
 
-            var expected = "<strong><em>text</em></strong>";
-
-            var result = renderer.Render(tokens);
-
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void Render_ReturnsStringWithOnlyEmTag_WhenNestedStructureStrongInEm()
-        {
-            var tokens = new List<IToken> //эквивалент _i __am__ senya_
-            {
-                new TagToken(new TagInfo("_", "em"), new List<IToken>
+            yield return new TestCaseData(
+                new List<IToken>
                 {
-                    new TextToken("text "),
+                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("text") })
+                },
+                "<strong>text</strong>"
+            ).SetName("SingleStrong");
 
-                    new TextToken("__strong__ text")
-                })
-            };
-
-            var expected = "<em>text __strong__ text</em>";
-
-            var result = renderer.Render(tokens);
-
-            result.Should().Be(expected);
-        }
-
-        //в целом тест может быть лишним, наверное,
-        //но это unit тест именно рендерера, поэтому проверка на рендер детей
-        //плюс ко всему он показывает декомпозицию задач по разным классам - рендерер не проверяет правила парсинга, а только переводит в html-разметку
-        [Test]
-        public void Render_ReturnsString_WithMultipleChildren()
-        {
-
-            var tokens = new List<IToken> //эквивалент _i __am__ senya 
-            {
-                new TagToken(new TagInfo("_", "em"), new List<IToken>
+            yield return new TestCaseData(
+                new List<IToken>
                 {
                     new TextToken("i "),
+                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("am") }),
+                    new TextToken(" senya")
+                },
+                "i <strong>am</strong> senya"
+            ).SetName("TextTagText");
 
+            yield return new TestCaseData(
+                new List<IToken>
+                {
+                    new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("a") }),
+                    new TagToken(new TagInfo("__", "strong"), new List<IToken> { new TextToken("b") })
+                },
+                "<em>a</em><strong>b</strong>"
+            ).SetName("TwoTagsInRow");
+        }
+
+        [Test, TestCaseSource(nameof(TokensWithChildrenCases), Category = "TokensWithChilren")]
+        public void Render_ReturnsTextWithHtmlTags_WhenTokensWithChildren(List<IToken> tokens, string expected)
+        {
+            var result = renderer.Render(tokens);
+            result.Should().Be(expected);
+        }
+
+        private static IEnumerable<TestCaseData> DeepNestingCases()
+        {
+            yield return new TestCaseData(
+                new List<IToken>
+                {
                     new TagToken(new TagInfo("__", "strong"), new List<IToken>
                     {
-                        new TextToken("am")
-                    }),
-            
-                    new TextToken(" senya")
-                })
-            };
+                        new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("text") })
+                    })
+                },
+                "<strong><em>text</em></strong>"
+            ).SetName("EmInsideStrong");
 
-            var expected = "<em>i <strong>am</strong> senya</em>";
+            yield return new TestCaseData(
+                new List<IToken>
+                {
+                    new TagToken(new TagInfo("_", "em"), new List<IToken>
+                    {
+                        new TextToken("text "),
+                        new TextToken("__strong__ text")
+                    })
+                },
+                "<em>text __strong__ text</em>"
+            ).SetName("StrongInsideEmAsPlainText");
 
+            yield return new TestCaseData(
+                new List<IToken>
+                {
+                    new TagToken(new TagInfo("__", "strong"), new List<IToken>
+                    {
+                        new TextToken("strong and "),
+                        new TagToken(new TagInfo("_", "em"), new List<IToken> { new TextToken("em") }),
+                        new TextToken(" text")
+                    })
+                },
+                "<strong>strong and <em>em</em> text</strong>"
+            ).SetName("EmInsideStrongWithText");
+        }
+
+        [Test, TestCaseSource(nameof(DeepNestingCases), Category = "NestingTags")]
+        public void Render_DeepNesting_ReturnsCorrectHtml(List<IToken> tokens, string expected)
+        {
             var result = renderer.Render(tokens);
-
             result.Should().Be(expected);
         }
     }
