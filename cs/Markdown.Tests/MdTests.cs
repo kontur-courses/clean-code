@@ -333,4 +333,37 @@ public class MdTests
             ratio.Should().BeLessThan(25, "время работы должно расти почти линейно от размера входа");
         }
     }
+
+    [Test]
+    public void Render_ShouldHaveLinearExecutionTime_OnNestedUnclosedLinkPatterns()
+    {
+        const string unclosedLinkPattern = "[x](";
+        _md.Render(unclosedLinkPattern);
+
+        const int smallCount = 1000;
+        const int largeCount = 10000;
+
+        var smallText = string.Concat(Enumerable.Repeat(unclosedLinkPattern, smallCount));
+        var largeText = string.Concat(Enumerable.Repeat(unclosedLinkPattern, largeCount));
+
+        var sw = Stopwatch.StartNew();
+        _md.Render(smallText);
+        sw.Stop();
+        var smallElapsed = sw.ElapsedMilliseconds;
+
+        sw.Restart();
+        _md.Render(largeText);
+        sw.Stop();
+        var largeElapsed = sw.ElapsedMilliseconds;
+
+        if (smallElapsed > 5)
+        {
+            var ratio = (double)largeElapsed / smallElapsed;
+            ratio.Should().BeLessThan(25, "время работы должно расти почти линейно для незакрытых ссылок");
+        }
+        else
+        {
+            largeElapsed.Should().BeLessThan(1000, "обработка 10000 незакрытых ссылок должна выполняться быстро");
+        }
+    }
 }
