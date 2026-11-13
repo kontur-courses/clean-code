@@ -17,10 +17,10 @@ public class MarkdownParser : ITextParser
         private readonly StringBuilder buffer;
         private readonly EmphasisParser emphasisParser;
         private readonly EscapeParser escapeParser;
-
         private readonly HeaderParser headerParser;
         private readonly string text;
         private readonly List<Token> tokens;
+        private readonly UnorderedListParser unorderedListParser;
 
         public ParsingContext(string text)
         {
@@ -30,6 +30,7 @@ public class MarkdownParser : ITextParser
             headerParser = new HeaderParser(text, buffer, tokens);
             escapeParser = new EscapeParser(text, buffer, tokens);
             emphasisParser = new EmphasisParser(text, buffer, tokens);
+            unorderedListParser = new UnorderedListParser(text, buffer, tokens);
         }
 
         public MarkedText Parse()
@@ -45,11 +46,21 @@ public class MarkdownParser : ITextParser
                 if (headerHandled)
                     continue;
 
+                var wasUnorderedListOpen = unorderedListParser.IsListItemOpen;
+                var unorderedListHandled = unorderedListParser.TryParse(ref i);
+
+                if (wasUnorderedListOpen != unorderedListParser.IsListItemOpen)
+                    emphasisParser.ResetPendingMarkers();
+
+                if (unorderedListHandled)
+                    continue;
+
                 if (escapeParser.TryParse(ref i))
                     continue;
 
                 if (emphasisParser.TryParse(ref i))
                     continue;
+
 
                 buffer.Append(text[i]);
             }
@@ -58,6 +69,12 @@ public class MarkdownParser : ITextParser
 
             if (headerParser.IsHeadingOpen)
                 tokens.Add(new Token(TokenKind.HeadingEnd));
+
+            if (unorderedListParser.IsUnorderedListOpen)
+            {
+                tokens.Add(new Token(TokenKind.UnorderedListElementEnd));
+                tokens.Add(new Token(TokenKind.UnorderedListEnd));
+            }
 
             return new MarkedText(tokens);
         }

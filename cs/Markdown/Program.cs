@@ -1,5 +1,4 @@
-﻿using Markdown.Extensions;
-using Markdown.Parsers;
+﻿using Markdown.Parsers;
 using Markdown.Renderers;
 
 namespace Markdown;
@@ -20,12 +19,12 @@ internal class Program
 
         Console.WriteLine(htmlText);
 
-        Console.WriteLine();
-
-        var htmlTextByExtensions = markdownText
-            .ParseMarkdown()
-            .RenderHtml();
-
-        Console.WriteLine(htmlTextByExtensions);
+        // Console.WriteLine();
+        //
+        // var htmlTextByExtensions = markdownText
+        //     .ParseMarkdown()
+        //     .RenderHtml();
+        //
+        // Console.WriteLine(htmlTextByExtensions);
     }
 }

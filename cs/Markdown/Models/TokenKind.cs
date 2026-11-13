@@ -8,5 +8,9 @@ public enum TokenKind
     StrongStart, // Полужирный начало
     StrongEnd, // Полужирный конец
     HeadingStart, // Заголовок начало
-    HeadingEnd // Заголовок конец
+    HeadingEnd, // Заголовок конец
+    UnorderedListStart, // Маркированный список начало 
+    UnorderedListEnd, // Маркированный список конец
+    UnorderedListElementStart, // Маркированный список начало элемента
+    UnorderedListElementEnd // Маркированный список конец элемента
 }

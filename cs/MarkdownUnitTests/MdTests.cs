@@ -117,4 +117,55 @@ public class Tests
     {
         Md.Render(input).Should().Be(expected);
     }
+
+    [TestCase("- Первый",
+        "<ul>\n\t<li>Первый</li>\n</ul>",
+        TestName = "Render_ListWithOneItem_{a}")]
+    [TestCase("- Первый\n- Второй",
+        "<ul>\n\t<li>Первый</li>\n\t<li>Второй</li>\n</ul>",
+        TestName = "Render_ListWithTwoItems_Lf_{a}")]
+    [TestCase("- Первый\r\n- Второй",
+        "<ul>\n\t<li>Первый</li>\r\n\t<li>Второй</li>\n</ul>",
+        TestName = "Render_ListWithTwoItems_CrLf_{a}")]
+    [TestCase("Вступление\n- Первый\nЗаключение",
+        "Вступление\n<ul>\n\t<li>Первый</li>\n</ul>\nЗаключение",
+        TestName = "Render_ListBetweenPlainTextLines_{a}")]
+    [TestCase("- Первый\n\n- Второй",
+        "<ul>\n\t<li>Первый</li>\n</ul>\n\n<ul>\n\t<li>Второй</li>\n</ul>",
+        TestName = "Render_BlankLineSeparatesLists_{a}")]
+    [TestCase("- Первый\n-без пробела",
+        "<ul>\n\t<li>Первый</li>\n</ul>\n-без пробела",
+        TestName = "Render_DashWithoutSpaceEndsList_{a}")]
+    [TestCase("- Первый\n# Заголовок",
+        "<ul>\n\t<li>Первый</li>\n</ul>\n<h1>Заголовок</h1>",
+        TestName = "Render_HeadingAfterList_{a}")]
+    public void Render_RecognizesUnorderedLists(string input, string expected)
+    {
+        Md.Render(input).Should().Be(expected);
+    }
+
+    [TestCase("-без пробела", TestName = "Render_DashWithoutSpaceIsPlainText_{a}")]
+    [TestCase("Текст - не пункт", TestName = "Render_DashInsideLineIsPlainText_{a}")]
+    [TestCase("-", TestName = "Render_LoneDashIsPlainText_{a}")]
+    public void Render_PreservesTextWithoutListMarker(string input)
+    {
+        Md.Render(input).Should().Be(input);
+    }
+
+    [TestCase("- _Курсив_ и __полужирный__",
+        "<ul>\n\t<li><em>Курсив</em> и <strong>полужирный</strong></li>\n</ul>",
+        TestName = "Render_EmphasisInsideListItem_{a}")]
+    [TestCase("- _Первый\n- Второй_",
+        "<ul>\n\t<li>_Первый</li>\n\t<li>Второй_</li>\n</ul>",
+        TestName = "Render_ItalicCannotCrossListItemBoundary_{a}")]
+    [TestCase("- __Первый\n- Второй__",
+        "<ul>\n\t<li>__Первый</li>\n\t<li>Второй__</li>\n</ul>",
+        TestName = "Render_BoldCannotCrossListItemBoundary_{a}")]
+    [TestCase("- _Пункт\nТекст_",
+        "<ul>\n\t<li>_Пункт</li>\n</ul>\nТекст_",
+        TestName = "Render_ItalicCannotCrossListEnd_{a}")]
+    public void Render_RespectsEmphasisBoundariesInLists(string input, string expected)
+    {
+        Md.Render(input).Should().Be(expected);
+    }
 }

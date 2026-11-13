@@ -34,6 +34,18 @@ public class HtmlRenderer : IMarkedTextRenderer
                 case TokenKind.HeadingEnd:
                     resultBuilder.Append("</h1>");
                     break;
+                case TokenKind.UnorderedListStart:
+                    resultBuilder.Append("<ul>\n");
+                    break;
+                case TokenKind.UnorderedListEnd:
+                    resultBuilder.Append("\n</ul>");
+                    break;
+                case TokenKind.UnorderedListElementStart:
+                    resultBuilder.Append("\t<li>");
+                    break;
+                case TokenKind.UnorderedListElementEnd:
+                    resultBuilder.Append("</li>");
+                    break;
 
                 default:
                     throw new ArgumentException($"Unknown token kind: {token.Kind}");
