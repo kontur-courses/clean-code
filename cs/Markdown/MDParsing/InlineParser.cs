@@ -78,8 +78,11 @@ namespace Markdown.MDParsing
         private bool TryOpen(int index, int length)
         {
             if (length == StrongLength && _italic != null)
-                return false; 
+                return false;
 
+            var existing = length == StrongLength ? _strong : _italic;
+            if (existing is { IsRejected: false })
+                return false;
             var opener = new OpenDelimiter(
                 _output.Count,
                 _spaceTokens,
@@ -103,8 +106,14 @@ namespace Markdown.MDParsing
 
         private bool TryCloseItalic(int index)
         {
-            if (_italic == null || !IsValidPair(_italic, index, ItalicLength))
+            if (_italic == null)
                 return false;
+
+            if (!IsValidPair(_italic, index, ItalicLength))
+            {
+                _italic.Reject();
+                return false;
+            }
 
             Wrap(_italic, children => new ItalicNode(children));
             _italic = null;
@@ -127,7 +136,11 @@ namespace Markdown.MDParsing
                 _italic = null; 
             }
 
-            if (!IsValidPair(_strong, index, StrongLength)) return false;
+            if (!IsValidPair(_strong, index, StrongLength))
+            {
+                _strong.Reject();
+                return false;
+            }
 
             Wrap(_strong, children => new StrongNode(children));
             _strong = null;
@@ -137,18 +150,14 @@ namespace Markdown.MDParsing
         private bool IsValidPair(OpenDelimiter opener, int closeIndex, int length)
         {
             bool isEmpty = _output.Count == opener.OutputIndex + 1;
-
-            bool boundedByDigits = opener.IsDigitBefore || InlineTokenValidator.IsDigitAfter(_tokens, closeIndex);
-
-            bool acrossWords = length == ItalicLength
-                               && opener.HasTextBefore
+            bool touchesDigits = opener.IsDigitBefore || InlineTokenValidator.IsDigitAfter(_tokens, closeIndex);
+            bool acrossWords = opener.HasTextBefore
                                && InlineTokenValidator.HasTextAfter(_tokens, closeIndex)
                                && _spaceTokens > opener.SpaceTokensBefore;
-
             bool crossesStrong = length == ItalicLength
-                         && (_doubleTokens - opener.DoubleTokensBefore) % 2 == 1;
+                                 && (_doubleTokens - opener.DoubleTokensBefore) % 2 == 1;
 
-            return !isEmpty && !boundedByDigits && !acrossWords && !crossesStrong;
+            return !isEmpty && !touchesDigits && !acrossWords && !crossesStrong;
         }
 
         private void Wrap(OpenDelimiter opener, Func<List<InlineNode>, InlineNode> factory)

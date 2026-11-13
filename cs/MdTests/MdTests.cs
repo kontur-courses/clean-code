@@ -300,13 +300,13 @@ namespace MdTests
         [Test]
         public void Parse_StrongTagInDifferentWords_Emphasized()
         {
-            _md.Parse("ра__зные сл__ова").Should().Be("ра<strong>зные сл</strong>ова");
+            _md.Parse("ра__зные сл__ова").Should().Be("ра__зные сл__ова");
         }
 
         [Test]
         public void Parse_UnevenUnderscores_EmphasizedLast()
         {
-            _md.Parse("_текст _ещё_").Should().Be("_текст <em>ещё</em>");
+            _md.Parse("_текст _ещё_").Should().Be("<em>текст _ещё</em>");
         }
 
         [TestCase("a\n\nb", "a\n\nb")]

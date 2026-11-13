@@ -9,6 +9,10 @@
         
         public int DoubleTokensBefore { get; }
 
+        public bool IsRejected { get; set; }
+
+        public void Reject() => IsRejected = true;
+
         public OpenDelimiter(int outputIndex, int spaceTokensBefore,
             bool isDigitBefore, bool hasTextBefore,
             int doubleTokensBefore)
