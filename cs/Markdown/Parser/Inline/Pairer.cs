@@ -9,10 +9,10 @@ namespace Markdown.Parser.Inline
     {
         private class StackItem
         {
-            public Token Token { get; }
+            public PairToken Token { get; }
             public List<INode> Children { get; } = new();
 
-            public StackItem(Token token) => Token = token;
+            public StackItem(PairToken token) => Token = token;
         }
 
         public static List<INode> Pairing(List<Token> tokens)
@@ -22,38 +22,44 @@ namespace Markdown.Parser.Inline
 
             foreach (var token in tokens)
             {
-                ProcessToken(token, stack, root);
+                switch (token)
+                {
+                    case TextToken textToken:
+                        AddNode(new TextNode(textToken.Text), stack, root);
+                        break;
+
+                    case LinkToken linkToken:
+                        var children = Pairing(Tokenizer.Tokenize(linkToken.Text));
+                        AddNode(new LinkNode(linkToken.Url, children), stack, root);
+                        break;
+
+                    case PairToken pairToken:
+                        ProcessPairToken(pairToken, stack, root);
+                        break;
+                }
             }
 
             FlushUnclosedTags(stack, root);
             return root;
         }
 
-        private static void ProcessToken(Token token, Stack<StackItem> stack, List<INode> root)
+        private static void ProcessPairToken(PairToken token, Stack<StackItem> stack, List<INode> root)
         {
-            if (token.Type == TokenType.Link)
-            {
-                var childNodes = Pairing(Tokenizer.Tokenize(token.Value));
-                var linkNode = new LinkNode(token.Url, childNodes);
+            string textValue = GetTokenText(token);
 
-                AddNode(linkNode, stack, root);
-                return;
-            }
-
-            if (token.Type == TokenType.Text || token.IsDisabledFromIntersection)
+            if (token.IsDisabledFromIntersection)
             {
-                AddText(token, stack, root);
+                AddNode(new TextNode(textValue), stack, root);
                 return;
             }
 
             if (TryCloseTag(token, stack, root)) return;
-
             if (TryOpenTag(token, stack)) return;
 
-            AddText(token, stack, root);
+            AddNode(new TextNode(textValue), stack, root);
         }
 
-        private static bool TryOpenTag(Token token, Stack<StackItem> stack)
+        private static bool TryOpenTag(PairToken token, Stack<StackItem> stack)
         {
             if (!PairRules.CanOpen(token, stack.Select(x => x.Token)))
                 return false;
@@ -62,13 +68,13 @@ namespace Markdown.Parser.Inline
             return true;
         }
 
-        private static bool TryCloseTag(Token token, Stack<StackItem> stack, List<INode> root)
+        private static bool TryCloseTag(PairToken token, Stack<StackItem> stack, List<INode> root)
         {
             if (!token.CanClose || stack.Count == 0) return false;
 
             var topItem = stack.Peek();
 
-            if (topItem.Token.Type != token.Type)
+            if (topItem.Token.GetType() != token.GetType())
             {
                 if (PairRules.IsIntersection(token, stack.Select(x => x.Token)))
                 {
@@ -81,7 +87,7 @@ namespace Markdown.Parser.Inline
             if (!PairRules.CanClose(topItem.Token, topItem.Children, token))
             {
                 RemoveTopAsText(stack, root);
-                AddText(token, stack, root);
+                AddNode(new TextNode(GetTokenText(token)), stack, root);
                 return true;
             }
 
@@ -90,14 +96,14 @@ namespace Markdown.Parser.Inline
             return true;
         }
 
-        private static void HandleIntersection(Token token, Stack<StackItem> stack, List<INode> root)
+        private static void HandleIntersection(PairToken token, Stack<StackItem> stack, List<INode> root)
         {
             token.IsDisabledFromIntersection = true;
 
             while (stack.Count > 0)
             {
                 var top = stack.Peek();
-                bool isTargetType = top.Token.Type == token.Type;
+                bool isTargetType = top.Token.GetType() == token.GetType();
 
                 top.Token.IsDisabledFromIntersection = true;
                 RemoveTopAsText(stack, root);
@@ -110,14 +116,11 @@ namespace Markdown.Parser.Inline
         {
             var item = stack.Pop();
 
-            AddText(item.Token, stack, root);
+            AddNode(new TextNode(GetTokenText(item.Token)), stack, root);
 
             foreach (var child in item.Children)
                 AddNode(child, stack, root);
         }
-
-        private static void AddText(Token token, Stack<StackItem> stack, List<INode> root) =>
-            AddNode(new TextNode(token.Value), stack, root);
 
         private static void AddNode(INode node, Stack<StackItem> stack, List<INode> root)
         {
@@ -125,10 +128,15 @@ namespace Markdown.Parser.Inline
             else stack.Peek().Children.Add(node);
         }
 
-        private static INode CreateNode(StackItem item) => 
-            item.Token.Type == TokenType.Em
-                ? new EmNode(item.Children)
-                : new StrongNode(item.Children);
+        private static INode CreateNode(StackItem item)
+        {
+            return item.Token switch
+            {
+                EmToken => new EmNode(item.Children),
+                StrongToken => new StrongNode(item.Children),
+                _ => throw new System.NotImplementedException($"Unknown token type: {item.Token.GetType()}")
+            };
+        }
 
         private static void FlushUnclosedTags(Stack<StackItem> stack, List<INode> root)
         {
@@ -137,5 +145,7 @@ namespace Markdown.Parser.Inline
                 RemoveTopAsText(stack, root);
             }
         }
+
+        private static string GetTokenText(PairToken token) => token is EmToken ? "_" : "__";
     }
 }
