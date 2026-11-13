@@ -1,5 +1,4 @@
-using Markdown.Tokens;
-using System.Text;
+using Markdown.EmphasisResolving;
 using Markdown.Writers;
 
 namespace Markdown;

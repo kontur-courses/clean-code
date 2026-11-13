@@ -17,6 +17,7 @@ public class PerformanceTests : MdTestBase
     [TestCase("[[a](b")]
     [TestCase("[a](x[a](x")]
     [TestCase("[_a_ __b ")]
+    [TestCase("a _b_\n\n")]
     public void Render_WorksInLinearTime(string unit)
     {
         md.Render(string.Concat(Enumerable.Repeat(unit, 1000))); 
