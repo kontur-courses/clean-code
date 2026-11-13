@@ -108,4 +108,13 @@ public class Tests
     {
         Md.Render(input).Should().Be(expected);
     }
+    
+    [TestCase("# _Заголовок\nтекст_", "<h1>_Заголовок</h1>\nтекст_")]
+    [TestCase("# __Заголовок\nтекст__", "<h1>__Заголовок</h1>\nтекст__")]
+    [TestCase("_текст\n# Заголовок_", "_текст\n<h1>Заголовок_</h1>")]
+    public void Render_DoesNotMatchMarkersAcrossHeadingBoundary(
+        string input, string expected)
+    {
+        Md.Render(input).Should().Be(expected);
+    }
 }

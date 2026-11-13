@@ -15,50 +15,58 @@ public class MarkdownParser : ITextParser
     private sealed class ParsingContext
     {
         private readonly string text;
-        private readonly StringBuilder textStorage;
+        private readonly StringBuilder buffer;
         private readonly List<Token> tokens;
 
         private readonly HeaderParser headerParser;
         private readonly EscapeParser escapeParser;
-        private readonly StrongParser strongParser;
         private readonly EmphasisParser emphasisParser;
 
         public ParsingContext(string text)
         {
             this.text = text;
-            textStorage = new StringBuilder();
+            buffer = new StringBuilder();
             tokens = [];
-            headerParser = new HeaderParser(text, textStorage, tokens);
-            escapeParser = new EscapeParser(text, textStorage, tokens);
-            strongParser = new StrongParser(text, textStorage, tokens);
-            emphasisParser = new EmphasisParser(text, textStorage, tokens);
+            headerParser = new HeaderParser(text, buffer, tokens);
+            escapeParser = new EscapeParser(text, buffer, tokens);
+            emphasisParser = new EmphasisParser(text, buffer, tokens);
         }
 
         public MarkedText Parse()
         {
             for (var i = 0; i < text.Length; i++)
             {
-                if (headerParser.TryParse(ref i))
+                var wasHeadingOpen = headerParser.IsHeadingOpen;
+                var headerHandled = headerParser.TryParse(ref i);
+
+                if (wasHeadingOpen != headerParser.IsHeadingOpen)
+                    emphasisParser.ResetPendingMarkers();
+
+                if (headerHandled)
                     continue;
 
                 if (escapeParser.TryParse(ref i))
                     continue;
 
-                if (strongParser.TryParse(ref i, ref emphasisParser.EmphasisOpeningTokenIndex, ref emphasisParser.IsEmphasisInvalidatedByIntersection))
-                    continue;
-
                 if (emphasisParser.TryParse(ref i))
                     continue;
 
-                textStorage.Append(text[i]);
+                buffer.Append(text[i]);
             }
 
-            headerParser.FlushText();
+            FlushText();
 
             if (headerParser.IsHeadingOpen)
                 tokens.Add(new Token(TokenKind.HeadingEnd));
 
             return new MarkedText(tokens);
+        }
+        
+        private void FlushText()
+        {
+            if (buffer.Length > 0)
+                tokens.Add(new Token(TokenKind.Text, buffer.ToString()));
+            buffer.Clear();
         }
     }
 }
