@@ -6,35 +6,36 @@ namespace Markdown.Parsers.MarkdownParsers;
 
 public class EmphasisParser(string text, StringBuilder buffer, List<Token> tokens) : TagParser(text, buffer, tokens)
 {
-    private int strongOpeningTokenIndex = -1;
-    private int emphasisOpeningTokenIndex = -1;
-    private bool isEmphasisInvalidatedByIntersection;
     private bool emphasisContainsWhitespace;
+    private int emphasisOpeningTokenIndex = -1;
     private bool emphasisStartsInsideWord;
-    
+    private bool isEmphasisInvalidatedByIntersection;
+    private int strongOpeningTokenIndex = -1;
+
     public override bool TryParse(ref int currentPosition)
     {
         char? previous = currentPosition > 0 ? text[currentPosition - 1] : null;
         var current = text[currentPosition];
         char? next = currentPosition + 1 < text.Length ? text[currentPosition + 1] : null;
         char? nextNext = currentPosition + 2 < text.Length ? text[currentPosition + 2] : null;
-        
-        if (emphasisOpeningTokenIndex != -1 
+
+        if (emphasisOpeningTokenIndex != -1
             && char.IsWhiteSpace(current))
             emphasisContainsWhitespace = true;
-        
+
         var isStrong = TryProcessStrong(previous, current, next, nextNext, ref currentPosition);
 
         return isStrong || TryProcessEmphasis(previous, current, next);
     }
 
-    private bool TryProcessStrong(char? previous, char current, char? next, char? afterDoubleUnderscore, ref int currentPosition)
+    private bool TryProcessStrong(char? previous, char current, char? next, char? afterDoubleUnderscore,
+        ref int currentPosition)
     {
         if (!(current == '_' && next == '_'))
             return false;
-        
+
         var isOpened = TryOpenStrong(afterDoubleUnderscore, ref currentPosition);
-        
+
         return isOpened || TryCloseStrong(previous, ref currentPosition);
     }
 
@@ -47,14 +48,14 @@ public class EmphasisParser(string text, StringBuilder buffer, List<Token> token
 
         return isOpened || TryCloseEmphasis(previous, next);
     }
-    
+
     private bool TryOpenStrong(char? afterDoubleUnderscore, ref int i)
     {
         if (strongOpeningTokenIndex != -1)
             return false;
 
-        if (char.IsWhiteSpace(afterDoubleUnderscore ?? ' ') 
-            || afterDoubleUnderscore == '_' 
+        if (char.IsWhiteSpace(afterDoubleUnderscore ?? ' ')
+            || afterDoubleUnderscore == '_'
             || emphasisOpeningTokenIndex != -1)
         {
             buffer.Append("__");
@@ -164,7 +165,7 @@ public class EmphasisParser(string text, StringBuilder buffer, List<Token> token
         emphasisStartsInsideWord = false;
         emphasisContainsWhitespace = false;
     }
-    
+
     internal void ResetPendingMarkers()
     {
         ResetEmphasisState();

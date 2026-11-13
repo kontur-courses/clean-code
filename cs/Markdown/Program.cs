@@ -6,7 +6,8 @@ namespace Markdown;
 
 internal class Program
 {
-    private static readonly Md Md = new Md(new MarkdownParser(), new HtmlRenderer());
+    private static readonly Md Md = new(new MarkdownParser(), new HtmlRenderer());
+
     private static void Main(string[] args)
     {
         var markdownText = """
@@ -14,7 +15,7 @@ internal class Program
                            # заголовок
                            __полужирный__
                            """;
-        
+
         var htmlText = Md.Render(markdownText);
 
         Console.WriteLine(htmlText);

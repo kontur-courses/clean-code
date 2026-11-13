@@ -9,8 +9,8 @@ namespace MarkdownUnitTests;
 [TestFixture]
 public class MdPerformanceTests
 {
-    private static readonly Md Md = new Md(new MarkdownParser(), new HtmlRenderer());
-    
+    private static readonly Md Md = new(new MarkdownParser(), new HtmlRenderer());
+
     [TestCase("обычный текст ",
         TestName = "Render_PlainText_TimeGrowsAlmostLinearly")]
     [TestCase("_a ",
@@ -47,9 +47,9 @@ public class MdPerformanceTests
         // Дополнительные 20 мс компенсируют шум на быстрых запусках.
         var inputGrowthFactor = (double)largeInput.Length / smallInput.Length;
         var measurementTolerance = TimeSpan.FromMilliseconds(20);
-        
+
         var allowedTime = TimeSpan.FromMilliseconds(
-            smallTime.TotalMilliseconds * inputGrowthFactor) 
+                              smallTime.TotalMilliseconds * inputGrowthFactor)
                           + measurementTolerance;
 
         largeTime.Should().BeLessThan(
@@ -80,5 +80,7 @@ public class MdPerformanceTests
     }
 
     private static string Repeat(string fragment, int count)
-        => string.Concat(Enumerable.Repeat(fragment, count));
+    {
+        return string.Concat(Enumerable.Repeat(fragment, count));
+    }
 }

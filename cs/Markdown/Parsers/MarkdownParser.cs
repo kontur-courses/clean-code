@@ -14,13 +14,13 @@ public class MarkdownParser : ITextParser
 
     private sealed class ParsingContext
     {
-        private readonly string text;
         private readonly StringBuilder buffer;
-        private readonly List<Token> tokens;
+        private readonly EmphasisParser emphasisParser;
+        private readonly EscapeParser escapeParser;
 
         private readonly HeaderParser headerParser;
-        private readonly EscapeParser escapeParser;
-        private readonly EmphasisParser emphasisParser;
+        private readonly string text;
+        private readonly List<Token> tokens;
 
         public ParsingContext(string text)
         {
@@ -61,7 +61,7 @@ public class MarkdownParser : ITextParser
 
             return new MarkedText(tokens);
         }
-        
+
         private void FlushText()
         {
             if (buffer.Length > 0)

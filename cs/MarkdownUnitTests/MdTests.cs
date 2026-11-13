@@ -8,8 +8,8 @@ namespace MarkdownUnitTests;
 [TestFixture]
 public class Tests
 {
-    private static readonly Md Md = new Md(new MarkdownParser(), new HtmlRenderer());
-    
+    private static readonly Md Md = new(new MarkdownParser(), new HtmlRenderer());
+
     [TestCase("", TestName = "Render_EmptyInput_{a}")]
     [TestCase("Обычный текст.", TestName = "Render_PlainText_{a}")]
     public void Render_PreservesPlainText(string input)
@@ -108,7 +108,7 @@ public class Tests
     {
         Md.Render(input).Should().Be(expected);
     }
-    
+
     [TestCase("# _Заголовок\nтекст_", "<h1>_Заголовок</h1>\nтекст_")]
     [TestCase("# __Заголовок\nтекст__", "<h1>__Заголовок</h1>\nтекст__")]
     [TestCase("_текст\n# Заголовок_", "_текст\n<h1>Заголовок_</h1>")]

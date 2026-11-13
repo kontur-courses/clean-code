@@ -4,10 +4,11 @@ using Markdown.Models;
 
 namespace Markdown.Parsers.MarkdownParsers;
 
-public sealed class HeaderParser(string text, StringBuilder buffer, List<Token> tokens) : TagParser(text, buffer, tokens)
+public sealed class HeaderParser(string text, StringBuilder buffer, List<Token> tokens)
+    : TagParser(text, buffer, tokens)
 {
     public bool IsHeadingOpen { get; private set; }
-    
+
     public override bool TryParse(ref int currentPosition)
     {
         char? previous = currentPosition > 0 ? text[currentPosition - 1] : null;
@@ -20,7 +21,7 @@ public sealed class HeaderParser(string text, StringBuilder buffer, List<Token> 
 
         return isOpened;
     }
-        
+
     private bool TryOpenHeading(char? previous, char current, char? next, ref int i)
     {
         if (current != '#')

@@ -13,8 +13,8 @@ public class EscapeParser(string text, StringBuilder buffer, List<Token> tokens)
 
         return TryProcessEscape(current, next, ref currentPosition);
     }
-    
-    
+
+
     private bool TryProcessEscape(char current, char? next, ref int i)
     {
         if (current != '\\')
