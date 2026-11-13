@@ -77,5 +77,5 @@ public sealed class InlineLexer
     }
 
     private static bool CanEscape(char character) =>
-        character is '\\' or '_' or '#';
+        character is '\\' or '_' or '#' or '-';
 }

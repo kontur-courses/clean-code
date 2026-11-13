@@ -56,47 +56,22 @@ public class InlineLexerTests
         Assert.IsEmpty(actual);
     }
 
-    [Test]
-    public void Tokenize_EmphasisMarkersAroundText_ReturnsTokensInOrder()
+    [TestCase("_текст_", InlineTokenKind.EmphasisMarker, "_", TestName = "Tokenize_EmphasisMarkersAroundText_ReturnsTokensInOrder")]
+    [TestCase("__текст__", InlineTokenKind.StrongMarker, "__", TestName = "Tokenize_StrongMarkersAroundText_ReturnsTokensInOrder")]
+    [TestCase("___текст___", InlineTokenKind.StrongEmphasisMarker, "___", TestName = "Tokenize_StrongEmphasisMarkersAroundText_ReturnsTokensInOrder")]
+    public void Tokenize_MarkerAroundText_ReturnsTokensInOrder(
+        string input,
+        InlineTokenKind markerKind,
+        string marker)
     {
-        var actual = lexer.Tokenize("_текст_");
+        var actual = lexer.Tokenize(input);
 
         CollectionAssert.AreEqual(
             new[]
             {
-                EmphasisMarker("_"),
+                Marker(markerKind, marker),
                 Text("текст"),
-                EmphasisMarker("_")
-            },
-            actual);
-    }
-
-    [Test]
-    public void Tokenize_StrongMarkersAroundText_ReturnsTokensInOrder()
-    {
-        var actual = lexer.Tokenize("__текст__");
-
-        CollectionAssert.AreEqual(
-            new[]
-            {
-                StrongMarker("__"),
-                Text("текст"),
-                StrongMarker("__")
-            },
-            actual);
-    }
-
-    [Test]
-    public void Tokenize_StrongEmphasisMarkersAroundText_ReturnsTokensInOrder()
-    {
-        var actual = lexer.Tokenize("___текст___");
-
-        CollectionAssert.AreEqual(
-            new[]
-            {
-                StrongEmphasisMarker("___"),
-                Text("текст"),
-                StrongEmphasisMarker("___")
+                Marker(markerKind, marker)
             },
             actual);
     }
@@ -120,14 +95,15 @@ public class InlineLexerTests
             actual);
     }
 
-    [Test]
-    public void Tokenize_EscapedUnderscores_ReturnLiteralText()
+    [TestCase(@"\_текст\_", "_текст_", TestName = "Tokenize_EscapedUnderscores_ReturnLiteralText")]
+    [TestCase(@"\# заголовок", "# заголовок", TestName = "Tokenize_EscapedHeadingMarker_RemovesEscapeCharacter")]
+    [TestCase(@"\- пункт", "- пункт", TestName = "Tokenize_EscapedListMarker_RemovesEscapeCharacter")]
+    public void Tokenize_EscapedMarkupMarkers_ReturnLiteralText(string input, string expected)
     {
-        var actual = lexer.Tokenize(@"\_текст\_");
+        var actual = lexer.Tokenize(input);
 
         CollectionAssert.AreEqual(
-            new[] { Text("_текст_") },
-            actual);
+            new[] { Text(expected) }, actual);
     }
 
     [Test]
@@ -180,49 +156,23 @@ public class InlineLexerTests
             actual);
     }
 
-    [Test]
-    public void Tokenize_BackslashBeforeNonMarkupPunctuation_RemainsInText()
+    [TestCase(@"a\!b", @"a\!b", TestName = "Tokenize_BackslashBeforeNonMarkupPunctuation_RemainsInText")]
+    [TestCase(@"a\bc\ d", @"a\bc\ d", TestName = "Tokenize_BackslashBeforeLetterOrWhitespace_RemainsInText")]
+    [TestCase(@"a\©b", @"a\©b", TestName = "Tokenize_BackslashBeforeNonMarkupSymbol_RemainsInText")]
+    public void Tokenize_BackslashBeforeNonEscapableCharacter_RemainsInText(string input, string expected)
     {
-        var actual = lexer.Tokenize(@"a\!b");
-
-        CollectionAssert.AreEqual(
-            new[] { Text(@"a\!b") },
-            actual);
-    }
-
-    [Test]
-    public void Tokenize_BackslashBeforeLetterOrWhitespace_RemainsInText()
-    {
-        const string input = @"a\bc\ d";
         var actual = lexer.Tokenize(input);
 
         CollectionAssert.AreEqual(
-            new[] { Text(input) },
-            actual);
-    }
-
-    [Test]
-    public void Tokenize_BackslashBeforeNonMarkupSymbol_RemainsInText()
-    {
-        var actual = lexer.Tokenize(@"a\©b");
-
-        CollectionAssert.AreEqual(
-            new[] { Text(@"a\©b") },
-            actual);
-    }
-
-    [Test]
-    public void Tokenize_EscapedHeadingMarker_RemovesEscapeCharacter()
-    {
-        var actual = lexer.Tokenize(@"\# заголовок");
-
-        CollectionAssert.AreEqual(
-            new[] { Text("# заголовок") },
+            new[] { Text(expected) },
             actual);
     }
 
     private static InlineToken Text(string value) =>
         new(InlineTokenKind.Text, value);
+
+    private static InlineToken Marker(InlineTokenKind kind, string value) =>
+        new(kind, value);
 
     private static InlineToken EmphasisMarker(string value) =>
         new(InlineTokenKind.EmphasisMarker, value);

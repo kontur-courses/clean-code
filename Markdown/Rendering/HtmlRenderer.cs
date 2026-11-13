@@ -15,26 +15,59 @@ public class HtmlRenderer
     /// <param name="content">Inline-содержимое блока</param>
     /// <param name="blockKind">Тип блока</param>
     /// <param name="headerLevel">Уровень заголовка, если рендерится заголовок</param>
+    /// <param name="listItems">Inline-содержимое пунктов маркированного списка</param>
     public void RenderBlock(
         StringBuilder output,
-        IReadOnlyList<InlineNode> content,
+        IReadOnlyList<InlineNode>? content,
         HtmlBlockKind blockKind,
-        int headerLevel = 1)
+        int headerLevel = 1,
+        IReadOnlyList<IReadOnlyList<InlineNode>>? listItems = null)
     {
         ArgumentNullException.ThrowIfNull(output);
-        ArgumentNullException.ThrowIfNull(content);
 
         switch (blockKind)
         {
             case HtmlBlockKind.Paragraph:
-                AppendParagraph(output, content);
+                AppendParagraph(output, content ?? throw new ArgumentNullException(nameof(content)));
                 break;
             case HtmlBlockKind.Header:
-                AppendHeader(output, headerLevel, content);
+                AppendHeader(output, headerLevel, content ?? throw new ArgumentNullException(nameof(content)));
+                break;
+            case HtmlBlockKind.MarkedList:
+                AppendList(output, listItems ?? throw new ArgumentNullException(nameof(listItems)));
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(blockKind), blockKind, "Неизвестный тип блока.");
         }
+    }
+
+    /// <summary>
+    /// Оборачивает пункты в маркированный список.
+    /// </summary>
+    private static void AppendList(
+        StringBuilder output,
+        IReadOnlyList<IReadOnlyList<InlineNode>> items)
+    {
+        output.Append("<ul>");
+
+        foreach (var item in items)
+        {
+            AppendListItem(output, item);
+        }
+
+        output.Append("</ul>");
+    }
+
+    /// <summary>
+    /// Оборачивает inline-ноды пункта в тег <li>.
+    /// </summary>
+    private static void AppendListItem(
+        StringBuilder output,
+        IReadOnlyList<InlineNode> content)
+    {
+        output.Append("<li>");
+        AppendInlineNodes(output, content);
+        output.Append("</li>");
     }
 
     /// <summary>

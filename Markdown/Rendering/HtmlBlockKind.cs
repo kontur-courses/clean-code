@@ -7,5 +7,7 @@ public enum HtmlBlockKind
     /// <summary>Абзац</summary>
     Paragraph,
     /// <summary>Заголовок</summary>
-    Header
+    Header,
+    /// <summary>Маркерованный список</summary>
+    MarkedList
 }

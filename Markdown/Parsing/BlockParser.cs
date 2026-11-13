@@ -1,5 +1,6 @@
 using System.Text;
 using Markdown.Rendering;
+using Markdown.Syntax;
 
 namespace Markdown.Parsing;
 
@@ -15,13 +16,14 @@ public class BlockParser()
     /// Разбирает текст на блоки и возвращает их HTML-представление
     /// </summary>
     /// <param name="text">Исходный текст в упрощённом Markdown</param>
-    /// <returns>HTML-код абзацев и заголовков</returns>
+    /// <returns>HTML-код абзацев, заголовков и маркированных списков</returns>
     public string Parse(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
 
         var html = new StringBuilder();
         var currentBlock = new StringBuilder();
+        var listItems = new List<string>();
 
         using var reader = new StringReader(text);
         string? line;
@@ -30,8 +32,18 @@ public class BlockParser()
             if (string.IsNullOrWhiteSpace(line))
             {
                 AppendBlock(html, currentBlock);
+                AppendList(html, listItems);
                 continue;
             }
+
+            if (line.StartsWith("- "))
+            {
+                AppendBlock(html, currentBlock);
+                listItems.Add(line[2..]);
+                continue;
+            }
+
+            AppendList(html, listItems);
 
             if (currentBlock.Length > 0)
             {
@@ -42,7 +54,35 @@ public class BlockParser()
         }
 
         AppendBlock(html, currentBlock);
+        AppendList(html, listItems);
         return html.ToString();
+    }
+
+    /// <summary>
+    /// Разбирает и добавляет в HTML-буфер накопленные пункты маркированного списка
+    /// </summary>
+    /// <param name="html">Буфер с HTML-результатом</param>
+    /// <param name="listItems">Текст пунктов списка</param>
+    private void AppendList(StringBuilder html, List<string> listItems)
+    {
+        if (listItems.Count == 0)
+        {
+            return;
+        }
+
+        var itemContents = new List<IReadOnlyList<InlineNode>>(listItems.Count);
+        foreach (var item in listItems)
+        {
+            itemContents.Add(inlineParser.Parse(item));
+        }
+
+        htmlRenderer.RenderBlock(
+            html,
+            content: null,
+            blockKind: HtmlBlockKind.MarkedList,
+            listItems: itemContents);
+
+        listItems.Clear();
     }
 
     /// <summary>

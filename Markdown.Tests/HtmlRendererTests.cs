@@ -60,6 +60,27 @@ public class HtmlRendererTests
         Assert.That(output.ToString(), Is.EqualTo("<p>a &amp; b &lt; c &gt; d</p>"));
     }
 
+    [Test]
+    public void RenderBlock_MarkedList_RendersEachItemAndItsInlineNodes()
+    {
+        var output = new StringBuilder();
+        IReadOnlyList<IReadOnlyList<InlineNode>> items =
+        [
+            [Text("Первый пункт")],
+            [Text("Второй "), Emphasis(Text("курсивный")), Text(" пункт")]
+        ];
+
+        renderer.RenderBlock(
+            output,
+            content: null,
+            blockKind: HtmlBlockKind.MarkedList,
+            listItems: items);
+
+        Assert.That(
+            output.ToString(),
+            Is.EqualTo("<ul><li>Первый пункт</li><li>Второй <em>курсивный</em> пункт</li></ul>"));
+    }
+
     [TestCase(0)]
     [TestCase(7)]
     public void RenderBlock_Header_InvalidLevel_ThrowsArgumentOutOfRangeException(int level)

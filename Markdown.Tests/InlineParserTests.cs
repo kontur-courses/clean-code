@@ -74,9 +74,7 @@ public class InlineParserTests
     [Test]
     public void Parse_EmphasisCanCoverPartOfWord()
     {
-        AssertNodes(
-            parser.Parse("до_середина_после"),
-            Text("до"), Emphasis(Text("середина")), Text("после"));
+        AssertNodes(parser.Parse("до_середина_после"), Text("до"), Emphasis(Text("середина")), Text("после"));
     }
 
     [Test]
