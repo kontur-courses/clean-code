@@ -1,11 +1,15 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.Parsers;
+using Markdown.Renderers;
 
 namespace MarkdownUnitTests;
 
 [TestFixture]
 public class Tests
 {
+    private static readonly Md Md = new Md(new MarkdownParser(), new HtmlRenderer());
+    
     [TestCase("", TestName = "Render_EmptyInput_{a}")]
     [TestCase("Обычный текст.", TestName = "Render_PlainText_{a}")]
     public void Render_PreservesPlainText(string input)

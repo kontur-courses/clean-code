@@ -1,12 +1,16 @@
 ﻿using System.Diagnostics;
 using FluentAssertions;
 using Markdown;
+using Markdown.Parsers;
+using Markdown.Renderers;
 
 namespace MarkdownUnitTests;
 
 [TestFixture]
 public class MdPerformanceTests
 {
+    private static readonly Md Md = new Md(new MarkdownParser(), new HtmlRenderer());
+    
     [TestCase("обычный текст ",
         TestName = "Render_PlainText_TimeGrowsAlmostLinearly")]
     [TestCase("_a ",
