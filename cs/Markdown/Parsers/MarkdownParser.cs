@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Markdown.Abstractions;
 using Markdown.Models;
+using Markdown.Parsers.MarkdownParsers;
 
 namespace Markdown.Parsers;
 
@@ -11,244 +12,53 @@ public class MarkdownParser : ITextParser
         return new ParsingContext(markdownText).Parse();
     }
 
-    private sealed class ParsingContext(string text)
+    private sealed class ParsingContext
     {
-        private readonly StringBuilder textStorage = new();
-        private readonly List<Token> tokens = [];
+        private readonly string text;
+        private readonly StringBuilder textStorage;
+        private readonly List<Token> tokens;
 
-        private bool emphasisContainsWhitespace;
-        private int emphasisOpeningTokenIndex = -1;
-        private bool emphasisStartsInsideWord;
-        private bool isEmphasisInvalidatedByIntersection;
+        private readonly HeaderParser headerParser;
+        private readonly EscapeParser escapeParser;
+        private readonly StrongParser strongParser;
+        private readonly EmphasisParser emphasisParser;
 
-        private bool isHeadingOpen;
-        private int strongOpeningTokenIndex = -1;
+        public ParsingContext(string text)
+        {
+            this.text = text;
+            textStorage = new StringBuilder();
+            tokens = [];
+            headerParser = new HeaderParser(text, textStorage, tokens);
+            escapeParser = new EscapeParser(text, textStorage, tokens);
+            strongParser = new StrongParser(text, textStorage, tokens);
+            emphasisParser = new EmphasisParser(text, textStorage, tokens);
+        }
 
         public MarkedText Parse()
         {
             for (var i = 0; i < text.Length; i++)
             {
-                char? previous = i > 0 ? text[i - 1] : null;
-                var current = text[i];
-                char? next = i + 1 < text.Length ? text[i + 1] : null;
-                char? nextNext = i + 2 < text.Length ? text[i + 2] : null;
-
-                if (emphasisOpeningTokenIndex != -1 && char.IsWhiteSpace(current))
-                    emphasisContainsWhitespace = true;
-
-                if (TryOpenHeading(previous, current, next, ref i))
+                if (headerParser.TryParse(ref i))
                     continue;
 
-                CloseHeadingOnLineBreak(current, next);
-
-                if (TryProcessEscape(current, next, ref i))
+                if (escapeParser.TryParse(ref i))
                     continue;
 
-                if (TryProcessStrong(previous, current, next, nextNext, ref i))
+                if (strongParser.TryParse(ref i, ref emphasisParser.EmphasisOpeningTokenIndex, ref emphasisParser.IsEmphasisInvalidatedByIntersection))
                     continue;
 
-                if (TryProcessEmphasis(previous, current, next))
+                if (emphasisParser.TryParse(ref i))
                     continue;
 
-                textStorage.Append(current);
+                textStorage.Append(text[i]);
             }
 
-            FlushText();
+            headerParser.FlushText();
 
-            if (isHeadingOpen)
+            if (headerParser.IsHeadingOpen)
                 tokens.Add(new Token(TokenKind.HeadingEnd));
 
             return new MarkedText(tokens);
-        }
-
-        private void FlushText()
-        {
-            if (textStorage.Length > 0)
-                tokens.Add(new Token(TokenKind.Text, textStorage.ToString()));
-            textStorage.Clear();
-        }
-
-        private bool TryProcessEscape(char current, char? next, ref int i)
-        {
-            if (current != '\\')
-                return false;
-
-            if (next is not ('_' or '\\'))
-                return false;
-
-            textStorage.Append(next);
-            i++;
-            return true;
-        }
-
-        private bool TryOpenHeading(char? previous, char current, char? next, ref int i)
-        {
-            if (current != '#')
-                return false;
-
-            if (next != ' ')
-                return false;
-
-            if (!(i == 0 || previous == '\n'))
-                return false;
-
-            FlushText();
-
-            isHeadingOpen = true;
-            tokens.Add(new Token(TokenKind.HeadingStart));
-
-            i++;
-            return true;
-        }
-
-        private void CloseHeadingOnLineBreak(char current, char? next)
-        {
-            if (!isHeadingOpen)
-                return;
-
-            if (!(current == '\n' || (current == '\r' && next == '\n')))
-                return;
-
-            FlushText();
-
-            tokens.Add(new Token(TokenKind.HeadingEnd));
-            isHeadingOpen = false;
-        }
-
-        private bool TryProcessStrong(char? previous, char current, char? next, char? afterDoubleUnderscore, ref int i)
-        {
-            if (!(current == '_' && next == '_'))
-                return false;
-
-            var isOpened = TryOpenStrong(afterDoubleUnderscore, ref i);
-
-            return isOpened || TryCloseStrong(previous, ref i);
-        }
-
-        private bool TryOpenStrong(char? afterDoubleUnderscore, ref int i)
-        {
-            if (strongOpeningTokenIndex != -1)
-                return false;
-
-            if (char.IsWhiteSpace(afterDoubleUnderscore ?? ' ') || afterDoubleUnderscore == '_' ||
-                emphasisOpeningTokenIndex != -1)
-            {
-                textStorage.Append("__");
-                i++;
-                return true;
-            }
-
-            FlushText();
-
-            strongOpeningTokenIndex = tokens.Count;
-            tokens.Add(new Token(TokenKind.Text, "__"));
-
-            i++;
-            return true;
-        }
-
-        private bool TryCloseStrong(char? previous, ref int i)
-        {
-            if (strongOpeningTokenIndex == -1)
-                return false;
-
-            if (char.IsWhiteSpace(previous ?? ' '))
-            {
-                textStorage.Append("__");
-                i++;
-                return true;
-            }
-
-            if (emphasisOpeningTokenIndex != -1)
-            {
-                isEmphasisInvalidatedByIntersection = true;
-                strongOpeningTokenIndex = -1;
-                textStorage.Append("__");
-                i++;
-                return true;
-            }
-
-            FlushText();
-
-            tokens[strongOpeningTokenIndex] = new Token(TokenKind.StrongStart);
-            strongOpeningTokenIndex = -1;
-            tokens.Add(new Token(TokenKind.StrongEnd));
-
-            i++;
-            return true;
-        }
-
-        private bool TryProcessEmphasis(char? previous, char current, char? next)
-        {
-            if (current != '_')
-                return false;
-
-            var isOpened = TryOpenEmphasis(previous, next);
-
-            return isOpened || TryCloseEmphasis(previous, next);
-        }
-
-        private bool TryOpenEmphasis(char? previous, char? next)
-        {
-            if (emphasisOpeningTokenIndex != -1)
-                return false;
-
-            if (char.IsWhiteSpace(next ?? ' '))
-                return false;
-            if (char.IsDigit(next ?? ' '))
-                return false;
-
-            FlushText();
-
-            emphasisOpeningTokenIndex = tokens.Count;
-            tokens.Add(new Token(TokenKind.Text, "_"));
-
-            emphasisStartsInsideWord = char.IsLetterOrDigit(previous ?? ' ');
-            emphasisContainsWhitespace = false;
-
-            return true;
-        }
-
-        private bool TryCloseEmphasis(char? previous, char? next)
-        {
-            if (emphasisOpeningTokenIndex == -1)
-                return false;
-
-            if (char.IsWhiteSpace(previous ?? ' '))
-                return false;
-            if (char.IsDigit(previous ?? ' '))
-                return false;
-
-            var endsInsideWord = char.IsLetterOrDigit(next ?? ' ');
-
-            var spansDifferentWords =
-                emphasisStartsInsideWord
-                && endsInsideWord
-                && emphasisContainsWhitespace;
-
-            if (isEmphasisInvalidatedByIntersection || spansDifferentWords)
-            {
-                textStorage.Append('_');
-                ResetEmphasisState();
-                return true;
-            }
-
-            FlushText();
-
-            tokens[emphasisOpeningTokenIndex] = new Token(TokenKind.EmphasisStart);
-            tokens.Add(new Token(TokenKind.EmphasisEnd));
-
-            ResetEmphasisState();
-
-            return true;
-        }
-
-        private void ResetEmphasisState()
-        {
-            emphasisOpeningTokenIndex = -1;
-            isEmphasisInvalidatedByIntersection = false;
-            emphasisStartsInsideWord = false;
-            emphasisContainsWhitespace = false;
         }
     }
 }
