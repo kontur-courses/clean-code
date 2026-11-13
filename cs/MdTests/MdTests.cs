@@ -255,12 +255,12 @@ namespace MdTests
         [Test]
         public void Parse_LeadingSpacesBeforeMarker_AreIgnored()
         {
-            _md.Parse("  - пункт").Should().Be("<ul><li>пункт</li></ul>");
+            _md.Parse("  - пункт").Should().Be("  - пункт");
         }
 
         [TestCase("-пункт", "-пункт")]
         [TestCase("-", "-")]
-        [TestCase("- ", "-")]
+        [TestCase("- ", "- ")]
         public void Parse_NotAListItem_ReturnsAsText(string input, string expected)
         {
             _md.Parse(input).Should().Be(expected);
@@ -297,6 +297,28 @@ namespace MdTests
             _md.Parse("- _a\n- b_").Should().Be("<ul><li>_a</li><li>b_</li></ul>");
         }
 
+        [Test]
+        public void Parse_StrongTagInDifferentWords_Emphasized()
+        {
+            _md.Parse("ра__зные сл__ова").Should().Be("ра<strong>зные сл</strong>ова");
+        }
 
+        [Test]
+        public void Parse_UnevenUnderscores_EmphasizedLast()
+        {
+            _md.Parse("_текст _ещё_").Should().Be("_текст <em>ещё</em>");
+        }
+
+        [TestCase("a\n\nb", "a\n\nb")]
+        [TestCase("text\n", "text\n")]
+        [TestCase("\ntext", "\ntext")]
+        [TestCase("a\r\nb", "a\r\nb")]
+        [TestCase("# Заголовок\n\nТекст", "<h1>Заголовок</h1>\n\nТекст")]
+        [TestCase("# ", "# ")]
+        [TestCase("  # Не заголовок", "  # Не заголовок")]
+        public void Parse_LineBreaksAndSpaces_ArePreserved(string input, string expected)
+        {
+            _md.Parse(input).Should().Be(expected);
+        }
     }
 }

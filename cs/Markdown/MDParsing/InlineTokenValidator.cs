@@ -9,10 +9,10 @@
             index > 0 && !EndsWithWhitespace(tokens[index - 1]);
 
         public static bool HasTextBefore(IReadOnlyList<Token> tokens, int index) =>
-            index > 0 && IsText(tokens[index - 1]) && !EndsWithWhitespace(tokens[index - 1]);
+            index > 0 && IsText(tokens[index - 1]) && char.IsLetterOrDigit(tokens[index - 1].Text[^1]);
 
         public static bool HasTextAfter(IReadOnlyList<Token> tokens, int index) =>
-            index + 1 < tokens.Count && IsText(tokens[index + 1]) && !StartsWithWhitespace(tokens[index + 1]);
+            index + 1 < tokens.Count && IsText(tokens[index + 1]) && char.IsLetterOrDigit(tokens[index + 1].Text[0]);
 
         public static bool IsDigitBefore(IReadOnlyList<Token> tokens, int index) =>
             index > 0 && IsText(tokens[index - 1]) && char.IsDigit(tokens[index - 1].Text[^1]);

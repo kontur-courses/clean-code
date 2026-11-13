@@ -162,7 +162,7 @@ namespace Markdown.MDParsing
         private void AddText(string text)
         {
             _output.Add(new TextNode(text));
-            if (text.Contains(' ')) _spaceTokens++;
+            if (text.Any(char.IsWhiteSpace)) _spaceTokens++;
         }
 
         private void AddUnderscores(int count) =>
