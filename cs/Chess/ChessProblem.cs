@@ -1,4 +1,6 @@
-﻿namespace Chess
+﻿using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
@@ -17,23 +19,39 @@
             var hasMoves = false;
             foreach (var locFrom in board.GetPieces(PieceColor.White))
             {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
-                {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
-                    if (!IsCheckForWhite())
-                        hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
-                }
+                hasMoves = (board.GetPiece(locFrom).GetMoves(locFrom, board)).Any(x => IsHasMoveToUncheck(locFrom, x));
+                if (hasMoves) {break; }
+                //foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+                //{
+                //    //var old = board.GetPiece(locTo);
+                //    //board.Set(locTo, board.GetPiece(locFrom));
+                //    //board.Set(locFrom, null);
+                //    //if (!IsCheckForWhite())
+                //    //    hasMoves = true;
+                //    //board.Set(locFrom, board.GetPiece(locTo));
+                //    //board.Set(locTo, old);
+                //}
             }
-            if (isCheck)
-                if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+            //if (isCheck)
+            //    if (hasMoves)
+            //        ChessStatus = ChessStatus.Check;
+            //    else ChessStatus = ChessStatus.Mate;
+            //else if (hasMoves) ChessStatus = ChessStatus.Ok;
+            //else ChessStatus = ChessStatus.Stalemate;
+
+            ChessStatus = isCheck
+            ? (hasMoves ? ChessStatus.Check : ChessStatus.Mate)
+            : (hasMoves ? ChessStatus.Ok : ChessStatus.Stalemate);
+        }
+
+        private static bool IsHasMoveToUncheck(Location locFrom, Location locTo)
+        {
+            var hasMoves = false;
+            var temp = board.PerformTemporaryMove(locFrom, locTo);
+            if (!IsCheckForWhite())
+                hasMoves = true;
+            temp.Undo();
+            return hasMoves;
         }
 
         // check — это шах
@@ -51,8 +69,7 @@
                         isCheck = true;
                 }
             }
-            if (isCheck) return true;
-            return false;
+            return isCheck;
         }
     }
 }
