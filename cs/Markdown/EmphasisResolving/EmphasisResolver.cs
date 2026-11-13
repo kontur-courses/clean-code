@@ -2,24 +2,15 @@ using Markdown.Tokens;
 
 namespace Markdown.EmphasisResolving;
 
-internal sealed class EmphasisResolver
+public sealed class EmphasisResolver
 {
-    private readonly string text;
-    private readonly List<Token> tokens;
-    private readonly int[] whitespacesBefore;
-
-    private EmphasisResolver(string text, List<Token> tokens, int[] whitespacesBefore)
+    private int[] whitespacesBefore;
+    
+    public void Resolve(List<Token> tokens, string text)
     {
-        this.text = text;
-        this.tokens = tokens;
-        this.whitespacesBefore = whitespacesBefore;
-    }
-
-    public static void Resolve(string text, List<Token> tokens)
-        => new EmphasisResolver(text, tokens, CountWhitespaces(text)).Run();
-
-    private void Run()
-    {
+        if (whitespacesBefore == null)
+            whitespacesBefore = CountWhitespaces(text);
+        
         var parents = new Stack<Scope>();
         var scope = new Scope();
 
@@ -30,11 +21,10 @@ internal sealed class EmphasisResolver
             switch (token)
             {
                 case UnderscoreToken or DoubleUnderscoreToken:
-                    Process(position, scope);
+                    Process(position, tokens, text, scope);
                     break;
 
                 case LineFeedToken:
-                    // перевод строки обрывает всё незакрытое и начинает новую область
                     scope = new Scope();
                     break;
 
@@ -55,52 +45,63 @@ internal sealed class EmphasisResolver
         }
     }
 
-    private void Process(int index, Scope scope)
+    private void Process(int index, List<Token> tokens, string text, Scope scope)
     {
         var token = tokens[index];
-        if (IsInsideTextWithDigits(token))
+        if (IsInsideTextWithDigits(token, text))
             return;
 
         var opened = OpenedOf(token, scope);
-        if (CanClose(token) && opened.Count > 0 && TryClose(index, opened, scope))
-            return;
-
-        if (CanOpen(token))
+        if (CanClose(token, text) 
+            && TryGetPair(tokens, index, opened, text, out var openIndex)
+            && TryClose(tokens, index, openIndex, scope))
+        {
+            tokens[openIndex].Role = TokenRole.Opening;
+            tokens[index].Role = TokenRole.Closing;
+            
+            if (tokens[openIndex] is DoubleUnderscoreToken)
+                scope.StrongPairs.Add((openIndex, index));
+            else
+                DemoteStrongInside(tokens, openIndex, scope);
+        }
+        
+        else if (CanOpen(token, text))
             opened.Push(index);
     }
 
-    private bool TryClose(int closeIndex, Stack<int> opened, Scope scope)
+    private bool TryGetPair(List<Token> tokens, int closeIndex, Stack<int> opened, string text, out int openIndex)
     {
-        var openIndex = opened.Peek();
-        if (!IsValidPair(tokens[openIndex], tokens[closeIndex]))
+        if (!opened.TryPeek(out openIndex))
             return false;
+        
+        var open = tokens[openIndex];
+        var close = tokens[closeIndex];
+        
+        var touchesWord = IsLetterOrDigitAt(open.Start - 1, text) || IsLetterOrDigitAt(close.End, text);
+        if (!touchesWord || whitespacesBefore[close.Start] - whitespacesBefore[open.End] == 0)
+        {
+            opened.Pop();
+            return true;
+        }
 
-        opened.Pop();
+        return false;
+    }
 
+    private bool TryClose(List<Token> tokens, int closeIndex, int openIndex, Scope scope)
+    {
         var others = OtherOf(tokens[closeIndex], scope);
         if (others.Count > 0 && others.Peek() > openIndex)
         {
             while (others.Count > 0 && others.Peek() > openIndex)
                 others.Pop();
-            return true;
+            return false;
         }
-
-        MarkPair(openIndex, closeIndex, scope);
+        
         return true;
     }
+    
 
-    private void MarkPair(int openIndex, int closeIndex, Scope scope)
-    {
-        tokens[openIndex].Role = TokenRole.Opening;
-        tokens[closeIndex].Role = TokenRole.Closing;
-
-        if (tokens[openIndex] is DoubleUnderscoreToken)
-            scope.StrongPairs.Add((openIndex, closeIndex));
-        else
-            DemoteStrongInside(openIndex, scope);
-    }
-
-    private void DemoteStrongInside(int emOpenIndex, Scope scope)
+    private void DemoteStrongInside(List<Token> tokens, int emOpenIndex, Scope scope)
     {
         var pairs = scope.StrongPairs;
         while (pairs.Count > 0 && pairs[^1].Open > emOpenIndex)
@@ -118,13 +119,13 @@ internal sealed class EmphasisResolver
     private static Stack<int> OtherOf(Token token, Scope scope)
         => token is UnderscoreToken ? scope.OpenedStrong : scope.OpenedEm;
 
-    private bool CanOpen(Token token)
+    private bool CanOpen(Token token, string text)
         => token.End < text.Length && !char.IsWhiteSpace(text[token.End]);
 
-    private bool CanClose(Token token)
+    private bool CanClose(Token token, string text)
         => token.Start > 0 && !char.IsWhiteSpace(text[token.Start - 1]);
 
-    private bool IsInsideTextWithDigits(Token token)
+    private bool IsInsideTextWithDigits(Token token, string text)
     {
         var before = token.Start > 0 ? text[token.Start - 1] : '\0';
         var after = token.End < text.Length ? text[token.End] : '\0';
@@ -132,13 +133,7 @@ internal sealed class EmphasisResolver
                || (char.IsDigit(after) && char.IsLetterOrDigit(before));
     }
 
-    private bool IsValidPair(Token open, Token close)
-    {
-        var touchesWord = IsLetterOrDigitAt(open.Start - 1) || IsLetterOrDigitAt(close.End);
-        return !touchesWord || whitespacesBefore[close.Start] - whitespacesBefore[open.End] == 0;
-    }
-
-    private bool IsLetterOrDigitAt(int index)
+    private bool IsLetterOrDigitAt(int index, string text)
         => index >= 0 && index < text.Length && char.IsLetterOrDigit(text[index]);
 
     private static int[] CountWhitespaces(string text)

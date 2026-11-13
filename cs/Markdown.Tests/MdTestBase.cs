@@ -1,3 +1,4 @@
+using Markdown.EmphasisResolving;
 using Markdown.TagReaders;
 using Markdown.Writers;
 using Markdown.Writers.TagHtmlInfos;
@@ -28,5 +29,6 @@ public abstract class MdTestBase
             new UnderscoreTagHtmlInfo(),
             new HeaderTagHtmlInfo(),
             new DoubleUnderscoreTagHtmlInfo()
-        ]));
+        ]),
+        new EmphasisResolver());
 }

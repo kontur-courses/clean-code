@@ -3,7 +3,7 @@ using Markdown.Writers;
 
 namespace Markdown;
 
-public class Md(Tokenizer tokenizer, IWriter writer)
+public class Md(Tokenizer tokenizer, IWriter writer, EmphasisResolver emphasisResolver)
 {
     public string Render(string markdown)
     {
@@ -11,7 +11,7 @@ public class Md(Tokenizer tokenizer, IWriter writer)
             throw new ArgumentNullException(nameof(markdown));
 
         var tokens = tokenizer.Tokenize(markdown);
-        EmphasisResolver.Resolve(markdown, tokens);
+        emphasisResolver.Resolve(tokens, markdown);
         return writer.Write(tokens);
     }
 }
