@@ -63,16 +63,14 @@ public class LinkTagReader : ITagReader
     {
         for (var i = from; i < text.Length; i++)
         {
-            switch (text[i])
-            {
-                case '\\':
-                    i++;
-                    break;
-                case '[':
-                    return -1;
-                case ']':
-                    return i;
-            }
+            if (text[i] == '[' || text[i] == '\n')
+                break;
+            
+            if (text[i] == ']')
+                return i;
+            
+            if (text[i] == '\\')
+                i++;
         }
 
         return -1;

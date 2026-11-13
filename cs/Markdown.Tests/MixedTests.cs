@@ -15,6 +15,11 @@ public class MixedTests : MdTestBase
     public void Render_HeaderWithLinkContainingEmphasis()
         => Render("# [__a__ и _b_](url)")
             .Should().Be("<h1><a href=\"url\"><strong>a</strong> и <em>b</em></a></h1>");
+    
+    [Test]
+    public void Render_HeaderWithLinkTextContainingLineFeed()
+        => Render("# [a\n](b) _текст после_")
+            .Should().Be("<h1>[a</h1>\n](b) <em>текст после</em>");
 
     [Test]
     public void Render_EmphasisAroundLink()
