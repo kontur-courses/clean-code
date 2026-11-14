@@ -8,6 +8,7 @@ namespace Markdown.Models.Interfaces
 {
     public interface ITagInfo
     {
-        
+        string OpeningTag { get; }
+        string ClosingTag { get; }
     }
 }

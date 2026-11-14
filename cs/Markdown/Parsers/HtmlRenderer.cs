@@ -36,7 +36,7 @@ namespace Markdown
 
             return result.ToString();
         }
-
+        
         internal string RenderTagToken(TagToken token)
         {
             var inner = Render(token.Children);

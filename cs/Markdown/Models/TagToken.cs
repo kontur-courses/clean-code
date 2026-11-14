@@ -9,11 +9,11 @@ namespace Markdown.Models
 {
     public class TagToken : IToken
     {
-        public PairedTagInfo Tag { get; }
+        public ITagInfo Tag { get; }
 
         public List<IToken> Children { get; }
 
-        public TagToken(PairedTagInfo tag, List<IToken> children ) 
+        public TagToken(ITagInfo tag, List<IToken> children ) 
         { 
             Tag = tag;
             Children = children;
