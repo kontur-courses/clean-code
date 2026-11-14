@@ -8,10 +8,6 @@ namespace Markdown.Parser;
 
 public class InlineParser : IInlineParser
 {
-    public InlineParser()
-    {
-    }
-
     public IReadOnlyList<INode> Parse(IReadOnlyList<Token> tokens)
     {
         if (tokens.Count == 0)
