@@ -83,8 +83,8 @@ public class MarkdownTokenizer : ITokenizer
         var type = length == 1 ? TokenType.SingleUnderscore : TokenType.DoubleUnderscore;
 
         var hasDigitNeighbor =
-            (start > 0 && char.IsDigit(text[start - 1]) && end < text.Length && !char.IsWhiteSpace(text[end])) ||
-            (end < text.Length && char.IsDigit(text[end]) && start > 0 && !char.IsWhiteSpace(text[start - 1]));
+            (start > 0 && char.IsDigit(text[start - 1]) && end < text.Length && char.IsLetterOrDigit(text[end])) ||
+            (end < text.Length && char.IsDigit(text[end]) && start > 0 && char.IsLetterOrDigit(text[start - 1]));
 
         var prevIsNonWhitespace = start > 0 && !char.IsWhiteSpace(text[start - 1]);
         var nextIsNonWhitespace = end < text.Length && !char.IsWhiteSpace(text[end]);
