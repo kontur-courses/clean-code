@@ -1,9 +1,12 @@
-﻿namespace Chess
+﻿
+using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
         private static Board board;
-        public static ChessStatus ChessStatus;
+        public static ChessStatus ChessStatus { get; private set; };
 
         public static void LoadFrom(string[] lines)
         {
@@ -34,6 +37,11 @@
                 else ChessStatus = ChessStatus.Mate;
             else if (hasMoves) ChessStatus = ChessStatus.Ok;
             else ChessStatus = ChessStatus.Stalemate;
+        }
+
+        private static bool HasSafeMovesForWhite()
+        {
+            return false;
         }
 
         // check — это шах
