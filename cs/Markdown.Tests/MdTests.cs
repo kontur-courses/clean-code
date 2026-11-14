@@ -254,6 +254,16 @@ public class MdTests
     }
 
     [Test]
+    public void Render_ShouldSupportFormattedNumbers_InsideLinkText()
+    {
+        var input = "[_123_ и __456__](https://example.com)";
+
+        var result = _md.Render(input);
+
+        result.Should().Be("<a href=\"https://example.com\"><em>123</em> и <strong>456</strong></a>");
+    }
+
+    [Test]
     public void Render_ShouldSupportLink_InsideItalic()
     {
         var input = "_нажми [сюда](https://example.com) сейчас_";
@@ -346,24 +356,50 @@ public class MdTests
         var smallText = string.Concat(Enumerable.Repeat(unclosedLinkPattern, smallCount));
         var largeText = string.Concat(Enumerable.Repeat(unclosedLinkPattern, largeCount));
 
-        var sw = Stopwatch.StartNew();
-        _md.Render(smallText);
-        sw.Stop();
-        var smallElapsed = sw.ElapsedMilliseconds;
-
-        sw.Restart();
-        _md.Render(largeText);
-        sw.Stop();
-        var largeElapsed = sw.ElapsedMilliseconds;
-
-        if (smallElapsed > 5)
+        for (int i = 0; i < 10; i++)
         {
-            var ratio = (double)largeElapsed / smallElapsed;
-            ratio.Should().BeLessThan(25, "время работы должно расти почти линейно для незакрытых ссылок");
+            _md.Render(smallText);
+            _md.Render(largeText);
         }
-        else
+
+        double smallMedianMs = MeasureMedianTimeMs(smallText, 5);
+        double largeMedianMs = MeasureMedianTimeMs(largeText, 5);
+
+        double baselineMs = Math.Max(smallMedianMs, 0.05);
+        double ratio = largeMedianMs / baselineMs;
+
+        ratio.Should().BeLessThan(25.0);
+
+        double MeasureMedianTimeMs(string input, int iterations)
         {
-            largeElapsed.Should().BeLessThan(1000, "обработка 10000 незакрытых ссылок должна выполняться быстро");
+            if (iterations <= 0)
+                throw new ArgumentOutOfRangeException(nameof(iterations), "Iteration count must be positive.");
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            var samples = new double[iterations];
+            var sw = new Stopwatch();
+
+            for (int i = 0; i < iterations; i++)
+            {
+                sw.Restart();
+                var result = _md.Render(input);
+                sw.Stop();
+
+                GC.KeepAlive(result);
+
+                samples[i] = sw.Elapsed.TotalMilliseconds;
+            }
+
+            Array.Sort(samples);
+
+            int middle = iterations / 2;
+
+            return iterations % 2 != 0
+                ? samples[middle]
+                : (samples[middle - 1] + samples[middle]) / 2.0;
         }
     }
 }
